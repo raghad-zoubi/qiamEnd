@@ -20,17 +20,17 @@ class PaperController extends Controller
 
     public function __construct()
     {
-     //   $this->middleware(["auth:sanctum"]);
-     //   $this->rules = new PaperRuleValidation();
+      //  $this->middleware(["auth:sanctum"]);
+   //     $this->rules = new PaperRuleValidation();
     }
 
-    public function index()
+    public function index($type)
     {
 
         try {
 
             DB::beginTransaction();
-            $paperGet = Paper::query()->get();
+            $paperGet = Paper::query()->where ('type',$type)->get();
             DB::commit();
             return MyApp::Json()->dataHandle($paperGet, "paper");
         } catch (\Exception $e) {
@@ -47,32 +47,9 @@ class PaperController extends Controller
     {
 
         try {
-//QuestionPaper::class, OptionPaper::class
             DB::beginTransaction();
-          //  $paperGet =
-//                Paper::with(["questionpaper"      =>function($q){
-//                return $q->with(["optionpaper"])->get();
-//                   }])->where("id",$id)
-//       ->get();
-//custem clim  ref
-            //OptionPaper::
-//            select(['id'])->whereHa('optionpaper',function ($query){
-//                $query->where('optionpaper.id',1);
-//            }
-//
-//            )
-//            with(['paper'])
-//                ->where('id',1)
-//                ->get();
-
-        //    Paper::find(1);
-//dd("jj");
-               // $environments = $paperGet->questionpaper()->with('optionpaper')->get();
                 $environments = QuestionPaper::query()->with('optionpaper')
-
-                //query()->with('QOthrough')
-            ->where('id_paper',$id)->get();
-                //   dd($paperGet);
+                    ->where('id_paper',$id)->get();
                 DB::commit();
                 return MyApp::Json()->dataHandle($environments, "paper");
         } catch (\Exception $e) {
@@ -165,13 +142,13 @@ class PaperController extends Controller
 
     public function destroy($id)
     {
-        if (d3::query()->where("id", $id)->exists()) {
+        if (Paper::query()->where("id", $id)->exists()) {
             try {
 
                 DB::beginTransaction();
-                d3::where("id", $id)->delete();
+                Paper::where("id", $id)->delete();
                 DB::commit();
-                return MyApp::Json()->dataHandle("success", "poll");
+                return MyApp::Json()->dataHandle("success", "paper");
             } catch (\Exception $e) {
 
                 DB::rollBack();
@@ -180,7 +157,7 @@ class PaperController extends Controller
 
         } else
 
-            return MyApp::Json()->errorHandle("poll", "حدث خطا ما في الحذف ");//,$prof->getErrorMessage);
+            return MyApp::Json()->errorHandle("paper", "حدث خطا ما في الحذف ");//,$prof->getErrorMessage);
 
 
     }

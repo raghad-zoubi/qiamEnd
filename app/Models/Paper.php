@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static create(array $array)
  * @method static find(int $int)
  * @method static whereBelongsTo($id)
+ * @method static where(string $string, $id)
  */
 class Paper extends Model
 {

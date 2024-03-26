@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\auth;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\MyApplication\MyApp;
 use App\MyApplication\RuleValidate;

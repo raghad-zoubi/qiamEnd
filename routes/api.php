@@ -25,13 +25,13 @@ Route::get("/d",function(){
 
 //Route::prefix("filemanagement")->group(function (){
 
-    Route::prefix("auth")->controller(\App\Http\Controllers\UserController::class)->group(function (){
+    Route::prefix("auth")->controller(\App\Http\Controllers\auth\UserController::class)->group(function (){
 
         Route::post("register","Register");
         Route::post("login","Login");
         Route::delete("logout","Logout");
     });
-    Route::prefix("profile")->controller(\App\Http\Controllers\ProfileController::class)->group(function (){
+    Route::prefix("profile")->controller(\App\Http\Controllers\auth\ProfileController::class)->group(function (){
         Route::post("create","create");
         Route::get("show","show");
         Route::post("update","update");
@@ -46,8 +46,9 @@ Route::get("/d",function(){
 
 Route::prefix("paper")->controller(\App\Http\Controllers\Papers\PaperController::class)->group(function (){
         Route::post("create","create");
-        Route::get("index","index");
+        Route::get("index/{type}","index");
         Route::get("show/{id}","show");
+        Route::get("delete/{id}","delete");
 
     Route::post("update","update");
         Route::get("delete/{id}","destroy");
@@ -119,7 +120,7 @@ Route::prefix("rate")->controller(\App\Http\Controllers\RateController::class)->
 
 //////hamza
 ///
-Route::controller(\App\Http\Controllers\AuthenticationController::class)
+Route::controller(\App\Http\Controllers\auth\AuthenticationController::class)
     ->prefix("auth")->group(function () {
         Route::post("signup", "register");
 //        Route::post("login", "login");

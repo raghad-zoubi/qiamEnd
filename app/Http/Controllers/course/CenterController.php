@@ -34,7 +34,7 @@ class CenterController extends Controller
     public function create(Request $request)
     {
          $request->validate($this->rules->
-         onlyKey(["start","end","numberHours","amount",
+         onlyKey(["start","end","numberHours","price",
          "numberLectures","id_course","id_form","id_poll"],true));
             try {
                 DB::beginTransaction();
@@ -46,7 +46,7 @@ class CenterController extends Controller
                     "id_course"=>$request->id_course,
                     "id_form"=>$request->id_form,
                     "id_poll"=>$request->id_poll,
-                    "amount"=>$request->amount
+                    "price"=>$request->price
                 ]);
                 DB::commit();
 
@@ -66,7 +66,7 @@ class CenterController extends Controller
     public function update(Request $request): JsonResponse
     {
         $request->validate($this->rules->
-        onlyKey(["start","end","numberHours","amount",
+        onlyKey(["start","end","numberHours","price",
             "numberLectures","id_course","id_form","id_poll"],true));
         $center = Center::where("id",$request->id)->first();
         try {
@@ -79,7 +79,7 @@ class CenterController extends Controller
                     "id_course"=>$request->id_course,
                     "id_form"=>$request->id_form,
                     "id_poll"=>$request->id_poll,
-                    "amount"=>$request->amount
+                    "price"=>$request->price
             ]);
             DB::commit();
             return MyApp::Json()->dataHandle("Successfully updated center course.","message");

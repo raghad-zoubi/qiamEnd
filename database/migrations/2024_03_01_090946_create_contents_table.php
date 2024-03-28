@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId("id_online_center")->constrained("online_centers")->cascadeOnDelete();
             $table->string("numberHours");
-            $table->string("numberLectures");
+            $table->string("numberVideos");
             $table->string('name');
             $table->text("photo");
             $table->integer("rank");
-            $table->enum("Exam",["0","1"])->default("0");
-            $table->time("durationExam");
-            $table->bigInteger("numberQuestion");
+            $table->enum("exam",["0","1"])->default("0");//p
+            $table->time("durationExam");//p
+            $table->bigInteger("numberQuestion");//p
 
             $table->timestamps();
         });

@@ -18,10 +18,8 @@ class Center extends Model
         'end',
         'numberHours',
         'numberLectures',
-        'amount',
+        'price',
         'id_course',
-        'id_form',
-        'id_poll',
         'id',
     ];
 

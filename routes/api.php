@@ -37,11 +37,11 @@ Route::get("/d",function(){
         Route::post("update","update");
         Route::post("delete","destroy");
     });
-    Route::prefix("cource")->controller(\App\Http\Controllers\CoursController::class)->group(function (){
+    Route::prefix("course")->controller(\App\Http\Controllers\course\CoursController::class)->group(function (){
         Route::post("create","create");
         Route::get("index","index");
         Route::post("update","update");
-        Route::get("delete/{id}","destroy");
+        Route::get("delete/{id}","delete");
     });
 
 Route::prefix("paper")->controller(\App\Http\Controllers\Papers\PaperController::class)->group(function (){
@@ -50,14 +50,11 @@ Route::prefix("paper")->controller(\App\Http\Controllers\Papers\PaperController:
         Route::get("show/{id}","show");
         Route::get("delete/{id}","delete");
 
-    Route::post("update","update");
-        Route::get("delete/{id}","destroy");
     });Route::prefix("exam")->controller(\App\Http\Controllers\Exam\ExameController::class)->group(function (){
-        Route::post("create","create");
-        Route::get("index","index");
-        Route::get("show/{id}","show");
-        Route::post("update","update");
-        Route::get("delete/{id}","destroy");
+    Route::post("create","create");
+    Route::get("index","index");
+    Route::get("show/{id}","show");
+    Route::get("delete/{id}","delete");
     });
 
 //Route::prefix("form")->controller(\App\Http\Controllers\FormController::class)->group(function (){

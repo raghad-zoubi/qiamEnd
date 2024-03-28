@@ -12,17 +12,21 @@ use Illuminate\Database\Eloquent\Model;
 class Online extends Model
 {
     use HasFactory;
-    protected $table="online_courses";
+    protected $table="online";
     protected $fillable = [
-        'Exam',
-        'amount',
+        'exam',
+        'price',
         'durationExam',
         'serial',
         'id_course',
-        'id_form',
-        'id_poll',
+        'numberQuestion',
+        'numberHours',
+        'numberVideos',
         'id',
     ];
+
+
+
 
     /**
      * The attributes that should be hidden for serialization.

@@ -5,6 +5,8 @@ namespace App\MyApplication\Services;
 
 use App\MyApplication\RuleValidate;
 use Illuminate\Validation\Rule;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class CoursesRuleValidation extends RuleValidate
 {
@@ -13,7 +15,7 @@ class CoursesRuleValidation extends RuleValidate
         $req = $isrequired ? "required" : "nullble";
         return [
             "name" => ["required","string"],//Rule::unique("cource","name")],
-            "path" => ["required","path"],
+          //  "photo" => ["required","file"],
             "about" => ["required","string"],
             //----
             "start"=>[$req,"date"],

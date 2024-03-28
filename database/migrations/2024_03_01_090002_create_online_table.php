@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('onlines', function (Blueprint $table) {
             $table->id();
             $table->foreignId("id_course")->constrained("courses")->cascadeOnDelete();
-            $table->enum("Exam",["0","1"])->default("0");
+            $table->enum("exam",["0","1"])->default("0");
             $table->enum("serial",["0","1"])->default("0");
             $table->time("durationExam");
             $table->bigInteger("numberQuestion");
             $table->bigInteger("numberHours");
-            $table->bigInteger("numberContents");
-            $table->bigInteger("amount");
+            $table->bigInteger("numberVideos");
+            $table->bigInteger("price");
             $table->timestamps();
         });
     }

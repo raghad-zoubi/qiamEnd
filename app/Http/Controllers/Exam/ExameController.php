@@ -16,9 +16,11 @@ use Illuminate\Support\Facades\DB;
 
 class ExameController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function __construct()
+    {
+        //  $this->middleware(["auth:sanctum"]);
+        //     $this->rules = new PaperRuleValidation();
+    }
 
     public function index()
     {
@@ -43,9 +45,10 @@ class ExameController extends Controller
 
         try {
             DB::beginTransaction();
-            $examget = Exame::query()->get();
+            $environments = Question::query()->with('option')
+                ->where('id_exame',$id)->get();
             DB::commit();
-            return MyApp::Json()->dataHandle($examget, "exam");
+            return MyApp::Json()->dataHandle($environments, "exam");
         } catch (\Exception $e) {
 
             DB::rollBack();
@@ -56,6 +59,7 @@ class ExameController extends Controller
         return MyApp::Json()->errorHandle("exam", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
 
     }
+
     public function Create(Request $request)
     {
         //      return MyApp::Json()->dataHandle($request['body'][0]['question'], "poll");
@@ -78,19 +82,13 @@ class ExameController extends Controller
                     "question" => strtolower($inner['question']),
                     "id_exame" => $Added->id,
                 ]);
-//dd($AddedQ->id);
                 foreach ($inner['options'] as $item) {
-                    // ['id_question_poll_form', 'answer'];
-                    $Addedop= Option::create([
+                    $Addedop = Option::create([
                         "correct" => strtolower($item['correct']),
                         "option" => strtolower($item['option']),
                         "id_question" => $AddedQ->id,
                     ]);
-
-                }
-
-            }
-
+                }}
             DB::commit();
             return MyApp::Json()->dataHandle($Added, "Exam");
         } catch (\Exception $e) {
@@ -104,36 +102,26 @@ class ExameController extends Controller
 
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function delete($id)
     {
-        //
-    }
+        if (Exame::query()->where("id", $id)->exists()) {
+            try {
+
+                DB::beginTransaction();
+                Exame::where("id", $id)->delete();
+                DB::commit();
+                return MyApp::Json()->dataHandle("success", "exam");
+            } catch (\Exception $e) {
+
+                DB::rollBack();
+                throw new \Exception($e->getMessage());
+            }
+
+        } else
+
+            return MyApp::Json()->errorHandle("exam", "حدث خطا ما في الحذف ");//,$prof->getErrorMessage);
 
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Exame $exame)
-    {
-        //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Exame $exame)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Exame $exame)
-    {
-        //
-    }
 }

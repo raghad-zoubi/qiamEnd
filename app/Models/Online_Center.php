@@ -5,13 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method static create(array $array)
+ */
 class Online_Center extends Model
 {
     use HasFactory;
     protected $table = "online_centers";
 
-    protected $fillable = [   "id_online_course", "id_center_course" ,"id"
-        ,"id_course"
+    protected $fillable = [
+        "id_online",
+        "id_center" ,
+        "id",
+        "id_course"
     ];
     protected $hidden = ["created_at","updated_at"];
 

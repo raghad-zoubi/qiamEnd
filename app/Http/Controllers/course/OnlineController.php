@@ -2,8 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Content;
+use App\Models\File;
 use App\Models\Online;
 use App\Models\Cours;
+use App\Models\Online_Center;
+use App\Models\OptionPaper;
+use App\Models\QuestionPaper;
+use App\Models\Video;
 use App\MyApplication\MyApp;
 use App\MyApplication\Services\CoursesRuleValidation;
 use Illuminate\Http\JsonResponse;
@@ -30,23 +36,81 @@ class OnlineController extends Controller
 
     public function create(Request $request)
     {
-        $request->validate($this->rules->onlyKey(["Exam", "amount", "serial",
-            "durationExam", "id_course", "id_form", "id_poll"], true));
+//        $request->validate($this->rules->onlyKey(["Exam", "price", "serial",
+//            "durationExam", "id_course", "id_form", "id_poll"], true));
         try {
             DB::beginTransaction();
-            $courceAdded = Online::create([
-                "Exam" => $request->exam,
-                "amount" => $request->amount,
+            $online = Online::create([
+                "exam" => $request->exam,
+                "price" => $request->price,
                 "serial" => $request->serial,
                 "durationExam" => $request->durationExam,
+                "numberQuestion" => $request->numberQuestion,
+                "numberContents" => $request->numberContents,
+                "numberHours" => $request->numberHours,
                 "id_course" => $request->id_course,
-                "id_form" => $request->id_form,
-                "id_poll" => $request->id_poll,
             ]);
+            $onlinecenter = Online_Center::create([
+                "id_online"=>$online->id,
+                 "id_center"=>null,
+                "id_course" =>$request->id_course,
+            ]);
+
+            foreach ($request['content'] as $inner) {
+                $file = $request->file($inner["photo"]);
+                        $path = MyApp::uploadFile()->upload($file);
+                $content = Content::create([
+                    "id_online_center"=>$onlinecenter->id,
+                    "numberHours"=>$inner['numberHours'],
+                    "numberVideos"=>$inner['numberVideos'],
+                    "durationExam"=>$inner['durationExam'],
+                    "numberQuestion"=>$inner['numberQuestion'],
+                    "photo" => strtolower($path),
+                    "name"=>$inner['name'],
+                    "rank"=>$inner['0'],
+                    "exam"=>$inner['0'],
+                ]);
+
+                foreach ($inner['pdfFiles'] as $item) {
+                    $file = $request->file($item["file"]);
+
+                            $path = MyApp::uploadFile()->upload($file);
+                            $video = File::create([
+                                "name" => strtolower($request->name),
+                                "file" => strtolower($path),
+                              "id_content"=>$content->id,
+                        "value" => strtolower($item['value']),
+                    ]);
+
+                }
+                foreach ($inner['videoFiles'] as $item) {
+                    $file = $request->file($item["file"]);
+                    $path = MyApp::uploadFile()->upload($file);
+                    $Addedop = Video::create([
+                        "id_content"=>$content->id,
+                        "name"=>$item->name,
+                        "rank"=>0,
+                        "file"=>$path,
+                        "duration"=>$item->duration,
+
+                    ]);
+
+                }
+
+            }
+
+
+
+
             DB::commit();
 
-            return MyApp::Json()->dataHandle($courceAdded, "cours");
-        } catch (\Exception $e) {
+            return MyApp::Json()->dataHandle($online, "cours");
+        }
+
+
+
+
+                catch (\Exception $e) {
             MyApp::uploadFile()->rollBackUpload();
             DB::rollBack();
             throw new \Exception($e->getMessage());
@@ -59,14 +123,14 @@ class OnlineController extends Controller
     public function updlate(Request $request): JsonResponse
     {
 
-        $request->validate($this->rules->onlyKey(["Exam", "amount", "serial",
+        $request->validate($this->rules->onlyKey(["Exam", "price", "serial",
             "durationExam", "id_course", "id_form", "id_poll"], true));
         $online = Online::where("id", $request->id)->first();
         try {
             DB::beginTransaction();
             $online->update([
                 "Exam" => $request->exam,
-                "amount" => $request->amount,
+                "price" => $request->price,
                 "serial" => $request->serial,
                 "durationExam" => $request->durationExam,
                 "id_course" => $request->id_course,
@@ -87,7 +151,7 @@ class OnlineController extends Controller
     public function update(Request $request): JsonResponse
     {
         $request->validate($this->rules->
-        onlyKey(["Exam", "amount", "serial",
+        onlyKey(["Exam", "price", "serial",
             "durationExam", "id_course", "id_form", "id_poll"],true));
         $online = Online::where("id",$request->id)->first();
         try {
@@ -98,7 +162,7 @@ class OnlineController extends Controller
                 "id_course"=>$request->id_course,
                 "id_form"=>$request->id_form,
                 "id_poll"=>$request->id_poll,
-                "amount"=>$request->amount
+                "price"=>$request->price
             ]);
             DB::commit();
             return MyApp::Json()->dataHandle("Successfully updated online course.","message");

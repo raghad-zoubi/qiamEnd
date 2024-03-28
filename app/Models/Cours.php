@@ -17,7 +17,7 @@ class Cours extends Model
     protected $fillable = [
         'name',
         'about',
-        'path',
+        'photo',
         'id',
     ];
 

@@ -114,33 +114,7 @@ class PaperController extends Controller
     }
 
 
-    public function update(Request $request)
-    {
-        if (d3::query()->where("id", $request->id)->exists()) {
-            try {
-                DB::beginTransaction();
-                $p = d3::where("id", $request->id)->first();
-                if ($p) {
-                    $p->name = strtolower($request->name);
-                    $p->address = strtolower($request->address);
-                    $p->save();
-                }
-                DB::commit();
-                return MyApp::Json()->dataHandle("edit successfully", "poll");
-            } catch (\Exception $e) {
-
-                DB::rollBack();
-                throw new \Exception($e->getMessage());
-            }
-
-        } else
-
-            return MyApp::Json()->errorHandle("poll", "حدث خطا ما في التعديل ");//,$prof->getErrorMessage);
-
-
-    }
-
-    public function destroy($id)
+    public function delete($id)
     {
         if (Paper::query()->where("id", $id)->exists()) {
             try {

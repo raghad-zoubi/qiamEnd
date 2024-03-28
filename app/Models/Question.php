@@ -14,7 +14,6 @@ class Question extends Model
     protected $fillable = [
         'id_exame',
         'question',
-
         'id',
     ];
 
@@ -34,5 +33,9 @@ class Question extends Model
 //
 //    }
 
-
+    public function option()
+    {
+        return $this->hasMany(
+            Option::class,'id_question','id');
+    }
 }

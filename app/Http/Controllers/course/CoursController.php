@@ -1,24 +1,30 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\course;
 
+use App\Http\Controllers\Controller;
 use App\Models\Cours;
 use App\Models\Date;
 use App\Models\File;
 use App\MyApplication\MyApp;
 use App\MyApplication\Services\CoursesRuleValidation;
-use App\MyApplication\Services\FileRuleValidation;
-use App\MyApplication\Services\ProfileRuleValidation;
+
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
+
+/**
+ * @property CoursesRuleValidation rules
+ */
 class CoursController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(["auth:sanctum"]);
-        $this->rules = new CoursesRuleValidation();
+//        $this->middleware(["auth:sanctum"]);
+       $this->rules = new CoursesRuleValidation();
     }
 
     public function index(): JsonResponse
@@ -29,16 +35,17 @@ class CoursController extends Controller
 
     public function create(Request $request): JsonResponse
     {
-        $request->validate($this->rules->onlyKey(["name","file","about"],true));
-        $file = $request->file("file");
+        $request->validate($this->rules->onlyKey(["name","photo","about"],true));
+        $file = $request->file("photo");
         if ($file->isValid()){
             try {
                 DB::beginTransaction();
                 $path = MyApp::uploadFile()->upload($file);
+             //   dd($path);
                 $courceAdded = Cours::create([
                     "about" => strtolower($request->about),
                     "name" => strtolower($request->name),
-                    "path" => $path,
+                    "photo" => strtolower($path),
                 ]);
                 DB::commit();
 
@@ -55,10 +62,11 @@ class CoursController extends Controller
 
     public function update(Request $request): JsonResponse
     {
-        // $request->validate($this->rules->onlyKey(["name","file","about"],true));
+        $request->validate($this->rules->onlyKey(["name","photo","about"],true));
         $file = Cours::where("id",$request->id)->first();
-        $oldPath = $file->path;
-        $newFile = $request->file("file");
+        $oldPath = $file->photo;
+        $newFile = $request->file("photo");
+      //  dd($newFile);
         if ($newFile->isValid()){
             try {
                 DB::beginTransaction();
@@ -66,7 +74,7 @@ class CoursController extends Controller
                 $file->update([
                     "about" => strtolower($request->about),
                     "name" => strtolower($request->name),
-                    "path" => $newPath,
+                    "photo" => $newPath,
                 ]);
                 MyApp::uploadFile()->deleteFile($oldPath);
                 DB::commit();
@@ -79,32 +87,8 @@ class CoursController extends Controller
         }
         return MyApp::Json()->errorHandle("file",$newFile->getErrorMessage());
     }
-//في غلط بالحزف
-    public function destroky($id): JsonResponse
-    {
-      // $request->validate($this->rules->onlyKey(["id"],true));
-        $file = Cours::where("id",$id)->first();
-try {
 
-    DB::beginTransaction();
-         $temp_path = $file->path;
-         $file->delete();
-//dd(MyApp::uploadFile()->deleteFile($temp_path));
-    if (MyApp::uploadFile()->deleteFile($temp_path)) {
-             DB::commit();
-      //  dd("file->path");
-             return MyApp::Json()->dataHandle("Successfully deleted file .", "message");
-         }
-     }
-     catch (\Exception $e){
-         MyApp::uploadFile()->rollBackUpload();
-         DB::rollBack();
-         throw new \Exception($e->getMessage(),$e->getCode());
-     }
-      //  DB::rollBack();
-        return MyApp::Json()->errorHandle("file","the File current is not deleted .");
-    }
-    public function destroy($id): JsonResponse
+    public function delete($id): JsonResponse
     {
         if (Cours::query()->where("id", $id)->exists()) {
             try {
@@ -113,8 +97,9 @@ try {
                     $file = Cours::where("id",$id)->first();
 
                     DB::beginTransaction();
-                    $temp_path = $file->path;
+                    $temp_path = $file->photo;
                     $file->delete();
+
                     if (MyApp::uploadFile()->deleteFile($temp_path)) {
                         DB::commit();
                         return MyApp::Json()->dataHandle("Successfully deleted file .", "message");

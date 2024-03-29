@@ -7,8 +7,10 @@ use App\Models\d1;
 use App\Models\d3;
 use App\Models\d6;
 use App\Models\Group;
+use App\Models\Option;
 use App\Models\OptionPaper;
 use App\Models\Paper;
+use App\Models\Question;
 use App\Models\QuestionPaper;
 use App\MyApplication\MyApp;
 use App\MyApplication\Services\PaperRuleValidation;
@@ -135,6 +137,81 @@ class PaperController extends Controller
 
 
     }
+
+    public function addQuestions(Request $request)
+    {
+        //      return MyApp::Json()->dataHandle($request['body'][0]['question'], "poll");
+
+
+        //protected $fillable = ['type', 'id_poll_form', 'question', 'kind'];
+
+        //  $request->validate($this->rules->onlyKey(["name","address"],true));
+        try {
+            DB::beginTransaction();
+
+
+
+            foreach ($request['body'] as $inner) {
+
+
+                $AddedQ = QuestionPaper::create([
+                    "select" => strtolower($inner['select']),
+                    "question" => strtolower($inner['question']),
+                    "required" => strtolower($inner['required']),
+                    "id_paper" => $request->id_paper,
+                ]);
+//dd($AddedQ->id);
+                foreach ($inner['options'] as $item) {
+                    $Addedop = OptionPaper::create([
+                        "value" => strtolower($item['value']),
+                        "id_question_paper" => $AddedQ->id,
+                    ]);
+
+                }
+
+            }
+
+            DB::commit();
+            return MyApp::Json()->dataHandle("success", "paper");
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+        return MyApp::Json()->errorHandle("paper", "error");//,$prof->getErrorMessage);
+
+    }
+
+    public function deleteQusetions(Request $request)
+    {
+        $request->validate([
+            "ids" => ["required", "array"],
+            //   "ids.*" => ["numeric", Rule::exists("Question", "id")],
+        ]);
+        try {
+            DB::beginTransaction();
+
+            foreach ($request->ids as $id) {
+                if (QuestionPaper::query()->where("id", $id)->exists()) {
+                    QuestionPaper::where("id", $id)->delete();
+                    DB::commit();
+                    return MyApp::Json()->dataHandle("success", "paper");
+                }
+            }
+
+        }catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+        return MyApp::Json()->errorHandle("paper", "حدث خطا ما في الحذف ");//,$prof->getErrorMessage);
+
+
+    }
+
 }
 /*
  * country

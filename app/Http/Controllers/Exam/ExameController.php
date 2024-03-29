@@ -13,6 +13,7 @@ use App\Models\QuestionPaper;
 use App\MyApplication\MyApp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class ExameController extends Controller
 {
@@ -60,7 +61,7 @@ class ExameController extends Controller
 
     }
 
-    public function Create(Request $request)
+    public function create(Request $request)
     {
         //      return MyApp::Json()->dataHandle($request['body'][0]['question'], "poll");
 
@@ -101,7 +102,72 @@ class ExameController extends Controller
         return MyApp::Json()->errorHandle("Exam", "error");//,$prof->getErrorMessage);
 
     }
+   public function addQuestions(Request $request)
+    {
+        //      return MyApp::Json()->dataHandle($request['body'][0]['question'], "poll");
 
+
+        //protected $fillable = ['type', 'id_poll_form', 'question', 'kind'];
+
+        //  $request->validate($this->rules->onlyKey(["name","address"],true));
+        try {
+            DB::beginTransaction();
+
+
+            foreach ($request['body'] as $inner) {
+
+
+                $AddedQ = Question::create([
+                    "question" => strtolower($inner['question']),
+                    "id_exame" => $request->id_exame
+                ]);
+                foreach ($inner['options'] as $item) {
+                    $Addedop = Option::create([
+                        "correct" => strtolower($item['correct']),
+                        "option" => strtolower($item['option']),
+                        "id_question" => $AddedQ->id,
+                    ]);
+                }}
+            DB::commit();
+            return MyApp::Json()->dataHandle("success", "Exam");
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+        return MyApp::Json()->errorHandle("Exam", "error");//,$prof->getErrorMessage);
+
+    }
+
+    public function deleteQusetions(Request $request)
+    {
+        $request->validate([
+            "ids" => ["required", "array"],
+         //   "ids.*" => ["numeric", Rule::exists("Question", "id")],
+        ]);
+        try {
+            DB::beginTransaction();
+
+            foreach ($request->ids as $id) {
+                if (Question::query()->where("id", $id)->exists()) {
+                    Question::where("id", $id)->delete();
+                    DB::commit();
+                    return MyApp::Json()->dataHandle("success", "exam");
+                }
+            }
+
+        }catch (\Exception $e) {
+
+                DB::rollBack();
+                throw new \Exception($e->getMessage());
+            }
+
+            return MyApp::Json()->errorHandle("exam", "حدث خطا ما في الحذف ");//,$prof->getErrorMessage);
+
+
+    }
     public function delete($id)
     {
         if (Exame::query()->where("id", $id)->exists()) {

@@ -74,12 +74,12 @@ class PaperController extends Controller
         try {
             DB::beginTransaction();
             $Added = Paper::create([
-                "title" => strtolower($request['data']['title']),
-                "description" => strtolower($request['data']['description']),
-                "type" => strtolower($request['data']['type']),
+                "title" => strtolower($request['title']),
+                "description" => strtolower($request['description']),
+                "type" => strtolower($request['type']),
             ]);
 
-            foreach ($request['data']['body'] as $inner) {
+            foreach ($request['body'] as $inner) {
 
 
                 $AddedQ = QuestionPaper::create([

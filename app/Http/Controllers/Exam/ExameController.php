@@ -71,11 +71,11 @@ class ExameController extends Controller
         try {
             DB::beginTransaction();
             $Added = Exame::create([
-                "title" => strtolower($request['data']['title']),
-                "description" => strtolower($request['data']['description']),
+                "title" => strtolower($request['title']),
+                "description" => strtolower($request['description']),
             ]);
 
-            foreach ($request['data']['body'] as $inner) {
+            foreach ($request['body'] as $inner) {
 
 
                 $AddedQ = Question::create([

@@ -16,7 +16,7 @@ return new class extends Migration
 
             $table->foreignId("id_online_center")->constrained("online_centers")->cascadeOnDelete();
             $table->foreignId("id_user")->constrained("users")->cascadeOnDelete();
-            $table->unsignedBigInteger("value")->comment("Range: 0 to 5");
+            $table->integer("value")->comment("Range: 0 to 5");
 
             $table->timestamps();
         });

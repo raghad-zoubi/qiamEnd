@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @method static create(array $array)
+ * @method static leftJoin(string $string, string $string1, string $string2, string $string3)
+ * @method static joinSub($ratesSubquery, string $string, \Closure $param)
  */
 class Online_Center extends Model
 {
@@ -27,17 +31,28 @@ class Online_Center extends Model
     }
     public function rate()
     {
-        return $this->HasMany(Rate::class, "id_user", "id");
+        return $this->HasMany(Rate::class, "id_user", "id")
+        ;
     }
-
     public function users()
     {
         return $this->belongsToMany(User::class,"favorites","id_online_course","id_user","id","id");
     }
-//  public function users()
-//    {
-//        return $this->belongsToMany(User::class,"rates","id_online_course","id_user","id","id");
-//    }
+    public function center()
+    {
+        return $this->belongsTo(Center::class, 'id_center', 'id')
+           ;// ->where ('end','>',Carbon::now());
+    }
+    public function online()
+    {
+        return $this->belongsTo(Online::class, 'id_online', 'id')
+       ;// ->where('isopen','=','1');
+    }
+public function course()
+    {
+        return $this->belongsTo(Course::class, 'id_course', 'id');
+    }
+
 
 
 }

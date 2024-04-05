@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -9,7 +10,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static create(array $array)
  * @method static where(string $string, $id)
  */
-class Cours extends Model
+
+class Course extends Model
 {
 
     use HasFactory;
@@ -25,9 +27,16 @@ class Cours extends Model
 
     ];
 
-    public function onlinecourses(){
+    public function online(){
         return $this->hasMany(Online::class,"id_course","id");
-    }   public function centercourses(){
-        return $this->hasMany(Center::class,"id_course","id");
+    }   public function center(){
+        return $this->hasMany(Center::class,"id_course","id")
+       ;// ->select(["price","id"])->withDefault();
+        //->where("Center.start");
+}
+    public function onlineCenters()
+    {
+        return $this->hasMany(Online_Center::class, 'id_course', 'id');
     }
+
 }

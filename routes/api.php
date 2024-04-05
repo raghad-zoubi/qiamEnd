@@ -23,8 +23,33 @@ Route::get("/d", function () {
     return "sakmkmas";
 });
 
-//Route::prefix("filemanagement")->group(function (){
+Route::prefix("user")->group(function () {
+    Route::prefix("home")->controller(\App\Http\Controllers\course\CoursController::class)->group(function () {
+        Route::get("common", "common");
+        Route::get("all", "all");
+        Route::post("search", "update");
+        Route::get("each/{type}", "each");
+    });
+    Route::prefix("favorite")->controller(\App\Http\Controllers\course\FavoriteController::class)->group(function () {
 
+        //for user
+        Route::get("index", "index");//all status date
+        Route::post("create", "create");
+    });
+    Route::prefix("rate")->controller(\App\Http\Controllers\course\RateController::class)->group(function () {
+
+        //for user
+        Route::post("create", "create");
+    });
+});
+
+
+
+
+
+
+
+//------------
 Route::prefix("auth")->controller(\App\Http\Controllers\auth\UserController::class)->group(function () {
 
     Route::post("register", "Register");
@@ -46,10 +71,8 @@ Route::prefix("course")->controller(\App\Http\Controllers\course\CoursController
 
 Route::prefix("paper")->controller(\App\Http\Controllers\Papers\PaperController::class)->group(function () {
     Route::post("create", "create");
-
     Route::post("addQuestions", "addQuestions");
     Route::post("deleteQusetions", "deleteQusetions");
-
     Route::get("index/{type}", "index");
     Route::get("show/{id}", "show");
     Route::get("delete/{id}", "delete");
@@ -59,20 +82,12 @@ Route::prefix("exam")->controller(\App\Http\Controllers\Exam\ExameController::cl
     Route::post("create", "create");
     Route::post("addQuestions", "addQuestions");
     Route::post("deleteQusetions", "deleteQusetions");
-
     Route::get("index", "index");
     Route::get("show/{id}", "show");
     Route::get("delete/{id}", "delete");
 });
 
-//Route::prefix("form")->controller(\App\Http\Controllers\FormController::class)->group(function (){
-//        Route::post("create","create");
-//        Route::get("index","index");
-//        Route::post("update","update");
-//        Route::get("delete/{id}","destroy");
-//    });
-
-Route::prefix("center")->controller(\App\Http\Controllers\CenterController::class)->group(function () {
+Route::prefix("center")->controller(\App\Http\Controllers\course\CenterController::class)->group(function () {
     Route::post("create", "create");
     Route::get("index", "index");
     //   Route::get("show/{id}","show");
@@ -80,7 +95,7 @@ Route::prefix("center")->controller(\App\Http\Controllers\CenterController::clas
     Route::get("delete/{id}", "destroy");
 });
 
-Route::prefix("online")->controller(\App\Http\Controllers\OnlineController::class)->group(function () {
+Route::prefix("online")->controller(\App\Http\Controllers\course\OnlineController::class)->group(function () {
     Route::post("create", "create");
     Route::get("index", "index");
     // Route::get("show/{id}","show");
@@ -111,17 +126,7 @@ Route::prefix("reserve")->controller(\App\Http\Controllers\ReserveController::cl
     Route::post("create", "create");
     Route::post("check", "check");
 });
-Route::prefix("favorite")->controller(\App\Http\Controllers\FavoriteController::class)->group(function () {
 
-    //for user
-    Route::get("index", "index");//all status date
-    Route::post("create", "create");
-});
-Route::prefix("rate")->controller(\App\Http\Controllers\RateController::class)->group(function () {
-
-    //for user
-    Route::post("create", "create");
-});
 
 //////hamza
 ///

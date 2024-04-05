@@ -115,8 +115,6 @@ class ExameController extends Controller
 
 
             foreach ($request['body'] as $inner) {
-
-
                 $AddedQ = Question::create([
                     "question" => strtolower($inner['question']),
                     "id_exame" => $request->id_exame
@@ -140,7 +138,6 @@ class ExameController extends Controller
         return MyApp::Json()->errorHandle("Exam", "error");//,$prof->getErrorMessage);
 
     }
-
     public function deleteQusetions(Request $request)
     {
         $request->validate([

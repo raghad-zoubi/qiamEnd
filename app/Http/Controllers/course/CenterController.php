@@ -1,9 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\course;
 
+use App\Http\Controllers\Controller;
 use App\Models\Center;
+use App\Models\CoursePaper;
 use App\Models\d4;
+use App\Models\Online_Center;
 use App\MyApplication\MyApp;
 use App\MyApplication\Services\CoursesRuleValidation;
 use Illuminate\Http\JsonResponse;
@@ -17,7 +20,7 @@ class CenterController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(["auth:sanctum"]);
+       // $this->middleware(["auth:sanctum"]);
         $this->rules = new CoursesRuleValidation();
     }
     public function index()
@@ -33,31 +36,48 @@ class CenterController extends Controller
 
     public function create(Request $request)
     {
-         $request->validate($this->rules->
-         onlyKey(["start","end","numberHours","price",
-         "numberLectures","id_course","id_form","id_poll"],true));
+       //  $request->validate($this->rules->
+//         onlyKey(["start","end","numberHours","price",
+//         "numberLectures","id_course","id_form","id_poll"],true));
             try {
                 DB::beginTransaction();
-                $courceAdded =Center::create([
+                $center =Center::create([
                     "start"=>$request->start,
                     "end"=>$request->end,
                     "numberHours"=>$request->numberHours,
-                    "numberLectures"=>$request->numberLectures,
+                    "numberContents"=>$request->numberContents,
                     "id_course"=>$request->id_course,
-                    "id_form"=>$request->id_form,
-                    "id_poll"=>$request->id_poll,
                     "price"=>$request->price
                 ]);
+                $onlinecenter = Online_Center::create([
+                    "id_center"=>$center->id,
+                    "id_online"=>null,
+                    "id_course" =>$request->id_course,
+                ]);
+
+
+                if($request->has('id_form'))
+                    $onlinepaper = CoursePaper::create([
+                        "id_online_center"=>$onlinecenter->id,
+                        "id_paper"=>$request->id_form,
+
+                    ]);
+                if($request->has('id_poll'))
+                    $onlinepaper = CoursePaper::create([
+                        "id_online_center"=>$onlinecenter->id,
+                        "id_paper"=>$request->id_poll,
+
+                    ]);
                 DB::commit();
 
-                return MyApp::Json()->dataHandle($courceAdded,"course");
+                return MyApp::Json()->dataHandle($center,"center");
             }catch (\Exception $e){
                 MyApp::uploadFile()->rollBackUpload();
                 DB::rollBack();
                 throw new \Exception($e->getMessage());
             }
 
-            return MyApp::Json()->errorHandle("course",$courceAdded->getErrorMessage());
+            return MyApp::Json()->errorHandle("ceneter",$courceAdded->getErrorMessage());
         }
 
 

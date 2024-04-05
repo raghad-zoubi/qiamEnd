@@ -17,7 +17,7 @@ class Center extends Model
         'start',
         'end',
         'numberHours',
-        'numberLectures',
+        'numberContents',
         'price',
         'id_course',
         'id',
@@ -46,10 +46,14 @@ class Center extends Model
 
 public function courses()
 {
-    return $this->belongsTo(Cours::class,"id_course","id");//->select(["users.id","users.name"])->withDefault();
+    return $this->belongsTo(Course::class,"id_course","id")
+    ->select(["id","photo","name"])->withDefault();
 }
 
-
+    public function onlineCenters()
+    {
+        return $this->hasMany(Online_Center::class, 'id_center', 'id');
+    }
 }
 
 

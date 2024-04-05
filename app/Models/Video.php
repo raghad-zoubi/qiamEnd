@@ -13,7 +13,7 @@ class Video extends Model
         'id_content',
         'name',
         'rank',
-        'file',
+        'video',
         'duration',
         'id',
     ];

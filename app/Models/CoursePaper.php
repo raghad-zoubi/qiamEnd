@@ -7,5 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class CoursePaper extends Model
 {
-    use HasFactory;
+    protected $table="course_papers";
+    protected $fillable = [
+        'id_online_center',
+        'id_paper',
+        'id',
+    ];
+
+    protected $hidden = [
+
+    ];
+
 }

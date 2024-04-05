@@ -12,9 +12,10 @@ use Illuminate\Database\Eloquent\Model;
 class Online extends Model
 {
     use HasFactory;
-    protected $table="online";
+    protected $table="onlines";
     protected $fillable = [
         'exam',
+        'isopen',
         'price',
         'durationExam',
         'serial',
@@ -48,9 +49,12 @@ class Online extends Model
     {
         return $this->belongsTo(d3::class,"id_poll","id");//->select(["users.id","users.name"])->withDefault();
     } public function courses()
+{
+    return $this->belongsTo(Course::class, "id_course", "id")
+        ->select(["id", "photo", "name"])->withDefault();
+}
+    public function onlineCenters()
     {
-        return $this->belongsTo(Cours::class,"id_course","id");//->select(["users.id","users.name"])->withDefault();
+        return $this->hasMany(Online_Center::class, 'id_online', 'id');
     }
-
-
 }

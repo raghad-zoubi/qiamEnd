@@ -16,8 +16,9 @@ return new class extends Migration
             $table->foreignId("id_course")->constrained("courses")->cascadeOnDelete();
             $table->enum("exam",["0","1"])->default("0");
             $table->enum("serial",["0","1"])->default("0");
-            $table->time("durationExam");
-            $table->bigInteger("numberQuestion");
+            $table->enum("isopen",["0","1"])->default("0");
+            $table->time("durationExam")->nullable();;
+            $table->bigInteger("numberQuestion")->nullable();;
             $table->bigInteger("numberHours");
             $table->bigInteger("numberVideos");
             $table->bigInteger("price");
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('online_courses');
+        Schema::dropIfExists('onlines');
     }
 };

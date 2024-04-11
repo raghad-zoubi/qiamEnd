@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static create(array $array)
  * @method static whereHas(string $string, \Closure $param)
  * @method static where(string $string, $id)
+ * @method static findOrFail(int $advisorId)
  */
 class Adviser extends Model
 {
@@ -18,10 +19,10 @@ class Adviser extends Model
 
     protected $table = "advisers";
     protected $fillable = [
-        //   'name',
+       'name',
         'about',
         'type',
-        'id_user',
+        'photo',
     ];
 
     protected $hidden = [
@@ -31,10 +32,7 @@ class Adviser extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_user', 'id')->
-        //   select(["users.id"])->
-        //    with('profile')->
-        withDefault();
+        return $this->belongsTo(User::class, 'id_user', 'id');
     }
 
     public function date()

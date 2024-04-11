@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\course;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DetailsCenterCourses;
+use App\Http\Resources\DetailsOnlineCourses;
 use App\Models\Center;
 use App\Models\CoursePaper;
 use App\Models\d4;
 use App\Models\Online_Center;
+use App\Models\Rate;
 use App\MyApplication\MyApp;
 use App\MyApplication\Services\CoursesRuleValidation;
 use Illuminate\Http\JsonResponse;
@@ -29,10 +32,7 @@ class CenterController extends Controller
                return MyApp::Json()->dataHandle($center,"center");
     }
 
-    public function show()
-    {
 
-    }
 
     public function create(Request $request)
     {
@@ -136,4 +136,45 @@ class CenterController extends Controller
 
 
     }
+
+    ////USER
+    ////USER HOME
+
+    public function show($id): JsonResponse
+    {
+
+
+        try {
+            DB::beginTransaction();
+            $ratesSubquery = Rate::selectRaw('COALESCE(SUM(value) / COUNT(value), 0) as avg_rate')
+                ->where('id_online_center', $id)->get();
+            if ($ratesSubquery->isNotEmpty()) {
+                $avgRate = $ratesSubquery[0]->avg_rate;
+            } else {
+                $avgRate=0;
+            }
+
+            $courses = Online_Center::
+            with(['course','center'])->
+            where('id',$id)->get();
+            $courses->each(function ($course) use ($avgRate) {
+                $course->avg_rate = $avgRate;
+            });
+
+
+        }catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+        return response()->json([
+               'course' =>DetailsCenterCourses::collection($courses),
+            //  'course' =>($courses),
+        ]);
+
+
+    }
+
 }

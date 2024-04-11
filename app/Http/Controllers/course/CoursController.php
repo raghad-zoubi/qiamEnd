@@ -166,13 +166,6 @@ class CoursController extends Controller
             'course' => AllCourses::collection($courses),
         ]);
 
-//            Rate::
-//    with(['rates'])->
-//       leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
-//            ->selectRaw('id_online_center as id_online_center, COALESCE(SUM(rates.value)/COUNT(rates.value), 0) as rate')
-//            ->groupBy('id_online_center')
-//        ->get();
-
 
     }
 

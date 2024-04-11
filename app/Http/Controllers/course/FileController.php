@@ -1,9 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\course;
 
+use App\Http\Controllers\Controller;
+use App\Http\Resources\FileCourses;
+use App\Http\Resources\VideoCourses;
+use App\Models\Content;
 use App\Models\file;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FileController extends Controller
 {
@@ -31,13 +37,32 @@ class FileController extends Controller
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(file $file)
+    public function show($id): JsonResponse
     {
-        //
+
+
+        try {
+            DB::beginTransaction();
+            $file = Content::
+            with(['file'])->
+            where('id',$id)->get();
+
+
+        }catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+        return response()->json([
+            'file' =>FileCourses::collection($file),
+            //   'file' =>($file),
+        ]);
+
+
     }
+
 
     /**
      * Show the form for editing the specified resource.

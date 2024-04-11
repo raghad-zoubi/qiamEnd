@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('advisers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_user')
-                ->unique()
-                ->constrained('users')->cascadeOnDelete();
+            $table->foreignId("id_user")->nullable()->constrained("users")
+                ->cascadeOnDelete();
+            $table->string('name')->nullable();
             $table->string('type')->nullable();
+            $table->enum('type',["قانونيه","أسريه","نفسية"])->default("نفسية");
+            $table->string('photo')->nullable();
             $table->text('about')->nullable();
 
             $table->timestamps();

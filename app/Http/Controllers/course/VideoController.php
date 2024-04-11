@@ -1,9 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\course;
 
+use App\Http\Controllers\Controller;
+use App\Http\Resources\DetailsOnlineCourses;
+use App\Http\Resources\VideoCourses;
+use App\Models\Content;
+use App\Models\Online_Center;
+use App\Models\Rate;
 use App\Models\Video;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class VideoController extends Controller
 {
@@ -31,13 +39,33 @@ class VideoController extends Controller
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Video $video)
+
+    public function show($id): JsonResponse
     {
-        //
+
+
+        try {
+            DB::beginTransaction();
+            $video = Content::
+            with(['video'])->
+            where('id',$id)->get();
+
+
+        }catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+        return response()->json([
+             'video' =>VideoCourses::collection($video),
+            //   'video' =>($video),
+        ]);
+
+
     }
+
 
     /**
      * Show the form for editing the specified resource.

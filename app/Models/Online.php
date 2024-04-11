@@ -48,7 +48,8 @@ class Online extends Model
     } public function polls()
     {
         return $this->belongsTo(d3::class,"id_poll","id");//->select(["users.id","users.name"])->withDefault();
-    } public function courses()
+    }
+    public function courses()
 {
     return $this->belongsTo(Course::class, "id_course", "id")
         ->select(["id", "photo", "name"])->withDefault();
@@ -57,4 +58,7 @@ class Online extends Model
     {
         return $this->hasMany(Online_Center::class, 'id_online', 'id');
     }
+
+
+
 }

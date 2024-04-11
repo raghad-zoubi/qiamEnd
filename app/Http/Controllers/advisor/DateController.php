@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\advisor;
 
+use App\Http\Controllers\Controller;
 use App\Models\Adviser;
 use App\Models\Reserve;
 use App\Models\Date;
@@ -18,19 +19,21 @@ class DateController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(["auth:sanctum"]);
+        //$this->middleware(["auth:sanctum"]);
         $this->rules = new AdviserRuleValidation();
     }
-    public function index($id)
+
+  public function index($id)
     {
         if (Adviser::query()->where("id", $id)->exists()) {
 
             try {
-//ناقص حط الاوقات مين المتاح ومين اللي مو متاح بس عم طلع كلشي اوقات لهاد الadvisore
+
                 DB::beginTransaction();
-                $DateGet = Adviser::where("id", $id)->
-                with('date')->
-                get();
+                $DateGet = Date::with('reserve')->
+                where('id_adviser',$id)
+                ->get();
+
                 DB::commit();
                 return MyApp::Json()->dataHandle($DateGet, "Date");
             } catch (\Exception $e) {
@@ -48,16 +51,26 @@ class DateController extends Controller
 
     public function create(Request $request)
     {
-        $request->validate($this->rules->onlyKey(["time", "day", "id_adviser"], true));
+      //  $request->validate($this->rules->onlyKey(["time", "day", "id_adviser"], true));
+
+//        $request->validate([
+//            "id_adviser" => ["required", "array"],
+//            "id_adviser.*" => ["numeric",],
+//        ]);
+   //   dd($request->data[0]);
         try {
             DB::beginTransaction();
-            $dateAdded = Date::create([
-                "time" => ($request->time),
-                "day" => ($request->day),
-                "id_adviser" => $request->id_adviser
-            ]);
+            foreach ($request->data as $data) {
+                if (Adviser::query()->where("id", $data['id_adviser'])->exists()) {
+                    $dateAdded = Date::create([
+                        "time" => ($data['time']),
+                        "day" => ($data['day']),
+                        "id_adviser" => $data['id_adviser']
+                    ]);
+                }
+            }
             DB::commit();
-            return MyApp::Json()->dataHandle($dateAdded, "Date");
+            return MyApp::Json()->dataHandle(' Add successfully', "Date");
         } catch (\Exception $e) {
 
             DB::rollBack();

@@ -24,14 +24,14 @@ class Reserve extends Model
 
     ];
 
-//    public function user()
-//    {
-//        return $this->belongsTo(User::class, 'id_user');
-//    }
-//
-//
-//    public function date()
-//    {
-//        return $this->belongsTo(Date::class, 'id_date');
-//    }
+
+
+    public function reserve(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Date::class,"id_date","id")->withDefault();
+    }
+    public function users(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class,"id_user","id")->withDefault();
+    }
 }

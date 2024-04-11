@@ -25,5 +25,17 @@ class Content extends Model
     protected $hidden = [
 
     ];
+    public function OnlineCenter()
+    {
+        return $this->belongsTo(Online_Center::class, "id_online_center", "id")
+            ;
+    }
+    public function file(){
+        return $this->hasMany(File::class,"id_content","id");
 
+    }
+    public function video(){
+        return $this->hasMany(Video::class,"id_content","id");
+
+    }
 }

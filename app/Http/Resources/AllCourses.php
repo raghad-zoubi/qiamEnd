@@ -18,22 +18,22 @@ class AllCourses extends JsonResource
     {
 
             $result = [
-                'id' => $this->id,
-                'rate' => $this->avg_rate,
-                'name' => $this->course->name,
-                'photo' => $this->course->photo,
-                'type' => null,
+                'id' => $this->id??null,
+                'rate' => $this->avg_rate??null,
+                'name' => $this->course->name??null,
+                'photo' => $this->course->photo??null,
+                'type' => null
             ];
 
             if ($this->online !== null) {
                 // Read the data when it is not null
-                $result['price'] = $this->online->price;
+                $result['price'] = $this->online->price??null;
                 $result['type'] = 'online';
 
             }
             if ($this->center !== null) {
                 // Read the data when it is not null
-                $result['price'] = $this->center->price;
+                $result['price'] = $this->center->price??null;
                 $result['type'] = 'center';
 
 

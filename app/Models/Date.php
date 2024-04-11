@@ -30,6 +30,10 @@ class Date extends Model
         return $this->belongsTo(Adviser::class, 'id_adviser','id');
     }
 
+    public function reserve()
+    {
+        return $this->HasMany(Reserve::class, "id_user", "id");
+    }
 
     public function users()
     {

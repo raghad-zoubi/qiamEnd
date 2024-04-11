@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
 
+namespace App\Http\Controllers\advisor;
+
+use App\Http\Controllers\Controller;
 use App\Models\Reserve;
 use App\Models\Date;
 use App\MyApplication\MyApp;

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
  * @method static create(array $array)
  * @method static leftJoin(string $string, string $string1, string $string2, string $string3)
  * @method static joinSub($ratesSubquery, string $string, \Closure $param)
+ * @method static where(string $string, string $string1, int $int)
  */
 class Online_Center extends Model
 {
@@ -46,13 +47,18 @@ class Online_Center extends Model
     public function online()
     {
         return $this->belongsTo(Online::class, 'id_online', 'id')
+
        ;// ->where('isopen','=','1');
     }
 public function course()
     {
         return $this->belongsTo(Course::class, 'id_course', 'id');
     }
+    public function content(){
+        return $this->hasMany(Content::class,"id_online_center","id")
+           ;// ->with(['file','video']);
 
+    }
 
 
 }

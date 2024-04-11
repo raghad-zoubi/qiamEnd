@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\DB;
  */
 class ProfileController extends Controller
 {
-    private $rules;
 
     public function __construct()
     {
@@ -28,8 +27,8 @@ class ProfileController extends Controller
 
     public function Create(Request $request)
     {
+      //  dd($request->name);
         if (!Profile::query()->exists(auth()->id())) {
-
 
             try {
                 DB::beginTransaction();
@@ -64,7 +63,8 @@ class ProfileController extends Controller
             try {
 
                 DB::beginTransaction();
-                $profileGet = Profile::with('user')->where("id_user", auth()->id())->get();
+                $profileGet = Profile::where(
+                    "id_user", auth()->id())->get();
                 DB::commit();
                 return MyApp::Json()->dataHandle($profileGet, "profile");
             } catch (\Exception $e) {

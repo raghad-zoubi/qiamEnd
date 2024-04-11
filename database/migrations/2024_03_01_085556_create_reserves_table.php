@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('reserves', function (Blueprint $table) {
             $table->id();
             $table->foreignId("id_user")->constrained("users")->cascadeOnDelete();
-           // $table->foreignId("id_adviser")->constrained("advisers")->cascadeOnDelete();
             $table->foreignId("id_date")->constrained("dates")->cascadeOnDelete();
             $table->enum("status",["0","1"])->default("0");
             $table->timestamps();

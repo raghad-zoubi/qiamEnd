@@ -80,9 +80,9 @@ class User extends Authenticatable   implements  MustVerifyEmail
 public function favorite()
 {
     return $this->HasMany(Favorite::class, "id_user", "id");
-}public function anspollformuser()
+}public function reserve()
 {
-    return $this->HasMany(d7::class, "id_user", "id");
+    return $this->HasMany(Reserve::class, "id_user", "id");
 }
 public function rate()
 {
@@ -96,16 +96,12 @@ public function answer()
 {
     return $this->HasMany(Answer::class, "id_user", "id");
 }
-public function reserve()
-{
-    return $this->HasMany(Reserve::class, "id_user", "id");
-}
+
 //------------------------------
+
     public function profile()
     {
-        return $this->hasOne(Profile::class, 'id_user','id')
-      //  ->select(["profile.name"])
-        ->withDefault();;
+        return $this->hasOne(Profile::class, 'id_user','id');
     }
 
     public function adviser(){

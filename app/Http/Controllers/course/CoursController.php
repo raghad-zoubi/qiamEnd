@@ -68,10 +68,10 @@ class CoursController extends Controller
         }
     }
 
-    public function update(Request $request): JsonResponse
+    public function update($id,Request $request): JsonResponse
     {
         $request->validate($this->rules->onlyKey(["name", "photo", "about"], true));
-        $file = Course::where("id", $request->id)->first();
+        $file = Course::where("id", $id)->first();
         $oldPath = $file->photo;
         $newFile = $request->file("photo");
         //  dd($newFile);

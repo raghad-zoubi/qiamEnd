@@ -91,7 +91,7 @@ Route::prefix("auth")->controller(UserController::class)->group(function () {
 Route::prefix("course")->controller(CoursController::class)->group(function () {
     Route::post("create", "create");
     Route::get("index", "index");
-    Route::post("update", "update");
+    Route::post("update/{id}", "update");
     Route::get("delete/{id}", "delete");
 });
 Route::prefix("center")->controller(CenterController::class)->group(function () {

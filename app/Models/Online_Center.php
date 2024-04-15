@@ -34,6 +34,10 @@ class Online_Center extends Model
     {
         return $this->HasMany(Rate::class, "id_user", "id")
         ;
+    }    public function booking()
+    {
+        return $this->HasMany(Booking::class, "id_user", "id")
+        ;
     }
     public function users()
     {

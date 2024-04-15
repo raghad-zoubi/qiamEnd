@@ -31,7 +31,7 @@ class CoursController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(["auth:sanctum"]);
+        //$this->middleware(["auth:sanctum"]);
         $this->rules = new CoursesRuleValidation();
     }
 
@@ -124,6 +124,21 @@ class CoursController extends Controller
 
 
     }
+
+    public function displaydetils($id): JsonResponse
+    { $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
+        ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
+        ->
+        groupBy('online_centers.id')
+        ->getQuery();
+        $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
+            $join->on('online_centers.id', '=', 'subquery.id');
+        })-> with(['course', 'online', 'center'])
+            ->orderBy('subquery.avg_rate', 'desc')
+            ->paginate(10);
+        return MyApp::Json()->dataHandle($courses, "course");
+    }
+
 
 //--------user home
     public function common(): JsonResponse

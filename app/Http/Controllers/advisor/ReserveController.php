@@ -4,11 +4,13 @@
 namespace App\Http\Controllers\advisor;
 
 use App\Http\Controllers\Controller;
+use App\Models\Rate;
 use App\Models\Reserve;
 use App\Models\Date;
 use App\MyApplication\MyApp;
 use App\MyApplication\Services\AdviserRuleValidation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ReserveController extends Controller
@@ -18,16 +20,21 @@ class ReserveController extends Controller
         $this->middleware(["auth:sanctum"]);
         $this->rules = new AdviserRuleValidation();
     }
-    public function index($id_adviser)
+    public function index($id)
     {
 
         try {
 
             DB::beginTransaction();
-            $dateGet = Reserve::with('date')->
-            where("id_user",auth()->id())->
-            where("id_adviser",$id_adviser)
-                ->get()->first();
+
+            $dateGet =
+             //   Date::with('reserve')
+//                    ->where('id_adviser','=',$id)
+//                    ->get();
+            $dates = Date::doesntHave('reserve')
+                ->where('id_adviser', '=', $id)
+                ->get();
+
             DB::commit();
             return MyApp::Json()->dataHandle($dateGet, "date");
         } catch (\Exception $e) {
@@ -40,16 +47,26 @@ class ReserveController extends Controller
         return MyApp::Json()->errorHandle("date", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
 
     }
+
     public function create(Request $request)
     {
         try {
             DB::beginTransaction();
+            $dateAdded = Reserve::where([
+                'id_date' => $request->id_date,
+            ])->first();
+
+            if (!is_null($dateAdded)) {
+                return response()->json([
+                    "message" => "لقد تم حجز هذا الموعد لا يمكنك حجزه",
+                    "status" => "success",
+                ]);
+            }else{
             $dateAdded = Reserve::create([
                 "status" =>'0',
                 "id_date" => ($request->id_date),
-                "id_adviser" => $request->id_adviser,
                 "id_user" => auth()->id()
-            ]);
+            ]);}
             DB::commit();
             return MyApp::Json()->dataHandle($dateAdded, "Date");
         } catch (\Exception $e) {
@@ -86,8 +103,7 @@ class ReserveController extends Controller
                     DB::commit();
                     return MyApp::Json()->dataHandle("unreserved successfully", "date");
                 }}
-//                DB::commit();
-//                return MyApp::Json()->dataHandle("reserved successfully", "date");
+
             } catch (\Exception $e) {
 
                 DB::rollBack();
@@ -101,16 +117,14 @@ class ReserveController extends Controller
 
     }
 
-    public function show($status)
+    public function show()
     {
 
         try {
 
             DB::beginTransaction();
-            $dateGet = Reserve::with('date')->
-            where("id_user",auth()->id())->
-            where("status",$status)
-                ->get()->first();
+            $dateGet = Reserve::with('reserve')->
+            where("id_user",auth()->id())->get();
             DB::commit();
             return MyApp::Json()->dataHandle($dateGet, "date");
         } catch (\Exception $e) {

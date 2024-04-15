@@ -37,6 +37,7 @@ class Adviser extends Model
 
     public function date()
     {
-        return $this->hasMany(Date::class, 'id_adviser');
+        return $this->hasMany(Date::class, 'id_adviser')
+            ->with('reserve');
     }
 }

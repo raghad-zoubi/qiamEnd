@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @method static create(array $array)
  * @method static where(string $string, $id)
+ * @method static whereHas(string $string, \Closure $param)
+ * @method static doesntHave(string $string)
  */
 class Date extends Model
 {
@@ -32,13 +34,14 @@ class Date extends Model
 
     public function reserve()
     {
-        return $this->HasMany(Reserve::class, "id_user", "id");
+        return $this->HasMany(Reserve::class, "id_date", "id");
     }
 
     public function users()
     {
-        return $this->belongsToMany(User::class)->
-        withPivot('id', 'created_by');;
+        return $this->belongsToMany(User::class)
+            ;//->
+      //  withPivot('id', 'created_by');
     }
 
 

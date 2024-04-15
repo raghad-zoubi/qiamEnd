@@ -6,6 +6,7 @@ use App\Http\Controllers\advisor\ReserveController;
 use App\Http\Controllers\auth\AuthenticationController;
 use App\Http\Controllers\auth\ProfileController;
 use App\Http\Controllers\auth\UserController;
+use App\Http\Controllers\course\BookingController;
 use App\Http\Controllers\course\CenterController;
 use App\Http\Controllers\course\CoursController;
 use App\Http\Controllers\course\FavoriteController;
@@ -55,6 +56,10 @@ Route::prefix("user")->group(function () {
         //for user
         Route::post("create", "create");
     });
+    Route::prefix("booking")->controller(BookingController::class)->group(function () {
+        //for user
+        Route::get("create/{id}", "create");
+    });
 
     Route::get('center/show/{id}', [CenterController::class, 'show']);
 
@@ -91,6 +96,7 @@ Route::prefix("auth")->controller(UserController::class)->group(function () {
 Route::prefix("course")->controller(CoursController::class)->group(function () {
     Route::post("create", "create");
     Route::get("index", "index");
+    Route::get("displaydetils/{id}", "displaydetils");
     Route::post("update/{id}", "update");
     Route::get("delete/{id}", "delete");
 });
@@ -136,7 +142,7 @@ Route::prefix("adviser")->controller(AdviserController::class)->group(function (
 Route::prefix("date")->controller(DateController::class)->group(function () {
     Route::post("create", "create");
     //for adv
-    Route::get("index/{id}", "index");//all status date which aval
+    Route::get("index/{id}/{type}", "index");//all status date which aval
     Route::get("show/{status}/{id}", "show");//all status reserve
     Route::post("update", "update");
     Route::get("delete/{id}", "destroy");
@@ -144,9 +150,9 @@ Route::prefix("date")->controller(DateController::class)->group(function () {
 Route::prefix("reserve")->controller(ReserveController::class)->group(function () {
 
     //for user
-    Route::get("index/{id}", "index");//all status date
-    Route::get("show/{status}", "show");//all status reserve
-    Route::post("create", "create");
+    Route::get("user/index/{id}", "index");//الموعيد المتاحه
+    Route::get("user/show", "show");//موعيدي
+    Route::post("user/create", "create");
     Route::post("check", "check");
 });
 //------------hamza

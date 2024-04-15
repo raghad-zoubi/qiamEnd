@@ -8,6 +8,7 @@ use App\Http\Resources\IndexTypeAdvisor;
 use App\Models\Adviser;
 use App\Models\Course;
 use App\Models\d3;
+use App\Models\Date;
 use App\Models\User;
 use App\MyApplication\MyApp;
 use App\MyApplication\Services\AdviserRuleValidation;
@@ -56,18 +57,27 @@ class AdviserController extends Controller
      //   $request->validate($this->rules->onlyKey([ "type", "about", "id_user"], true));
         try {
             $file = $request->file("photo");
-            if ($file->isValid()) {
+            if (!$file->isValid()) {
 
                     DB::beginTransaction();
-                    $path = MyApp::uploadFile()->upload($file);
+                $path = MyApp::uploadFile()->upload($file);
 
             $adviserAdded = Adviser::create([
                 "about" => strtolower($request->about),
                 "type" => strtolower($request->type),
                 "name" => strtolower($request->name),
-                "photo" => strtolower($path),
+                "photo" =>strtolower($path),
             //    "id_user" => $request->id_user
             ]);
+                foreach ($request->data as $data) {
+                        $dateAdded = Date::create([
+                            "time" => ($data['time']),
+                            "day" => ($data['day']),
+                            "id_adviser" => $adviserAdded->id
+                        ]);
+                    }
+
+
             DB::commit();
             return MyApp::Json()->dataHandle($adviserAdded, "Adviser");
         }} catch (\Exception $e) {

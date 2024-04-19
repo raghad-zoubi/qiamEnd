@@ -19,9 +19,9 @@ return new class extends Migration
             $table->string('name');
             $table->text("photo");
             $table->integer("rank");
-            $table->enum("exam",["0","1"])->default("0");//p
+            $table->enum("exam",["0","1"])->default("0");
             $table->time("durationExam")->nullable();//p
-            $table->bigInteger("numberQuestion")->nullable();;//p
+            $table->bigInteger("numberQuestion")->nullable();
 
             $table->timestamps();
         });

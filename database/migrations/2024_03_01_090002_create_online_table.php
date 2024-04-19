@@ -21,7 +21,7 @@ return new class extends Migration
             $table->bigInteger("numberQuestion")->nullable();;
             $table->bigInteger("numberHours");
             $table->bigInteger("numberVideos");
-            $table->bigInteger("price");
+            $table->bigInteger("price")->default("0");
             $table->timestamps();
         });
     }

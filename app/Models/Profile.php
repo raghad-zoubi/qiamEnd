@@ -21,6 +21,7 @@ class Profile extends Model
         'birthDate',
         'mobilePhone',
         'specialization',
+        'levelEducational',
 
     ];
 

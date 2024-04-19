@@ -41,6 +41,7 @@ class ProfileController extends Controller
                     "birthDate" => $request->birthDate,
                     "mobilePhone" => $request->mobilePhone,
                     "specialization" => strtolower($request->specialization),
+                    "levelEducational" => strtolower($request->levelEducational),
                 ]);
                 DB::commit();
                 return MyApp::Json()->dataHandle($profileAdded, "profile");
@@ -94,6 +95,7 @@ class ProfileController extends Controller
                     $p->birthDate = $request->birthDate;
                     $p->mobilePhone = $request->mobilePhone;
                     $p->specialization = strtolower($request->specialization);
+                    $p->levelEducational = strtolower($request->levelEducational);
                     $p->save();
                 }
                 DB::commit();

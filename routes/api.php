@@ -68,7 +68,7 @@ Route::prefix("user")->group(function () {
     Route::get('video/{id}', [VideoController::class, 'show']);
     Route::get('file/{id}', [FileController::class, 'show']);
     Route::get('file/{id}', [FileController::class, 'show']);
-    Route::get("index/{type}", [AdviserController::class, 'index']);
+    Route::get("display/{type}", [AdviserController::class, 'display']);
 
     Route::prefix("profile")->
    // controller(ProfileController::class)->
@@ -134,8 +134,8 @@ Route::prefix("exam")->controller(ExameController::class)->group(function () {
 //------------
 Route::prefix("adviser")->controller(AdviserController::class)->group(function () {
     Route::post("create", "create");
-    Route::get("indexall", "indexAll");
-    Route::get("show/{id}","show");//all date whith status
+    Route::get("index", "index");
+    Route::get("show/{id_adviser}","show");
     Route::post("update", "update");
     Route::get("delete/{id}", "delete");
 });

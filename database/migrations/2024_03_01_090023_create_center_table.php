@@ -17,7 +17,7 @@ return new class extends Migration
             $table->dateTime('end');
             $table->bigInteger("numberHours");
             $table->bigInteger("numberContents");
-            $table->bigInteger("price");
+            $table->bigInteger("price")->default("0");
             $table->foreignId("id_course")->constrained("courses")->cascadeOnDelete();
             $table->timestamps();
         });

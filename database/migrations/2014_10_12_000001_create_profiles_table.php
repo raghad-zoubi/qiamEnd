@@ -22,8 +22,9 @@ return new class extends Migration
             $table->string('fatherName')->nullable();
             $table->enum('gender',["f","m"])->default("m");
             $table->date('birthDate')->nullable();
-            $table->integer('mobilePhone')->unique();;
-            $table->string('specialization')->nullable();;
+            $table->String('levelEducational')->nullable();
+            $table->integer('mobilePhone')->unique();
+            $table->string('specialization')->nullable();
             $table->timestamps();
         });
     }

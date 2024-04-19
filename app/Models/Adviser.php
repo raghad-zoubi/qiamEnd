@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use http\Env\Request;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,8 +37,11 @@ class Adviser extends Model
     }
 
     public function date()
-    {
-        return $this->hasMany(Date::class, 'id_adviser')
-            ->with('reserve');
+   {  $date = Carbon::now();
+//        $d=$date->addDays(5);
+       //  dd(        $d->format("Y-m-d"));
+        return $this->hasMany(Date::class, 'id_adviser');
+//          ->where('day', '<',  $d->format("Y-m-d"))//  ->with('reserve');
+//          ->where('day', '>',  $date->format("Y-m-d"));//  ->with('reserve');
     }
 }

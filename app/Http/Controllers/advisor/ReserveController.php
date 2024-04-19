@@ -47,7 +47,6 @@ class ReserveController extends Controller
         return MyApp::Json()->errorHandle("date", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
 
     }
-
     public function create(Request $request)
     {
         try {
@@ -81,8 +80,6 @@ class ReserveController extends Controller
 
 
     }
-
-
     public function check(Request $request)
     {
         $request->validate($this->rules->onlyKey(["id","status"], true));
@@ -116,7 +113,6 @@ class ReserveController extends Controller
 
 
     }
-
     public function show()
     {
 
@@ -137,9 +133,6 @@ class ReserveController extends Controller
         return MyApp::Json()->errorHandle("date", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
 
     }
-
-
-
     public function destroy(Reserve $adv_Dat_Use)
     {
 

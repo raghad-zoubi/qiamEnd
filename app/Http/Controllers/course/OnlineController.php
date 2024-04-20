@@ -64,7 +64,6 @@ class OnlineController extends Controller
                 "id_course" =>$request->id_course,
             ]);
 
-
             if($request->has('id_form'))
             $onlinepaper = CoursePaper::create([
                 "id_online_center"=>$onlinecenter->id,
@@ -83,39 +82,46 @@ class OnlineController extends Controller
                     "id_course" =>$request->id_prefix,
                 ]);
 
-//            if($request->exam=="1"&& $request->has('idexam'))
-//                $courseexam = CourseExame::create([
-//                    "id_online_center"=>$onlinecenter->id,
-//                 "id_content"=>null,
-//                "id_exam" =>$request->idexam,
-//            ]);
+            if($request->exam=="1"&& $request->has('id_exam'))
+                $courseexam = CourseExame::create([
+                    "id_online_center"=>$onlinecenter->id,
+                 "id_content"=>null,
+                "id_exam" =>$request->id_exam,
+            ]);
 
 $r2=0;
 $r1=0;
 $r3=0;
             foreach ($request['content'] as $inner) {
 
-                //$file = $request->file($inner["photo"]);
-                //$path = MyApp::uploadFile()->upload($file);
+                $file = $request->file($inner["photo"]);
+                $path = MyApp::uploadFile()->upload($file);
                 $content = Content::create([
                     "id_online_center"=>$onlinecenter->id,
                     "numberHours"=>$inner['numberHours'],
                     "numberVideos"=>$inner['numberVideos'],
                     "durationExam"=>$inner['durationExam'],
                     "numberQuestion"=>$inner['numberQuestion'],
-                    "photo" => ($inner['photo']),
+                  //  "photo" => ($inner['photo']),
+                    "photo" => ($inner['$path']),
                     "name"=>$inner['name'],
                     "rank"=>$r1,
                     "exam"=>$inner['exam'],
                 ]);
-
+                if($inner['exam']=="1")
+                    $courseexam = CourseExame::create([
+                        "id_online_center"=>null,
+                        "id_content"=>$content->id,
+                        "id_exam" =>$inner['id_exam'],
+                    ]);
                 foreach ($inner['pdfFiles'] as $item) {
-                 //   $file = $request->file($item["file"]);
+                    $file = $request->file($item["file"]);
 
-                          //  $path = MyApp::uploadFile()->upload($file);
+                            $path = MyApp::uploadFile()->upload($file);
                             $file = File::create([
                                 "name" =>$item["name"],
-                                "file" => $item["file"],
+                                "file" => $item["$path"],
+                             //   "file" => $item["file"],
                               "id_content"=>$content->id,
                             "rank" => $r2
                     ]);
@@ -123,13 +129,14 @@ $r3=0;
 
                 }
                 foreach ($inner['videoFiles'] as $item) {
-                   // $file = $request->file($item["file"]);
-                   // $path = MyApp::uploadFile()->upload($file);
+                    $file = $request->file($item["video"]);
+                    $path = MyApp::uploadFile()->upload($file);
                     $video = Video::create([
                         "id_content"=>$content->id,
                         "name"=>$item["name"],
                         "rank"=>$r3,
-                        "video"=>$item["video"],
+                        "video"=>$item["$path"],
+                      //  "video"=>$item["video"],
                         "duration"=>$item["duration"],
 
                     ]);
@@ -141,6 +148,7 @@ $r3=0;
 $r2=0;
 $r1=$r1+1;
             }
+
             DB::commit();
 
             return MyApp::Json()->dataHandle($online, "cours");

@@ -18,7 +18,8 @@ class Date extends Model
 
     protected $table = "dates";
     protected $fillable = [
-        'time',
+        'from',
+        'to',
         'day',
         'id_adviser',
     ];

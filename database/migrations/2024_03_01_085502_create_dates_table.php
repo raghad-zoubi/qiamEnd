@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId("id_adviser")->constrained("advisers")->cascadeOnDelete();
             $table->date('day');
-            $table->time('time');
+            $table->time('from');
+            $table->time('to');
 
             $table->timestamps();
         });

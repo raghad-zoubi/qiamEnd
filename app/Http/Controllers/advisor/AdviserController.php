@@ -79,7 +79,8 @@ class AdviserController extends Controller
                 ]);
                 foreach ($request->data as $data) {
                     $dateAdded = Date::create([
-                        "time" => ($data['time']),
+                        "from" => ($data['from']),
+                        "to" => ($data['to']),
                         "day" => ($data['day']),
                         "id_adviser" => $adviserAdded->id
                     ]);

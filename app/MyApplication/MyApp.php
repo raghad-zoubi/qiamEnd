@@ -29,7 +29,7 @@ class MyApp
         }
         return self::$json;
     }
-    public static function uploadFile(): UploadFile
+    public static function uploadFile()
     {
         if(is_null(self::$uploadFile)){
             self::$uploadFile = new UploadFile();

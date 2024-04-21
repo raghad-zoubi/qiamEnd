@@ -34,6 +34,12 @@ class CoursController extends Controller
         //$this->middleware(["auth:sanctum"]);
         $this->rules = new CoursesRuleValidation();
     }
+    public function indexname(): JsonResponse
+    {
+        $course = Course::query()->get(['id','name']);
+        return MyApp::Json()->dataHandle($course, "course");
+    }
+
 
     public function index(): JsonResponse
     {

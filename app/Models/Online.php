@@ -15,7 +15,6 @@ class Online extends Model
     protected $table="onlines";
     protected $fillable = [
         'exam',
-        'isopen',
         'price',
         'durationExam',
         'serial',

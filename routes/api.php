@@ -96,6 +96,7 @@ Route::prefix("auth")->controller(UserController::class)->group(function () {
 Route::prefix("course")->controller(CoursController::class)->group(function () {
     Route::post("create", "create");
     Route::get("index", "index");
+    Route::get("indexname", "indexname");
     Route::get("displaydetils/{id}", "displaydetils");
     Route::post("update/{id}", "update");
     Route::get("delete/{id}", "delete");
@@ -119,6 +120,7 @@ Route::prefix("paper")->controller(PaperController::class)->group(function () {
     Route::post("addQuestions", "addQuestions");
     Route::post("deleteQusetions", "deleteQusetions");
     Route::get("index/{type}", "index");
+    Route::get("indexname/{type}", "indexname");
     Route::get("show/{id}", "show");
     Route::get("delete/{id}", "delete");
 

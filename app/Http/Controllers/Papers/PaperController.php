@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Papers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Course;
 use App\Models\d1;
 use App\Models\d3;
 use App\Models\d6;
@@ -14,6 +15,7 @@ use App\Models\Question;
 use App\Models\QuestionPaper;
 use App\MyApplication\MyApp;
 use App\MyApplication\Services\PaperRuleValidation;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -25,7 +27,29 @@ class PaperController extends Controller
       //  $this->middleware(["auth:sanctum"]);
    //     $this->rules = new PaperRuleValidation();
     }
+    public function indexname($type): JsonResponse
+    {
+        try {
 
+            DB::beginTransaction();
+            $paper = Paper::query()
+                ->select(['title','id'])
+                ->where ('type',$type)->get();
+            DB::commit();
+            return MyApp::Json()->dataHandle($paperGet, "paper");
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+        return MyApp::Json()->errorHandle("paper", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
+
+
+
+
+    }
     public function index($type)
     {
 

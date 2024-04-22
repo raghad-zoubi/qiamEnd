@@ -36,7 +36,7 @@ class PaperController extends Controller
                 ->select(['title','id'])
                 ->where ('type',$type)->get();
             DB::commit();
-            return MyApp::Json()->dataHandle($paperGet, "paper");
+            return MyApp::Json()->dataHandle($paper, "paper");
         } catch (\Exception $e) {
 
             DB::rollBack();

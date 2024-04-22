@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId("id_online_center")->constrained("online_centers")->cascadeOnDelete();
             $table->foreignId("id_user")->constrained("users")->cascadeOnDelete();
             $table->bigInteger("mark");
+            $table->boolean("isAgree")->default('0');
+
             $table->timestamps();
         });
     }

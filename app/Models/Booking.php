@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @method static where(array $array)
  * @method static create(array $array)
+ * @method static whereDoesntHave(string $string, \Closure $param)
  */
 class Booking extends Model
 {

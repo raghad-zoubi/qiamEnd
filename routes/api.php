@@ -16,6 +16,7 @@ use App\Http\Controllers\Exam\ExameController;
 use App\Http\Controllers\course\FileController;
 use App\Http\Controllers\Papers\PaperController;
 use App\Http\Controllers\course\VideoController;
+use App\Http\Controllers\StatisticController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -157,6 +158,13 @@ Route::prefix("reserve")->controller(ReserveController::class)->group(function (
     Route::post("user/create", "create");
     Route::post("check", "check");
 });
+
+
+    //for user
+    Route::get("countUsersWithNullCenterId",  [StatisticController::class, 'countUsersWithNullCenterId']);
+    Route::get("countUsersWithNullOnlineId",  [StatisticController::class, 'countUsersWithNullOnlineId']);
+    Route::get("countvisitors",  [StatisticController::class, 'countvisitors']);
+
 //------------hamza
 Route::controller(AuthenticationController::class)
     ->prefix("auth")->group(function () {

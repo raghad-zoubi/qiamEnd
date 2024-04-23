@@ -132,36 +132,61 @@ class CoursController extends Controller
     }
 
     public function displaydetils($id): JsonResponse
-    { $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
-        ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
-        ->
-        groupBy('online_centers.id')
-        ->getQuery();
-        $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
-            $join->on('online_centers.id', '=', 'subquery.id');
-        })-> with(['course', 'online', 'center'])
-            ->orderBy('subquery.avg_rate', 'desc')
-            ->paginate(10);
-        return MyApp::Json()->dataHandle($courses, "course");
-    }
-
-
-//--------user home
-    public function common(): JsonResponse
-    {$ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
+    {try {
+        $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
             ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
             ->
             groupBy('online_centers.id')
             ->getQuery();
         $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
             $join->on('online_centers.id', '=', 'subquery.id');
-        })-> with(['course', 'online', 'center'])
+        })->with(['course', 'online', 'center'])
+            ->orderBy('subquery.avg_rate', 'desc')
+            ->paginate(10);
+        return MyApp::Json()->dataHandle($courses, "date");
+
+    }
+    catch (\Exception $e) {
+
+        DB::rollBack();
+        throw new \Exception($e->getMessage());
+    }
+
+
+return MyApp::Json()->errorHandle("date", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+
+
+    }
+
+
+//--------user home
+    public function common(): JsonResponse
+    {
+       try{ $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
+            ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
+            ->
+            groupBy('online_centers.id')
+            ->getQuery();
+        $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
+            $join->on('online_centers.id', '=', 'subquery.id');
+        })->with(['course', 'online', 'center'])
             ->orderBy('subquery.avg_rate', 'desc')
             ->paginate(10);
         return response()->json([
-            'course' =>CommonCourses::collection($courses),
+            'date' => CommonCourses::collection($courses),
         ]);
     }
+    catch (\Exception $e) {
+
+        DB::rollBack();
+        throw new \Exception($e->getMessage());
+    }
+
+
+return MyApp::Json()->errorHandle("date", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+
+
+}
 
     public function all(): JsonResponse
     {//     $rates = Online_Center::
@@ -172,47 +197,68 @@ class CoursController extends Controller
 //        $courses= Online_Center::
 //       with(['course', 'online', 'center']) ->paginate(10);
 
+try {
+    $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
+        ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
+        ->groupBy('online_centers.id')
+        ->getQuery();
 
-        $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
-            ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
-            ->groupBy('online_centers.id')
-            ->getQuery();
-
-        $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
-            $join->on('online_centers.id', '=', 'subquery.id');
-        })->with(['course', 'online', 'center'])->paginate(10);
+    $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
+        $join->on('online_centers.id', '=', 'subquery.id');
+    })->with(['course', 'online', 'center'])->paginate(10);
 
 
-        return response()->json([
-            'course' => AllCourses::collection($courses),
-        ]);
+    return response()->json([
+        'date' => AllCourses::collection($courses),
+    ]);
+}
+catch (\Exception $e) {
+
+        DB::rollBack();
+        throw new \Exception($e->getMessage());
+    }
+
+
+            return MyApp::Json()->errorHandle("date", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+
 
 
     }
 
     public function each($type): JsonResponse
-    {$ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
-            ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
-            ->groupBy('online_centers.id')
-            ->getQuery();
-        if ($type == 'online')
-            $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
-                $join->on('online_centers.id', '=', 'subquery.id');
-            })->where('online_centers.id_center', '=', null)
-                ->with(['course', 'online', 'center'])
-                ->get();
-        else if ($type == 'center')
+    {
+        try {
+            $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
+                ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
+                ->groupBy('online_centers.id')
+                ->getQuery();
+            if ($type == 'online')
+                $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
+                    $join->on('online_centers.id', '=', 'subquery.id');
+                })->where('online_centers.id_center', '=', null)
+                    ->with(['course', 'online', 'center'])
+                    ->get();
+            else if ($type == 'center')
 
-            $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
-                $join->on('online_centers.id', '=', 'subquery.id');
-            })->where('online_centers.id_online', '=', null)
-                ->with(['course', 'center'])->get();
+                $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
+                    $join->on('online_centers.id', '=', 'subquery.id');
+                })->where('online_centers.id_online', '=', null)
+                    ->with(['course', 'center'])->get();
 
-        return response()->json([
-            'course' => AllCourses::collection($courses),
-        ]);
+            return response()->json([
+                'date' => AllCourses::collection($courses),
+            ]);
+        }catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
 
 
-    }
+return MyApp::Json()->errorHandle("date", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+
+
+
+}
 
 }

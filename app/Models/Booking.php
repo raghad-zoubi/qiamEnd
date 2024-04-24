@@ -15,7 +15,7 @@ class Booking extends Model
     use HasFactory;
 
     protected $table ='booking';
-    protected $fillable = [   "id_online_center", "id_user" ,"id","mark","isAgree"
+    protected $fillable = [   "id_online_center", "id_user" ,"id","mark","status"
     ];
     protected $hidden = ["created_at","updated_at"];
 

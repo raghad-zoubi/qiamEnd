@@ -37,14 +37,14 @@ class CoursController extends Controller
     public function indexname(): JsonResponse
     {
         $course = Course::query()->get(['id','name']);
-        return MyApp::Json()->dataHandle($course, "course");
+        return MyApp::Json()->dataHandle($course, "data");
     }
 
 
     public function index(): JsonResponse
     {
         $course = Course::query()->get();
-        return MyApp::Json()->dataHandle($course, "course");
+        return MyApp::Json()->dataHandle($course, "data");
     }
 
     public function create(Request $request): JsonResponse
@@ -63,14 +63,14 @@ class CoursController extends Controller
                 ]);
                 DB::commit();
 
-                return MyApp::Json()->dataHandle($courceAdded, "cours");
+                return MyApp::Json()->dataHandle($courceAdded, "data");
             } catch (\Exception $e) {
                 MyApp::uploadFile()->rollBackUpload();
                 DB::rollBack();
                 throw new \Exception($e->getMessage());
             }
         } else {
-            return MyApp::Json()->errorHandle("course", $file->getErrorMessage());
+            return MyApp::Json()->errorHandle("data", $file->getErrorMessage());
         }
     }
 
@@ -92,7 +92,7 @@ class CoursController extends Controller
                 ]);
                 MyApp::uploadFile()->deleteFile($oldPath);
                 DB::commit();
-                return MyApp::Json()->dataHandle("Successfully updated course.", "message");
+                return MyApp::Json()->dataHandle("Successfully updated course.", "data");
             } catch (\Exception $e) {
                 MyApp::uploadFile()->rollBackUpload();
                 DB::rollBack();
@@ -116,7 +116,7 @@ class CoursController extends Controller
 
                 if (MyApp::uploadFile()->deleteFile($temp_path)) {
                     DB::commit();
-                    return MyApp::Json()->dataHandle("Successfully deleted file .", "message");
+                    return MyApp::Json()->dataHandle("Successfully deleted file .", "data");
                 }
             } catch (\Exception $e) {
 
@@ -126,7 +126,7 @@ class CoursController extends Controller
 
         } else
 
-            return MyApp::Json()->errorHandle("date", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+            return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
 
 
     }
@@ -143,7 +143,7 @@ class CoursController extends Controller
         })->with(['course', 'online', 'center'])
             ->orderBy('subquery.avg_rate', 'desc')
             ->paginate(10);
-        return MyApp::Json()->dataHandle($courses, "date");
+        return MyApp::Json()->dataHandle($courses, "data");
 
     }
     catch (\Exception $e) {
@@ -153,7 +153,7 @@ class CoursController extends Controller
     }
 
 
-return MyApp::Json()->errorHandle("date", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
 
 
     }
@@ -173,7 +173,7 @@ return MyApp::Json()->errorHandle("date", "حدث خطا ما في الحذف  �
             ->orderBy('subquery.avg_rate', 'desc')
             ->paginate(10);
         return response()->json([
-            'date' => CommonCourses::collection($courses),
+            'data' => CommonCourses::collection($courses),
         ]);
     }
     catch (\Exception $e) {
@@ -183,7 +183,7 @@ return MyApp::Json()->errorHandle("date", "حدث خطا ما في الحذف  �
     }
 
 
-return MyApp::Json()->errorHandle("date", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
 
 
 }
@@ -209,7 +209,7 @@ try {
 
 
     return response()->json([
-        'date' => AllCourses::collection($courses),
+        'data' => AllCourses::collection($courses),
     ]);
 }
 catch (\Exception $e) {
@@ -219,7 +219,7 @@ catch (\Exception $e) {
     }
 
 
-            return MyApp::Json()->errorHandle("date", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+            return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
 
 
 
@@ -246,7 +246,7 @@ catch (\Exception $e) {
                     ->with(['course', 'center'])->get();
 
             return response()->json([
-                'date' => AllCourses::collection($courses),
+                'data' => AllCourses::collection($courses),
             ]);
         }catch (\Exception $e) {
 
@@ -255,7 +255,38 @@ catch (\Exception $e) {
         }
 
 
-return MyApp::Json()->errorHandle("date", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+
+
+
+}
+public function search(Request $request): JsonResponse
+    {
+        try {
+            // Retrieve search parameters from the request
+            $searchTerm = $request->input('searchTerm');
+
+//            $twoLetters = substr($searchTerm, 0, 1);
+//dd($twoLetters);
+
+            $courses = Course::query()
+                ->where('name', 'like',  DB::raw("'$searchTerm'"))
+
+                ->get();
+
+
+
+            return response()->json([
+                'data' =>($courses),
+            ]);
+        }catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
 
 
 

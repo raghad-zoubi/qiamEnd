@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BookTrackCer;
 
+use App\Http\Controllers\Controller;
 use App\Models\Certificate;
 use Illuminate\Http\Request;
 

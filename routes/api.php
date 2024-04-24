@@ -6,7 +6,7 @@ use App\Http\Controllers\advisor\ReserveController;
 use App\Http\Controllers\auth\AuthenticationController;
 use App\Http\Controllers\auth\ProfileController;
 use App\Http\Controllers\auth\UserController;
-use App\Http\Controllers\course\BookingController;
+use App\Http\Controllers\BookTrackCer\BookingController;
 use App\Http\Controllers\course\CenterController;
 use App\Http\Controllers\course\CoursController;
 use App\Http\Controllers\course\FavoriteController;
@@ -30,22 +30,23 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
+Route::get("/d", function () {
+    return "sakmkmas";
+});
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
 
-Route::get("/d", function () {
-    return "sakmkmas";
-});
+
 
 Route::prefix("user")->group(function () {
     Route::prefix("home")->controller(CoursController::class)->group(function () {
         Route::get("common", "common");
         Route::get("all", "all");
-        Route::post("search", "update");
+        Route::post("search", "search");
         Route::get("each/{type}", "each");
+
     });
     Route::prefix("favorite")->controller(FavoriteController::class)->group(function () {
 
@@ -92,7 +93,10 @@ Route::prefix("auth")->controller(UserController::class)->group(function () {
     Route::delete("logout", "Logout");
 });
 
-
+Route::prefix("booking")->controller(BookingController::class)->group(function () {
+    Route::post("check/{id}", "check");
+    Route::post("index/{type}/{id}", "index");
+});
 //------------
 Route::prefix("course")->controller(CoursController::class)->group(function () {
     Route::post("create", "create");
@@ -160,11 +164,6 @@ Route::prefix("reserve")->controller(ReserveController::class)->group(function (
 });
 
 
-    //for user
-    Route::get("countUsersWithNullCenterId",  [StatisticController::class, 'countUsersWithNullCenterId']);
-    Route::get("countUsersWithNullOnlineId",  [StatisticController::class, 'countUsersWithNullOnlineId']);
-    Route::get("countvisitors",  [StatisticController::class, 'countvisitors']);
-
 //------------hamza
 Route::controller(AuthenticationController::class)
     ->prefix("auth")->group(function () {
@@ -178,3 +177,9 @@ Route::controller(AuthenticationController::class)
 //        Route::post('auth/logout',  'logout');
 //        //->middleware('auth:sanctum');
     });
+//_________________________________________Statistics
+
+//for user
+Route::get("useronline",  [StatisticController::class, 'countUsersWithNullCenterId']);
+Route::get("usercenter",  [StatisticController::class, 'countUsersWithNullOnlineId']);
+Route::get("countvisitors",  [StatisticController::class, 'countvisitors']);

@@ -8,34 +8,43 @@ use App\Models\d3;
 use App\Models\d2;
 use App\Models\Profile;
 use App\Models\d1;
+use App\Models\Video;
 use App\MyApplication\MyApp;
 use App\MyApplication\Services\PollFormRuleValidation;
 use App\MyApplication\Services\ProfileRuleValidation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
 use function SebastianBergmann\Type\returnType;
 
-/**
- * @property PollFormRuleValidation() rules
- */
-class PollFormController extends Controller
-{
 
-    public function __construct()
+
+
+class VideoController extends Controller
+{
+    public function show()
     {
-       // $this->middleware(["auth:sanctum"]);
-        $this->rules = new PollFormRuleValidation();
+        $video = Video::findOrFail(57); // Assuming you have a Video model
+
+        return view('video', compact('video'));
+
+//        return view('video', ['videoPath' => $videoPath]);
+      //  $videoUrl = asset('path/video_2024-04-10_10-43-58.mp4');
+  //      return view('video', ['videoUrl' => $videoUrl]);
     }
+
+
+
 
     public function index()
     {
 
         try {
 
-            DB::beginTransaction();
-            $pollGet = d3::query()->get();
-            DB::commit();
-            return MyApp::Json()->dataHandle($pollGet, "poll");
+       //     FFMpeg::openUrl('https://videocoursebuilder.com/lesson-1.mp4');
+            FFMpeg::openUrl('https://videocoursebuilder.com/lesson-1.mp4');
+
         } catch (\Exception $e) {
 
             DB::rollBack();
@@ -47,6 +56,7 @@ class PollFormController extends Controller
         return MyApp::Json()->errorHandle("poll", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
 
     }
+
 
     public function Create(Request $request)
     {

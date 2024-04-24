@@ -1,19 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\auth;
-
+namespace App\Http\Controllers\BookTrackCer;
 use App\Http\Controllers\Controller;
-use App\Models\UserCertificate;
+use App\Models\Track;
 use Illuminate\Http\Request;
 
-class UserCertificateController extends Controller
+class TrackController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+
     }
 
     /**
@@ -35,7 +34,7 @@ class UserCertificateController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(UserCertificate $cer_Pat)
+    public function show(Track $track)
     {
         //
     }
@@ -43,7 +42,7 @@ class UserCertificateController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(UserCertificate $cer_Pat)
+    public function edit(Track $track)
     {
         //
     }
@@ -51,7 +50,7 @@ class UserCertificateController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, UserCertificate $cer_Pat)
+    public function update(Request $request, Track $track)
     {
         //
     }
@@ -59,7 +58,7 @@ class UserCertificateController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(UserCertificate $cer_Pat)
+    public function destroy(Track $track)
     {
         //
     }

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\course;
+namespace App\Http\Controllers\BookTrackCer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Track;
+use App\Models\UserCertificate;
 use Illuminate\Http\Request;
 
-class TrackController extends Controller
+class UserCertificateController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -35,7 +35,7 @@ class TrackController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Track $track)
+    public function show(UserCertificate $cer_Pat)
     {
         //
     }
@@ -43,7 +43,7 @@ class TrackController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Track $track)
+    public function edit(UserCertificate $cer_Pat)
     {
         //
     }
@@ -51,7 +51,7 @@ class TrackController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Track $track)
+    public function update(Request $request, UserCertificate $cer_Pat)
     {
         //
     }
@@ -59,7 +59,7 @@ class TrackController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Track $track)
+    public function destroy(UserCertificate $cer_Pat)
     {
         //
     }

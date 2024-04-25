@@ -17,8 +17,7 @@ return new class extends Migration
             $table->foreignId("id_user")->constrained("users")->cascadeOnDelete();
             $table->bigInteger("mark");
             $table->enum("status",["0","1"])->default("0");
-
-
+            $table->enum("done",["0","1"])->default("0");
             $table->timestamps();
         });
     }

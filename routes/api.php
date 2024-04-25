@@ -180,6 +180,9 @@ Route::controller(AuthenticationController::class)
 //_________________________________________Statistics
 
 //for user
-Route::get("useronline",  [StatisticController::class, 'countUsersWithNullCenterId']);
-Route::get("usercenter",  [StatisticController::class, 'countUsersWithNullOnlineId']);
+Route::get("useronline",  [StatisticController::class, 'useronline']);
+Route::get("usercenter",  [StatisticController::class, 'usercenter']);
 Route::get("countvisitors",  [StatisticController::class, 'countvisitors']);
+Route::get("completedcourse",  [StatisticController::class, 'completedcourse']);
+Route::get("havecertificate",  [StatisticController::class, 'havecertificate']);
+Route::get("advisernow",  [StatisticController::class, 'advisernow']);

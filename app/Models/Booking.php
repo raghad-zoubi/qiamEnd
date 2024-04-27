@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static create(array $array)
  * @method static whereDoesntHave(string $string, \Closure $param)
  * @method static whereHas(string $string, \Closure $param)
+ * @method static selectRaw(string $string)
  */
 class Booking extends Model
 {

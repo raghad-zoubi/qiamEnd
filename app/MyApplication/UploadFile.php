@@ -3,6 +3,7 @@
 namespace App\MyApplication;
 
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 
 class UploadFile
 {
@@ -47,21 +48,23 @@ class UploadFile
         $this->fileName = null;
     }
 
-    public function deleteFile(string $path): bool
+    public function deleteFile(string $strdelete,string $photo,string $path): bool
     {
-        if (file_exists(storage_path($path))){
-         //  dd("h");
-           unlink(storage_path($path));
+        $photo =str_replace($strdelete, '', $photo);
+        if ($photo && Storage::disk('public')->exists($path . $photo)) {
+            // Delete the file from the public directory
+            Storage::disk('public')->delete($path . $photo);
+
             return true;
         }
         return false;
     }
-    public function rollBackUpload(){
-        if (!is_null($this->fileName)){
-            $this->DeleteFile($this->fileName);
-        }
-        $this->fileName = null;
-    }
+//    public function rollBackUpload(){
+//        if (!is_null($this->fileName)){
+//            $this->DeleteFile($this->fileName);
+//        }
+//        $this->fileName = null;
+//    }
 
     public function DownloadFile($path)
     {

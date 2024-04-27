@@ -37,10 +37,10 @@ class Adviser extends Model
     }
 
     public function date()
-   {  $date = Carbon::now();
+   {  //$date = Carbon::now();  $d->format("Y-m-d")
 //        $d=$date->addDays(5);
-       //  dd(        $d->format("Y-m-d"));
-        return $this->hasMany(Date::class, 'id_adviser');
+       //  dd(      );
+        return $this->hasMany(Date::class, 'id_adviser','id');
 //          ->where('day', '<',  $d->format("Y-m-d"))//  ->with('reserve');
 //          ->where('day', '>',  $date->format("Y-m-d"));//  ->with('reserve');
     }

@@ -29,24 +29,22 @@ return [
     */
 
     'disks' => [
-            'files' => [
-                'driver' => 'local',
-                'root' => storage_path('app/files'),
-            ],
+
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app'),
+            'root' => public_path('Uploads'), // Set the root directory to the desired directory
             'throw' => false,
         ],
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'root' => public_path(), // Set the root directory to the desired directory
+            'url' => env('APP_URL').'/',
             'visibility' => 'public',
-            'throw' => false,
         ],
+
+
 
         's3' => [
             'driver' => 's3',

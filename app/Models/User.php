@@ -15,6 +15,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static where(string $string, $email)
  * @method static create(array $array)
  * @method static whereHas(string $string, \Closure $param)
+ * @method static selectRaw(string $string)
  */
 class User extends Authenticatable   implements  MustVerifyEmail
 {

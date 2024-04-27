@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\course;
+use Illuminate\Support\Facades\Storage;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AllCourses;
@@ -50,27 +51,28 @@ class CoursController extends Controller
     public function create(Request $request): JsonResponse
     {
         $request->validate($this->rules->onlyKey(["name", "photo", "about"], true));
-        $file = $request->file("photo");
-        if ($file->isValid()) {
+        if (isset($request['photo']) && $request['photo']->isValid()) {
             try {
+                // Check if a photo file was uploaded
+                // Generate a unique file name
+                $photoPath = $request->file('photo')->store('photo'); // The file will be stored in the 'public/Uploads' directory
+
                 DB::beginTransaction();
-                $path = MyApp::uploadFile()->upload($file);
                 //   dd($path);
                 $courceAdded = Course::create([
                     "about" => strtolower($request->about),
                     "name" => strtolower($request->name),
-                    "photo" => strtolower($path),
+                    "photo" => ($photoPath),
                 ]);
                 DB::commit();
 
                 return MyApp::Json()->dataHandle($courceAdded, "data");
             } catch (\Exception $e) {
-                MyApp::uploadFile()->rollBackUpload();
-                DB::rollBack();
+                MyApp::uploadFile()->deleteFile('photo/',$photoPath,'Uploads/photo/')   ;             DB::rollBack();
                 throw new \Exception($e->getMessage());
             }
         } else {
-            return MyApp::Json()->errorHandle("data", $file->getErrorMessage());
+            return MyApp::Json()->errorHandle("data",'حدث خطا ما اعد المحاوله لاحقا');
         }
     }
 
@@ -79,22 +81,26 @@ class CoursController extends Controller
         $request->validate($this->rules->onlyKey(["name", "photo", "about"], true));
         $file = Course::where("id", $id)->first();
         $oldPath = $file->photo;
+
         $newFile = $request->file("photo");
-        //  dd($newFile);
         if ($newFile->isValid()) {
             try {
                 DB::beginTransaction();
-                $newPath = MyApp::uploadFile()->upload($newFile);
-                $file->update([
+
+                        // Check if a photo file was uploaded
+                        // Generate a unique file name
+                        $photoPath = $newFile->store('photo'); // The file will be stored in the 'public/Uploads' directory
+
+                        $file->update([
                     "about" => strtolower($request->about),
                     "name" => strtolower($request->name),
-                    "photo" => $newPath,
+                    "photo" => $photoPath,
                 ]);
-                MyApp::uploadFile()->deleteFile($oldPath);
-                DB::commit();
-                return MyApp::Json()->dataHandle("Successfully updated course.", "data");
-            } catch (\Exception $e) {
-                MyApp::uploadFile()->rollBackUpload();
+
+                if (MyApp::uploadFile()->deleteFile('photo/',$oldPath,'Uploads/photo/')) {
+                    DB::commit();
+                    return MyApp::Json()->dataHandle("Successfully updated course.", "data");
+                }} catch (\Exception $e) {
                 DB::rollBack();
                 throw new \Exception($e->getMessage(), $e->getCode());
             }
@@ -113,10 +119,9 @@ class CoursController extends Controller
                 DB::beginTransaction();
                 $temp_path = $file->photo;
                 $file->delete();
-
-                if (MyApp::uploadFile()->deleteFile($temp_path)) {
-                    DB::commit();
-                    return MyApp::Json()->dataHandle("Successfully deleted file .", "data");
+         if (MyApp::uploadFile()->deleteFile('photo/',$temp_path,'Uploads/photo/'));
+                {DB::commit();
+                    return MyApp::Json()->dataHandle("Successfully deleted  .", "data");
                 }
             } catch (\Exception $e) {
 

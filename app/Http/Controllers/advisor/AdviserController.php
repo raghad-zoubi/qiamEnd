@@ -59,53 +59,59 @@ class AdviserController extends Controller
 
     }
 
+
     public function create(Request $request)
     {
-        //$request->validate($this->rules->onlyKey([ "type", "about", "id_user"], true));
-        //$request->validate($this->rules->onlyKey(["name", "photo", "about"], true));
-        $file = $request->file("photo");
-        if ($file->isValid()) {
+        if (isset($request['photo']) && $request['photo']->isValid()) {
             try {
+                // Check if a photo file was uploaded
+                // Generate a unique file name
+                $photoPath = $request->file('photo')->store('photo'); // The file will be stored in the 'public/Uploads' directory
+
+
                 DB::beginTransaction();
-                $path = MyApp::uploadFile()->upload($file);
-                //   dd($path);
 
                 $adviserAdded = Adviser::create([
                     "about" => strtolower($request->about),
                     "type" => strtolower($request->type),
                     "name" => strtolower($request->name),
-                    "photo" => strtolower($path),
-                    //"app/files/17125229171p.png"
-                    //    "id_user" => $request->id_user
+                    "photo" => $photoPath
+
                 ]);
 
-                foreach ($request->data as $data) {
-                    $dateAdded = Date::create([
-                        "from" => ($data['from']),
-                        "to" => ($data['to']),
-                        "day" => ($data['day']),
-                        "id_adviser" => $adviserAdded->id
-                    ]);
+                if ($request->has('date') && $request->date!= null) {
+                    foreach ($request->date as $da) {
+                     $d=$da['day'];
+                       foreach ($da['times'] as $t) {
+                             $dateAdded = Date::create([
+                                "from" =>'20:9',
+                                    //($t['from']),
+                                "to" =>'9:09',
+                           //($t['to']),
+                                "day" =>$d,
+                                    //$d,
+                                "id_adviser" => $adviserAdded->id
+                            ]);
+                        }
+                    }
                 }
-
                 DB::commit();
                 return MyApp::Json()->dataHandle($adviserAdded, "Adviser");
-            } catch (\Exception $e) {
-                MyApp::uploadFile()->rollBackUpload();
-                DB::rollBack();
-                throw new \Exception($e->getMessage());
             }
+         catch (\Exception $e) {
+             MyApp::uploadFile()->deleteFile('photo/',$photoPath,'Uploads/photo/')   ;             DB::rollBack();
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
         }
-        else
-            return MyApp::Json()->errorHandle("adviser", $file->getErrorMessage());
+    }
+    else
 
 
-            //  return MyApp::Json()->errorHandle("adviser", "حدث خطا ما في الاضافة  لديك ");//,$prof->getErrorMessage);
+    return MyApp::Json()->errorHandle("adviser", "حدث خطا ما في الاضافة  لديك ");//,$prof->getErrorMessage);
 
-        }
+}
 
-        public
-        function show($id_adviser)
+        public function show($id_adviser)
         {
             try {
 
@@ -130,26 +136,28 @@ class AdviserController extends Controller
             if (Adviser::query()->where("id", $request->id)->exists()) {
                 $ad = Adviser::where("id", $request->id)->first();
                 $oldPath = $ad->photo;
-                $newFile = $request->file("photo");
                 //  dd($newFile);
+                $newFile = $request->file("photo");
                 if ($newFile->isValid()) {
                     try {
                         DB::beginTransaction();
-                        $newPath = MyApp::uploadFile()->upload($newFile);
+
+                        $photoPath = $newFile->store('photo'); // The file will be stored in the 'public/Uploads' directory
 
                         if ($ad) {
                             $ad->about = strtolower($request->about);
                             $ad->name = strtolower($request->name);
                             $ad->type = strtolower($request->type);
                             $ad->id_user = ($request->id_user);
-                            $ad->photo = ($newPath);
+                            $ad->photo = ($photoPath);
 
                             $ad->save();
                         }
-                        MyApp::uploadFile()->deleteFile($oldPath);
 
-                        DB::commit();
-                        return MyApp::Json()->dataHandle("edit successfully", "adviser");
+                        if (MyApp::uploadFile()->deleteFile('photo/',$oldPath,'Uploads/photo/')) {
+                            DB::commit();
+                            return MyApp::Json()->dataHandle("Successfully updated course.", "data");
+                        }
                     } catch (\Exception $e) {
 
                         DB::rollBack();
@@ -174,11 +182,11 @@ class AdviserController extends Controller
                     DB::beginTransaction();
                     $ad = Adviser::where("id", $id)->first();
                     $oldPath = $ad->photo;
-                    MyApp::uploadFile()->deleteFile($oldPath);
-                    Adviser::where("id", $id)->delete();
+                    if (MyApp::uploadFile()->deleteFile('photo/',$oldPath,'Uploads/photo/'));
+                    { Adviser::where("id", $id)->delete();
                     DB::commit();
                     return MyApp::Json()->dataHandle("success deleted", "adviser");
-                } catch (\Exception $e) {
+                }} catch (\Exception $e) {
 
                     DB::rollBack();
                     throw new \Exception($e->getMessage());
@@ -192,8 +200,7 @@ class AdviserController extends Controller
         }
 
         //user
-        public
-        function display($type)
+        public function display($type)
         {
 
             try {

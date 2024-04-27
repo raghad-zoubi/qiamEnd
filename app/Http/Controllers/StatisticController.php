@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\StatisticAdvisor;
+use App\Http\Resources\StatisticData;
 use App\Models\Booking;
 use App\Models\d4;
 use App\Models\Date;
 use App\Models\Reserve;
 use App\Models\User;
+use App\Models\UserCertificate;
 use App\MyApplication\MyApp;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 
@@ -21,72 +24,26 @@ class StatisticController extends Controller
         // $this->middleware(["auth:sanctum"]);
     }
 
-    public function countvisitors()
+    public function count()
     {
 
         try {
 
             DB::beginTransaction();
-            $userCount = User::where('role', 'user')->count();
-            DB::commit();
-            return MyApp::Json()->dataHandle($userCount, "data");
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-            throw new \Exception($e->getMessage());
-        }
-
-
-        return MyApp::Json()->errorHandle("data", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
-
-    }
-
-    public function useronline()
-    {
-
-
-        try {
-
-            DB::beginTransaction();
-
-            $userCount = Booking::whereHas('booking', function ($query) {
+            $visitorCount = User::where('role', 'user')->count();
+            $onlineCount = Booking::whereHas('booking', function ($query) {
                 $query->whereNotNull('id_online');
             })->distinct()->count('id_user');
-            //->count('id_user');
-            //->distinct()->distinct()->count('id_user');
-            //->count('id_user');
-            DB::commit();
-            return MyApp::Json()->dataHandle($userCount, "data");
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-            throw new \Exception($e->getMessage());
-        }
-
-
-        return MyApp::Json()->errorHandle("data", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
-
-
-    }
-
-    public function usercenter()
-    {
-
-
-        try {
-
-            DB::beginTransaction();
-
-            $userCount = Booking::whereHas('booking', function ($query) {
+            $centerCount = Booking::whereHas('booking', function ($query) {
                 $query->whereNotNull('id_center');
             })
                 ->distinct()->count('id_user');
-            //->count('id_user');
-            //->distinct()->distinct()->count('id_user');
-            //->count('id_user');
             DB::commit();
-            return MyApp::Json()->dataHandle($userCount, "data");
-        } catch (\Exception $e) {
+            return response()->json([
+                'visitorCount' => $visitorCount,
+                'onlineCount' => $onlineCount,
+                'centerCount' => $centerCount,
+            ]);        } catch (\Exception $e) {
 
             DB::rollBack();
             throw new \Exception($e->getMessage());
@@ -95,10 +52,10 @@ class StatisticController extends Controller
 
         return MyApp::Json()->errorHandle("data", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
 
-
     }
 
-    public function havecertificate()
+//Statistic
+    public function proportion()
     {
 
 
@@ -106,7 +63,7 @@ class StatisticController extends Controller
 
             DB::beginTransaction();
 //المسجلين
-            $Count = Booking::whereHas('booking', function ($query) {
+            $withoutcertificate = Booking::whereHas('booking', function ($query) {
                 $query->whereHas('online', function ($subQuery) {
                     $subQuery->whereNotNull('id_online')
                         ->where('exam', '=', '1');
@@ -114,7 +71,7 @@ class StatisticController extends Controller
             })->distinct()->count('id_user');
             //->count('id_user');
 //اللي اخدين شهاده
-            $userCount = Booking::whereHas('booking', function ($query) {
+            $withcertificate = Booking::whereHas('booking', function ($query) {
                 $query->whereHas('online', function ($subQuery) {
                     $subQuery->whereNotNull('id_online')
                         ->where('exam', '=', '1');
@@ -125,10 +82,21 @@ class StatisticController extends Controller
                     ->whereColumn('user_certificate.id_booking', 'booking.id');
             })
                 ->distinct()->count('id_user');
+            $uncompletedcourse= Booking::whereHas('booking', function ($query) {
+                $query->whereNotNull('id_online');
+            })
+                ->where('done', '=', '0') ->distinct()->count('id_user');
+            $completedcourse = Booking::whereHas('booking', function ($query) {
+                $query->whereNotNull('id_online');
+            })->where('done', '=', '1')->distinct()->count('id_user');
+
+
             DB::commit();
             return response()->json([
-                'withcertificate' => $userCount,
-                'withoutcertificate' => $Count,
+                'withcertificate' => $withcertificate,
+                'withoutcertificate' => $withoutcertificate,
+                'completedcourse' => $completedcourse,
+                'uncompletedcourse' => $uncompletedcourse,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -141,7 +109,8 @@ class StatisticController extends Controller
 
     }
 
-    public function completedcourse()
+
+    public function statistic()
     {
 
 
@@ -149,20 +118,29 @@ class StatisticController extends Controller
 
             DB::beginTransaction();
 
-            $Count = Booking::whereHas('booking', function ($query) {
-                $query->whereNotNull('id_online');
-            })
-                ->where('done', '=', '0') ->distinct()->count('id_user');
-            $userCount = Booking::whereHas('booking', function ($query) {
-                $query->whereNotNull('id_online');
-            })->where('done', '=', '1')->distinct()->count('id_user');
+
+//            $usersByMonth = User::selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as users')
+//                ->groupBy('year', 'month')
+//                ->get();
+//            $usersByMonth = User::selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month, COUNT(*) as users')
+//                ->groupBy('year', 'month')
+//                ->get();
+
+            $bookingsByMonth = Booking::selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month, COUNT(*) as bookings')
+                ->groupBy('year', 'month')
+                ->get();
+//
+            $certificatesByMonth = UserCertificate::selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month, COUNT(*) as certificates')
+                ->groupBy('year', 'month')
+                ->get();
 
             DB::commit();
             return response()->json([
-                'completedcourse' => $userCount,
-                'uncompletedcourse' => $Count,
-            ]);        } catch (\Exception $e) {
-
+            //    'usersByMonth' => $usersByMonth,
+                'bookingsByMonth' => $bookingsByMonth,
+                'certificatesByMonth' => $certificatesByMonth,
+            ]);
+        } catch (\Exception $e) {
             DB::rollBack();
             throw new \Exception($e->getMessage());
         }
@@ -172,6 +150,7 @@ class StatisticController extends Controller
 
 
     }
+
 
     public function advisernow()
     {

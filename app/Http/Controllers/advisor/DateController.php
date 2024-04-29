@@ -4,6 +4,7 @@ namespace App\Http\Controllers\advisor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\IndexDateReserve;
+use App\Http\Resources\StatisticAdvisor;
 use App\Http\Resources\VideoCourses;
 use App\Models\Adviser;
 use App\Models\Reserve;
@@ -87,7 +88,7 @@ class DateController extends Controller
 
     }
 
-    public function create(Request $request)
+    public function create($id_adviser,Request $request)
     {
         //  $request->validate($this->rules->onlyKey(["time", "day", "id_adviser"], true));
 
@@ -97,16 +98,23 @@ class DateController extends Controller
 //        ]);
         try {
             DB::beginTransaction();
-            foreach ($request->data as $data) {
-                if (Adviser::query()->where("id", $data['id_adviser'])->exists()) {
-                    $dateAdded = Date::create([
-                        "to" => ($data['to']),
-                        "from" => ($data['from']),
-                        "day" => ($data['day']),
-                        "id_adviser" => $data['id_adviser']
-                    ]);
+
+            if (Adviser::query()->where("id", $id_adviser)->exists()) {
+               if ($request->has('date') && $request->date != null) {
+
+                    foreach ($request->date as $da) {
+                             foreach ($da['times'] as $t) {
+                            $dateAdded = Date::create([
+                                "from" => ($t['from']),
+                                "to" => ($t['to']),
+                                "day" =>$da['day'],//$d,
+                                "id_adviser" => $id_adviser
+                            ]);
+                        }
+                    }
                 }
             }
+
             DB::commit();
             return MyApp::Json()->dataHandle(' Add successfully', "Date");
         } catch (\Exception $e) {
@@ -120,70 +128,71 @@ class DateController extends Controller
 
     }
 
-//    public function show($status, $id_adviser)
-//    {
-//        //$status==محجوزه1
-//        //$status==0قيد الانتظار
-//
-//        try {
-//
-//
-//            DB::beginTransaction();
-//            $dateGet = Reserve::with('date')->
-//            where("id_adviser", $id_adviser)->
-//            where("status", $status)
-//                ->get()->first();
-////                $dateGet = Adviser::with('date')->
-////                where("id",$id)->whereHas('reserve', function($q) use ($status) {
-////                    $q-> where("status",$status);
-////                })->get();
-//            //    where("status",$status)
-//            //     ->get()->first();
-//
-//            DB::commit();
-//            return MyApp::Json()->dataHandle($dateGet, "date");
-//        } catch (\Exception $e) {
-//
-//            DB::rollBack();
-//            throw new \Exception($e->getMessage());
-//        }
-//
-//
-//        return MyApp::Json()->errorHandle("date", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
-//
-//    }
-//
-//    public function update(Request $request)
-//    {
-//        $request->validate($this->rules->onlyKey(["time", "day", "id_adviser"], true));
-//        if (Date::query()->where("id", $request->id)->exists()) {
-//            try {
-//                DB::beginTransaction();
-//
-//                $ad = Date::where("id", $request->id)->first();
-//                if ($ad) {
-//                    $ad->time = ($request->time);
-//                    $ad->day = ($request->day);
-//                    $ad->id_adviser = ($request->id_adviser);
-//
-//                    $ad->save();
-//                }
-//                DB::commit();
-//                return MyApp::Json()->dataHandle("edit successfully", "date");
-//            } catch (\Exception $e) {
-//
-//                DB::rollBack();
-//                throw new \Exception($e->getMessage());
-//            }
-//
-//        } else
-//
-//            return MyApp::Json()->errorHandle("date", "حدث خطا ما في تعديل  لديك ");//,$prof->getErrorMessage);
-//
-//
-//    }
+   public function showday($id_adviser,$d )
+   {
 
-    public function destroy($id)
+       try {
+
+
+           DB::beginTransaction();
+
+            $reservations = Reserve::whereHas('reserve', function ($query) use ($id_adviser, $d) {
+                $query->where('day','=', $d)->where( 'id_adviser','=', $id_adviser);
+            })
+                ->with(['users2', 'reserve2'])
+                ->get();
+
+dd($reservations);
+
+            DB::commit();
+            return response()->json([
+                '$DateGet' => IndexDateReserve::collection($reservations),
+            ]);
+
+            //return MyApp::Json()->dataHandle($dateGet, "date");
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+        return MyApp::Json()->errorHandle("date", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
+
+    }
+
+    public function update(Request $request)
+    {
+       // $request->validate($this->rules->onlyKey(["time", "day", "id_adviser"], true));
+        if (Date::query()->where("id", $request->id)->exists()) {
+            try {
+                DB::beginTransaction();
+
+                $ad = Date::where("id", $request->id)->first();
+                if ($ad) {
+                    $ad->from = ($request->from);
+                    $ad->time = ($request->time);
+                    $ad->day = ($request->day);
+                    $ad->id_adviser = ($request->id_adviser);
+
+                    $ad->save();
+                }
+                DB::commit();
+                return MyApp::Json()->dataHandle("edit successfully", "date");
+            } catch (\Exception $e) {
+
+                DB::rollBack();
+                throw new \Exception($e->getMessage());
+            }
+
+        } else
+
+            return MyApp::Json()->errorHandle("date", "حدث خطا ما في تعديل  لديك ");//,$prof->getErrorMessage);
+
+
+    }
+
+    public function delete($id)
     {
         if (Date::query()->where("id", $id)->exists()) {
             try {

@@ -9,6 +9,7 @@ use App\Models\Adviser;
 use App\Models\Course;
 use App\Models\d3;
 use App\Models\Date;
+use App\Models\Reserve;
 use App\Models\User;
 use App\MyApplication\MyApp;
 use App\MyApplication\Services\AdviserRuleValidation;
@@ -60,12 +61,36 @@ class AdviserController extends Controller
     }
 
 
-    public function create(Request $request)
+    public function show($id_adviser)
     {
+        try {
+
+            DB::beginTransaction();
+            $date = Carbon::now();
+            $d = $date->format("Y-m-d");
+
+            $AdviserGet = Date::with(['adviser','reserve'])->
+            where("id_adviser",'=',68)->where("day",'=',$d)->
+            get();
+
+
+
+            DB::commit();
+            return MyApp::Json()->dataHandle($AdviserGet, "Adviser");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+        return MyApp::Json()->errorHandle("Adviser", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
+
+    }
+
+    public function create(Request $request)
+    {// raghad11
         if (isset($request['photo']) && $request['photo']->isValid()) {
             try {
                 // Check if a photo file was uploaded
-                // Generate a unique file name
+                // Generate a unique file name;
                 $photoPath = $request->file('photo')->store('file'); // The file will be stored in the 'public/Uploads' directory
 
 
@@ -110,25 +135,6 @@ class AdviserController extends Controller
     return MyApp::Json()->errorHandle("adviser", "حدث خطا ما في الاضافة  لديك ");//,$prof->getErrorMessage);
 
 }
-
-        public function show($id_adviser)
-        {
-            try {
-
-                DB::beginTransaction();
-                $AdviserGet = Adviser::
-                with('date')
-                    ->where("id", '=', $id_adviser)
-                    ->get();
-                DB::commit();
-                return MyApp::Json()->dataHandle($AdviserGet, "Adviser");
-            } catch (\Exception $e) {
-                DB::rollBack();
-                throw new \Exception($e->getMessage());
-            }
-            return MyApp::Json()->errorHandle("Adviser", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
-
-        }
 
         public
         function update(Request $request)

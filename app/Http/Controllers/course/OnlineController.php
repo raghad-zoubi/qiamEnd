@@ -56,7 +56,8 @@ class OnlineController extends Controller
     {
 //        $request->validate($this->rules->onlyKey(["Exam", "price", "serial",
 //            "durationExam", "id_course", "id_form", "id_poll"], true));
-        try {
+     try {
+
             DB::beginTransaction();
             $online = Online::create([
                 "exam" => strtolower($request->exam),
@@ -67,7 +68,7 @@ class OnlineController extends Controller
                 "numberContents" => $request->numberContents,
                 "numberHours" => $request->numberHours,
                 "id_course" => $request->id_course,
-            ]);
+            ]);//dd('p');
             $onlinecenter = Online_Center::create([
                 "id_online"=>$online->id,
                  "id_center"=>null,
@@ -103,10 +104,9 @@ class OnlineController extends Controller
 $r2=0;
 $r1=0;
 $r3=0;
-//            try {
-//                    // Check if a photo file was uploaded
-//   UploadedFile                 // Generate a unique file name
-//                    $photoPath = $request->file('photo')->store('file'); // The file will be stored in the 'public/Uploads' directory
+//            $v='';
+//            $filePath='';
+//            $f='';
             foreach ($request['content'] as $inner) {
                 $file = $inner['photo']; // Assuming 'photo' is the key for the uploaded file
                 if ($file->isValid()) {
@@ -186,10 +186,10 @@ $r3=0;
 
 
 
-        catch (\Exception $e) {
-            MyApp::uploadFile()->deleteFile($v);
-            MyApp::uploadFile()->deleteFile($f);
-            MyApp::uploadFile()->deleteFile($filePath);
+       catch (\Exception $e) {
+//            MyApp::uploadFile()->deleteFile($v);
+//            MyApp::uploadFile()->deleteFile($f);
+//            MyApp::uploadFile()->deleteFile($filePath);
             DB::rollBack();
             throw new \Exception($e->getMessage());
         }

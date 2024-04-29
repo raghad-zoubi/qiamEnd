@@ -147,15 +147,15 @@ Route::prefix("adviser")->controller(AdviserController::class)->group(function (
     Route::get("delete/{id}", "delete");
 });
 Route::prefix("date")->controller(DateController::class)->group(function () {
-    Route::post("create", "create");
+    Route::post("create/{id_adviser}", "create");
     //for adv
     Route::get("index/{id}/{type}", "index");//all status date which aval
+    Route::get("showday/{id_adviser}/{d}", "showday");//all status date which aval
     Route::get("show/{status}/{id}", "show");//all status reserve
     Route::post("update", "update");
     Route::get("delete/{id}", "destroy");
 });
 Route::prefix("reserve")->controller(ReserveController::class)->group(function () {
-
     //for user
     Route::get("user/index/{id}", "index");//الموعيد المتاحه
     Route::get("user/show", "show");//موعيدي

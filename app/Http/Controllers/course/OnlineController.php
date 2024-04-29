@@ -103,39 +103,48 @@ class OnlineController extends Controller
 $r2=0;
 $r1=0;
 $r3=0;
+//            try {
+//                    // Check if a photo file was uploaded
+//   UploadedFile                 // Generate a unique file name
+//                    $photoPath = $request->file('photo')->store('file'); // The file will be stored in the 'public/Uploads' directory
             foreach ($request['content'] as $inner) {
-               // $file = $inner->file('photo');
-                $file = $inner['photo'];
+                $file = $inner['photo']; // Assuming 'photo' is the key for the uploaded file
                 if ($file->isValid()) {
-                    $pat = MyApp::uploadFile()->upload($file);
+                    // Store the file and get the path
+                    $filePath = $file->store('file'); // The file will be stored in the 'public/photo' directory
+
+                    // Create a new Content record
                     $content = Content::create([
                         "id_online_center" => $onlinecenter->id,
                         "numberHours" => $inner['numberHours'],
                         "numberVideos" => $inner['numberVideos'],
                         "durationExam" => $inner['durationExam'],
                         "numberQuestion" => $inner['numberQuestion'],
-                        //  "photo" => ($inner['photo']),
-                        "photo" => strtolower($pat),
+                        "photo" => strtolower($filePath), // Store the file path in lowercase
                         "name" => $inner['name'],
                         "rank" => $r1,
                         "exam" => $inner['exam'],
                     ]);
-                if($inner['exam']=="1")
+
+
+
+
+                    if($inner['exam']=="1")
                     $courseexam = CourseExame::create([
                         "id_online_center"=>null,
                         "id_content"=>$content->id,
                         "id_exam" =>$inner['id_exam'],
                     ]);
-
                 foreach ($inner['pdfFiles'] as $item) {
 
                     //         $file = $request->file($item["file"]);
                     $file = $item['file'];
                     if ($file->isValid()) {
-                        $path = MyApp::uploadFile()->upload($file);
+                        $f = $file->store('file'); // The file will be stored in the 'public/Uploads' directory
+
                         $file = File::create([
                             "name" => $item["name"],
-                            "file" => strtolower($path),
+                            "file" => strtolower($f),
                             //   "file" => $item["file"],
                             "id_content" => $content->id,
                             "rank" => $r2
@@ -147,12 +156,13 @@ $r3=0;
                 foreach ($inner['videoFiles'] as $item) {
                     $file = $item['video'];
                     if ($file->isValid()) {
-                        $path = MyApp::uploadFile()->upload($file);
+                        $v=$file->store('file'); // The file will be stored in the 'public/Uploads' directory
+
                         $video = Video::create([
                             "id_content" => $content->id,
                             "name" => $item["name"],
                             "rank" => $r3,
-                            "video" => strtolower($path),
+                            "video" => strtolower($v),
                             //  "video"=>$item["video"],
                             "duration" => $item["duration"],
 
@@ -167,16 +177,19 @@ $r3=0;
                     $r1 = $r1 + 1;
                 }
             }
+
             DB::commit();
 
             return MyApp::Json()->dataHandle($online, "cours");
-        }
+       }
 
 
 
 
         catch (\Exception $e) {
-            MyApp::uploadFile()->rollBackUpload();
+            MyApp::uploadFile()->deleteFile($v);
+            MyApp::uploadFile()->deleteFile($f);
+            MyApp::uploadFile()->deleteFile($filePath);
             DB::rollBack();
             throw new \Exception($e->getMessage());
         }
@@ -185,61 +198,6 @@ $r3=0;
         return MyApp::Json()->errorHandle("course", $file->getErrorMessage());
     }
 
-
-    public function updlate(Request $request): JsonResponse
-    {
-
-        $request->validate($this->rules->onlyKey(["Exam", "price", "serial",
-            "durationExam", "id_course", "id_form", "id_poll"], true));
-        $online = Online::where("id", $request->id)->first();
-        try {
-            DB::beginTransaction();
-            $online->update([
-                "Exam" => $request->exam,
-                "price" => $request->price,
-                "serial" => $request->serial,
-                "durationExam" => $request->durationExam,
-                "id_course" => $request->id_course,
-                "id_form" => $request->id_form,
-                "id_poll" => $request->id_poll,
-            ]);
-            DB::commit();
-            return MyApp::Json()->dataHandle("Successfully updated online course.", "message");
-        } catch (\Exception $e) {
-            MyApp::uploadFile()->rollBackUpload();
-            DB::rollBack();
-            throw new \Exception($e->getMessage(), $e->getCode());
-        }
-
-        return MyApp::Json()->errorHandle("online", $online->getErrorMessage());
-    }
-
-    public function update(Request $request): JsonResponse
-    {
-        $request->validate($this->rules->
-        onlyKey(["Exam", "price", "serial",
-            "durationExam", "id_course", "id_form", "id_poll"],true));
-        $online = Online::where("id",$request->id)->first();
-        try {
-            DB::beginTransaction();
-            $online->update([
-                "Exam"=>$request->exam,
-                "durationExam"=>$request->durationExam,
-                "id_course"=>$request->id_course,
-                "id_form"=>$request->id_form,
-                "id_poll"=>$request->id_poll,
-                "price"=>$request->price
-            ]);
-            DB::commit();
-            return MyApp::Json()->dataHandle("Successfully updated online course.","message");
-        }catch (\Exception $e){
-            MyApp::uploadFile()->rollBackUpload();
-            DB::rollBack();
-            throw new \Exception($e->getMessage(),$e->getCode());
-        }
-
-        return MyApp::Json()->errorHandle("online",$online->getErrorMessage());
-    }
 
     public function destroy($id)
     {

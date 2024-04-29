@@ -66,7 +66,7 @@ class AdviserController extends Controller
             try {
                 // Check if a photo file was uploaded
                 // Generate a unique file name
-                $photoPath = $request->file('photo')->store('photo'); // The file will be stored in the 'public/Uploads' directory
+                $photoPath = $request->file('photo')->store('file'); // The file will be stored in the 'public/Uploads' directory
 
 
                 DB::beginTransaction();
@@ -99,7 +99,7 @@ class AdviserController extends Controller
                 return MyApp::Json()->dataHandle($adviserAdded, "Adviser");
             }
          catch (\Exception $e) {
-             MyApp::uploadFile()->deleteFile('photo/',$photoPath,'Uploads/photo/')   ;             DB::rollBack();
+             MyApp::uploadFile()->deleteFile($photoPath) ;             DB::rollBack();
             DB::rollBack();
             throw new \Exception($e->getMessage());
         }
@@ -142,7 +142,7 @@ class AdviserController extends Controller
                     try {
                         DB::beginTransaction();
 
-                        $photoPath = $newFile->store('photo'); // The file will be stored in the 'public/Uploads' directory
+                        $photoPath = $newFile->store('file'); // The file will be stored in the 'public/Uploads' directory
 
                         if ($ad) {
                             $ad->about = strtolower($request->about);
@@ -154,7 +154,7 @@ class AdviserController extends Controller
                             $ad->save();
                         }
 
-                        if (MyApp::uploadFile()->deleteFile('photo/',$oldPath,'Uploads/photo/')) {
+                        if (MyApp::uploadFile()->deleteFile($oldPath)) {
                             DB::commit();
                             return MyApp::Json()->dataHandle("Successfully updated course.", "data");
                         }
@@ -182,7 +182,7 @@ class AdviserController extends Controller
                     DB::beginTransaction();
                     $ad = Adviser::where("id", $id)->first();
                     $oldPath = $ad->photo;
-                    if (MyApp::uploadFile()->deleteFile('photo/',$oldPath,'Uploads/photo/'));
+                    if (MyApp::uploadFile()->deleteFile($oldPath));
                     { Adviser::where("id", $id)->delete();
                     DB::commit();
                     return MyApp::Json()->dataHandle("success deleted", "adviser");

@@ -55,7 +55,7 @@ class CoursController extends Controller
             try {
                 // Check if a photo file was uploaded
                 // Generate a unique file name
-                $photoPath = $request->file('photo')->store('photo'); // The file will be stored in the 'public/Uploads' directory
+                $photoPath = $request->file('photo')->store('file'); // The file will be stored in the 'public/Uploads' directory
 
                 DB::beginTransaction();
                 //   dd($path);
@@ -68,7 +68,8 @@ class CoursController extends Controller
 
                 return MyApp::Json()->dataHandle($courceAdded, "data");
             } catch (\Exception $e) {
-                MyApp::uploadFile()->deleteFile('photo/',$photoPath,'Uploads/photo/')   ;             DB::rollBack();
+                MyApp::uploadFile()->deleteFile($photoPath) ;
+                DB::rollBack();
                 throw new \Exception($e->getMessage());
             }
         } else {
@@ -89,7 +90,7 @@ class CoursController extends Controller
 
                         // Check if a photo file was uploaded
                         // Generate a unique file name
-                        $photoPath = $newFile->store('photo'); // The file will be stored in the 'public/Uploads' directory
+                        $photoPath = $newFile->store('file'); // The file will be stored in the 'public/Uploads' directory
 
                         $file->update([
                     "about" => strtolower($request->about),
@@ -97,7 +98,7 @@ class CoursController extends Controller
                     "photo" => $photoPath,
                 ]);
 
-                if (MyApp::uploadFile()->deleteFile('photo/',$oldPath,'Uploads/photo/')) {
+                if (MyApp::uploadFile()->deleteFile($oldPath)) {
                     DB::commit();
                     return MyApp::Json()->dataHandle("Successfully updated course.", "data");
                 }} catch (\Exception $e) {
@@ -119,7 +120,7 @@ class CoursController extends Controller
                 DB::beginTransaction();
                 $temp_path = $file->photo;
                 $file->delete();
-         if (MyApp::uploadFile()->deleteFile('photo/',$temp_path,'Uploads/photo/'));
+         if (MyApp::uploadFile()->deleteFile('photo/',$temp_path,'Uploads/file/'));
                 {DB::commit();
                     return MyApp::Json()->dataHandle("Successfully deleted  .", "data");
                 }

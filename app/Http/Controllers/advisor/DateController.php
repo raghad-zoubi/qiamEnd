@@ -4,6 +4,7 @@ namespace App\Http\Controllers\advisor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\IndexDateReserve;
+use App\Http\Resources\ShowDay;
 use App\Http\Resources\StatisticAdvisor;
 use App\Http\Resources\VideoCourses;
 use App\Models\Adviser;
@@ -103,6 +104,7 @@ class DateController extends Controller
                if ($request->has('date') && $request->date != null) {
 
                     foreach ($request->date as $da) {
+
                              foreach ($da['times'] as $t) {
                             $dateAdded = Date::create([
                                 "from" => ($t['from']),
@@ -136,20 +138,16 @@ class DateController extends Controller
 
            DB::beginTransaction();
 
-            $reservations = Reserve::whereHas('reserve', function ($query) use ($id_adviser, $d) {
-                $query->where('day','=', $d)->where( 'id_adviser','=', $id_adviser);
-            })
-                ->with(['users2', 'reserve2'])
-                ->get();
-
-dd($reservations);
-
+           $DateGet = Date::where('id_adviser', $id_adviser)
+               ->where('day', $d)
+                       ->with('reserve')
+               ->get();
             DB::commit();
             return response()->json([
-                '$DateGet' => IndexDateReserve::collection($reservations),
+                'DateGet' =>//$DateGet
+                    ShowDay::collection($DateGet),
             ]);
 
-            //return MyApp::Json()->dataHandle($dateGet, "date");
         } catch (\Exception $e) {
 
             DB::rollBack();
@@ -161,36 +159,6 @@ dd($reservations);
 
     }
 
-    public function update(Request $request)
-    {
-       // $request->validate($this->rules->onlyKey(["time", "day", "id_adviser"], true));
-        if (Date::query()->where("id", $request->id)->exists()) {
-            try {
-                DB::beginTransaction();
-
-                $ad = Date::where("id", $request->id)->first();
-                if ($ad) {
-                    $ad->from = ($request->from);
-                    $ad->time = ($request->time);
-                    $ad->day = ($request->day);
-                    $ad->id_adviser = ($request->id_adviser);
-
-                    $ad->save();
-                }
-                DB::commit();
-                return MyApp::Json()->dataHandle("edit successfully", "date");
-            } catch (\Exception $e) {
-
-                DB::rollBack();
-                throw new \Exception($e->getMessage());
-            }
-
-        } else
-
-            return MyApp::Json()->errorHandle("date", "حدث خطا ما في تعديل  لديك ");//,$prof->getErrorMessage);
-
-
-    }
 
     public function delete($id)
     {

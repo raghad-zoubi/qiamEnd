@@ -43,5 +43,13 @@ class Adviser extends Model
         return $this->hasMany(Date::class, 'id_adviser','id');
 //          ->where('day', '<',  $d->format("Y-m-d"))//  ->with('reserve');
 //          ->where('day', '>',  $date->format("Y-m-d"));//  ->with('reserve');
+    }  public function date2()
+   {  //$date = Carbon::now();  $d->format("Y-m-d")
+//        $d=$date->addDays(5);
+       //  dd(      );
+        return $this->hasMany(Date::class, 'id_adviser','id')
+            ->with('reserve');
+//          ->where('day', '<',  $d->format("Y-m-d"))//  ->with('reserve');
+//          ->where('day', '>',  $date->format("Y-m-d"));//  ->with('reserve');
     }
 }

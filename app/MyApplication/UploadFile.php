@@ -49,12 +49,14 @@ class UploadFile
     }
 
     public function deleteFile(string $photo): bool
-    {
-        $photo =str_replace('file', '', $photo);
-        if ($photo && Storage::disk('public')->exists('Uploads/photo/' . '$photo')) {
-            // Delete the file from the public directory
-            Storage::disk('public')->delete('Uploads/photo/' . $photo);
+    {//public\Uploads\file\ejufvElLmQo866SVBipUgF7d6pVF8ibu0Bblfw6O.png
+    //   $photoa='file/2v8nxPzmHkqXs60mCj54rvw2ZYPLG5egKigrtQ3V.png';
+        $photo =str_replace('file/', '', $photo);
 
+        if ($photo && Storage::disk('public')->exists('Uploads/file/' . $photo)) {
+           // Delete the file from the public directory
+            Storage::disk('public')->delete('Uploads/file/' . $photo);
+//
             return true;
         }
         return false;

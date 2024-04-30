@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use function Nette\Utils\isEmpty;
 
-class IndexDateReserve extends JsonResource
+class ShowDay extends JsonResource
 {
 
 
@@ -46,7 +46,6 @@ class IndexDateReserve extends JsonResource
 //        }
         foreach ($this as $item) {
             if ($item != null) {
-//dd($item['reserve'][0]['status'] );
                 if ($item['reserve'] != null)
                 {
                     foreach ($item['reserve'] as $re) {
@@ -57,6 +56,9 @@ class IndexDateReserve extends JsonResource
                                 'id' => $re['id'],
                                 'id_user' => $re['id_user'],
                                 'status' => $re['status'],
+                                'name' => $re['users2']['profile']['name'],
+                                'lastName' => $re['users2']['profile']['lastName'],
+                                'fatherName' => $re['users2']['profile']['fatherName'],
                             ];
 
                         }
@@ -73,9 +75,10 @@ class IndexDateReserve extends JsonResource
                 }
                 $data = [
                     'id' => $item['id'] ?? null,
-                    'id_adviser' => $item['id_adviser'] ?? null,
-                    'time' => $item['time'] ?? null,
-                    'day' => $item['day'] ?? null,
+                   // 'id_adviser' => $item['id_adviser'] ?? null,
+                    'from' => $item['from'] ?? null,
+                    'to' => $item['to'] ?? null,
+                //    'day' => $item['day'] ?? null,
                     'reserve' => $reserve ?? null,
 
 

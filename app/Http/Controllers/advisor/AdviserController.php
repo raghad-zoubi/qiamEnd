@@ -5,6 +5,7 @@ namespace App\Http\Controllers\advisor;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DetailsCenterCourses;
 use App\Http\Resources\IndexTypeAdvisor;
+use App\Http\Resources\ShowAdviser;
 use App\Models\Adviser;
 use App\Models\Course;
 use App\Models\d3;
@@ -18,7 +19,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 
-// Now $adviserGet contains the Adviser data along with the associated User and Profile data
 class AdviserController extends Controller
 {
     public function __construct()
@@ -26,12 +26,7 @@ class AdviserController extends Controller
 //        $this->middleware(["auth:sanctum"]);
 //        $this->rules = new AdviserRuleValidation();
     }
-
-    /*
-     * index:عرض جميع المستشارين مع تفاصيلن
-     * create:اضافة مستشار مع معلوماتو + موعيد اذا بدو
-     * show:عرض مستشار ما مع  موعيده
-     * */
+//عرض الكل
     public function index()
     {
 
@@ -60,7 +55,7 @@ class AdviserController extends Controller
 
     }
 
-
+//عرض مستشار +موعيد وحجوزات اليوم
     public function show($id_adviser)
     {
         try {
@@ -68,16 +63,16 @@ class AdviserController extends Controller
             DB::beginTransaction();
             $date = Carbon::now();
             $d = $date->format("Y-m-d");
-
-            $AdviserGet = Date::with(['adviser','reserve'])->
-            where("id_adviser",'=',68)->where("day",'=',$d)->
-            get();
-
-
-
+            $result = Adviser::where('id', $id_adviser)
+                ->with(['date' => function ($query) use ($d) {
+                    $query->where('day', $d)
+                        ->with('reserve');
+                }])
+                ->get();
             DB::commit();
-            return MyApp::Json()->dataHandle($AdviserGet, "Adviser");
-        } catch (\Exception $e) {
+            return response()->json([
+                'result' => ShowAdviser::collection($result),
+            ]);        } catch (\Exception $e) {
             DB::rollBack();
             throw new \Exception($e->getMessage());
         }
@@ -137,10 +132,10 @@ class AdviserController extends Controller
 }
 
         public
-        function update(Request $request)
+        function update($id,Request $request)
         {
-            if (Adviser::query()->where("id", $request->id)->exists()) {
-                $ad = Adviser::where("id", $request->id)->first();
+            if (Adviser::query()->where("id", $id)->exists()) {
+                $ad = Adviser::where("id", $id)->first();
                 $oldPath = $ad->photo;
                 //  dd($newFile);
                 $newFile = $request->file("photo");
@@ -154,16 +149,18 @@ class AdviserController extends Controller
                             $ad->about = strtolower($request->about);
                             $ad->name = strtolower($request->name);
                             $ad->type = strtolower($request->type);
-                            $ad->id_user = ($request->id_user);
+                            $ad->id_user = ($request->id_user)??null;
                             $ad->photo = ($photoPath);
-
                             $ad->save();
                         }
 
-                        if (MyApp::uploadFile()->deleteFile($oldPath)) {
-                            DB::commit();
+
+                       if (MyApp::uploadFile()->deleteFile($oldPath)) {
+
+
+                           DB::commit();
                             return MyApp::Json()->dataHandle("Successfully updated course.", "data");
-                        }
+                       }
                     } catch (\Exception $e) {
 
                         DB::rollBack();

@@ -143,7 +143,7 @@ Route::prefix("adviser")->controller(AdviserController::class)->group(function (
     Route::post("create", "create");
     Route::get("index", "index");
     Route::get("show/{id_adviser}","show");
-    Route::post("update", "update");
+    Route::post("update/{id}", "update");
     Route::get("delete/{id}", "delete");
 });
 Route::prefix("date")->controller(DateController::class)->group(function () {
@@ -153,7 +153,7 @@ Route::prefix("date")->controller(DateController::class)->group(function () {
     Route::get("showday/{id_adviser}/{d}", "showday");//all status date which aval
     Route::get("show/{status}/{id}", "show");//all status reserve
     Route::post("update", "update");
-    Route::get("delete/{id}", "destroy");
+    Route::get("delete/{id}", "delete");
 });
 Route::prefix("reserve")->controller(ReserveController::class)->group(function () {
     //for user

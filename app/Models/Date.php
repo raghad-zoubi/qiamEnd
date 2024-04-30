@@ -35,7 +35,8 @@ class Date extends Model
 
     public function reserve()
     {
-        return $this->HasMany(Reserve::class, "id_date", "id");
+        return $this->HasMany(Reserve::class, "id_date", "id")->with('users2')
+            ;
     }
 
     public function users()

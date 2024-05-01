@@ -98,23 +98,29 @@ class AdviserController extends Controller
                     "photo" => $photoPath
 
                 ]);
+                if ($request->has('date') && $request->date!= null){
+                if (isset($request['date']) && is_array($request['date']))
+                    {
+                        foreach ($request['date'] as $index => $date){
+                        if (is_array($date) && isset($date['day']) &&
+                            isset($date['times']) && is_array($date['times'])) {
+                            $day = $date['day'];
+                     //       echo $date['times']['to'];
+                            foreach ($date['times'] as $time) {
+                             // if (isset($time['from']) && isset($time['to']))
+                                {
+                               //     dd($time['from']) ;
 
-                if ($request->has('date') && $request->date!= null) {
-                    foreach ($request->date as $da) {
-                     $d=$da['day'];
-                       foreach ($da['times'] as $t) {
-                             $dateAdded = Date::create([
-                                "from" =>'20:9',
-                                    //($t['from']),
-                                "to" =>'9:09',
-                           //($t['to']),
-                                "day" =>$d,
-                                    //$d,
-                                "id_adviser" => $adviserAdded->id
-                            ]);
-                        }
-                    }
-                }
+                                   $dateAdded = Date::create([
+                                        "from" => ($time['from']),
+                                        "to" => ($time['to']),
+                                        "day" => $day,
+                                        "id_adviser" => $adviserAdded->id
+                                    ]);
+                                }
+                            }
+                        }}}}
+
                 DB::commit();
                 return MyApp::Json()->dataHandle($adviserAdded, "Adviser");
             }

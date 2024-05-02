@@ -116,7 +116,7 @@ Route::prefix("center")->controller(CenterController::class)->group(function () 
 Route::prefix("online")->controller(OnlineController::class)->group(function () {
     Route::post("create", "create");
     Route::get("index", "index");
-    // Route::get("show/{id}","show");
+    Route::get("showContent/{id}","showContent");//id==idonline
     Route::post("update", "update");
     Route::get("delete/{id}", "destroy");
 });

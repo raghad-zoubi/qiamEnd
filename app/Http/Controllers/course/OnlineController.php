@@ -220,6 +220,30 @@ $r3=0;
 
 
     }
+    public function showContent($id)
+    {
+        if (Online::query()->where("id", $id)->exists()) {
+            try {
+
+                DB::beginTransaction();
+                $idOn = Online_Center::where("id_online", $id)->first();
+            //    dd($idOn->id);
+        $con= Content::where("id_online_center", $idOn->id)->get(['name']);
+                DB::commit();
+                return MyApp::Json()->dataHandle($con, "data");
+
+            } catch (\Exception $e) {
+
+                DB::rollBack();
+                throw new \Exception($e->getMessage());
+            }
+
+        } else
+
+            return MyApp::Json()->errorHandle("online", "حدث خطا ما في العرض ");//,$prof->getErrorMessage);
+
+
+    }
     ////USER HOME
 
     public function show($id): JsonResponse

@@ -99,11 +99,10 @@ class AdviserController extends Controller
 
                 ]);
                 if ($request->has('date') && $request->date!= null){
-                if (isset($request['date']) && is_array($request['date']))
-                    {$dataArray = json_decode(json_encode($request->date ), true);
+                if (isset($request['date']))
+                    {$dataArray = json_decode(($request->date ), true);
                         foreach ($dataArray as $index => $date){
-                        if (is_array($date) && isset($date['day']) &&
-                       //raghad
+                        if (is_array($date) && isset($date['day']) && //raghad
                             isset($date['times']) && is_array($date['times'])) {
                             $day = $date['day'];
                             foreach ($date['times'] as $time) {

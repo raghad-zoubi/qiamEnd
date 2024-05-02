@@ -98,7 +98,7 @@ class AdviserController extends Controller
                     "photo" => $photoPath
 
                 ]);
-                if ($request->has('date') && $request->date!= null){
+                if ($request->has('date') && $request->date!= '[]'){
                 if (isset($request['date']))
                     {$dataArray = json_decode(($request->date ), true);
                         foreach ($dataArray as $index => $date){

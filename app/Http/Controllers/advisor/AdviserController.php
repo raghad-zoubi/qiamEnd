@@ -100,25 +100,19 @@ class AdviserController extends Controller
                 ]);
                 if ($request->has('date') && $request->date!= null){
                 if (isset($request['date']) && is_array($request['date']))
-                    {
-                        foreach ($request['date'] as $index => $date){
+                    {$dataArray = json_decode(json_encode($request->date ), true);
+                        foreach ($dataArray as $index => $date){
                         if (is_array($date) && isset($date['day']) &&
+                       //raghad
                             isset($date['times']) && is_array($date['times'])) {
                             $day = $date['day'];
-                     //       echo $date['times']['to'];
                             foreach ($date['times'] as $time) {
-                             // if (isset($time['from']) && isset($time['to']))
-                                {
-                               //     dd($time['from']) ;
-
-                                   $dateAdded = Date::create([
+                                {$dateAdded = Date::create([
                                         "from" => ($time['from']),
                                         "to" => ($time['to']),
                                         "day" => $day,
                                         "id_adviser" => $adviserAdded->id
-                                    ]);
-                                }
-                            }
+                                    ]);}}
                         }}}}
 
                 DB::commit();

@@ -222,15 +222,21 @@ $r3=0;
     }
     public function showContent($id)
     {
-        if (Online::query()->where("id", $id)->exists()) {
+        if (Course::query()->where("id", $id)->exists()) {
             try {
 
                 DB::beginTransaction();
-                $idOn = Online_Center::where("id_online", $id)->first();
-            //    dd($idOn->id);
-        $con= Content::where("id_online_center", $idOn->id)->get(['name']);
+                $contents = Content::select('name', 'id')
+                    ->whereHas('OnlineCenter', function ($query) use ($id) {
+                        $query->whereHas('online', function ($query) use ($id) {
+                            $query->where('id_course', $id);
+                        })->where('id_course', $id);
+                    })
+                    ->get();
+
+
                 DB::commit();
-                return MyApp::Json()->dataHandle($con, "data");
+                return MyApp::Json()->dataHandle($contents, "data");
 
             } catch (\Exception $e) {
 

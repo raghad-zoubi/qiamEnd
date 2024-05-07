@@ -59,6 +59,7 @@ class ShowDay extends JsonResource
                                 'name' => $re['users2']['profile']['name'],
                                 'lastName' => $re['users2']['profile']['lastName'],
                                 'fatherName' => $re['users2']['profile']['fatherName'],
+                                'mobilePhone' => $re['users2']['profile']['mobilePhone'],
                             ];
 
                         }

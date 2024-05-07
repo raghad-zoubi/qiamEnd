@@ -87,11 +87,11 @@ class ShowDay extends JsonResource
                 $result[] = $data;
 
             }
-
+            return $data;
         }
 
 
 
-        return $result;
+
     }
     }

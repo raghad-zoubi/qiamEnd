@@ -19,9 +19,7 @@ class ShowAdviser extends JsonResource
         $reserve = [];
 
 
-        //    foreach ($this as $item) {
         if ($this != null) {
-            //if ($this['date'] != null)
                 if (!$this['date']->isEmpty()) {
 
                 foreach ($this['date'] as $item) {
@@ -55,11 +53,11 @@ class ShowAdviser extends JsonResource
                     $da = [
                         //'id_date' => $item['id'] ?? null,
                         //'id_adviser' => $item['id_adviser'] ?? null,
-                        'from' => $item['from'] ?? null,
-                        'to' => $item['to'] ?? null,
+                      //  'from' => $item['from'] ?? null,
+                       // 'to' => $item['to'] ?? null,
                         'day' => $item['day'] ?? null,
                         'id' => $item['id'] ?? null,
-                        'reserve' => $reserve ?? null,
+                    //   'reserve' => $reserve ?? null,
                     ];
 
                     $date[] = $da;
@@ -73,13 +71,14 @@ class ShowAdviser extends JsonResource
                 'photo' => $this['photo'] ?? null,
                 'type' => $this['type'] ?? null,
 
-                'date' => $date ?? null,
+               'date' => $date ?? null,
 
 
             ];
-        $result[] = $adv;
+       // $result[] = $adv;
+        return $adv;
     }
-            return $result;
+
         }
 
 }

@@ -61,24 +61,27 @@ class AdviserController extends Controller
         try {
 
             DB::beginTransaction();
-            $date = Carbon::now();
-            $d = $date->format("Y-m-d");
+//            $date = Carbon::now();
+//            $d = $date->format("Y-m-d");
+//            $result = Adviser::where('id', $id_adviser)
+//                ->with(['date' => function ($query) use ($d) {
+//                   // $query->where('day', $d)
+//                     //   ->with('reserve');
+//                }])
+             //   ->get();
             $result = Adviser::where('id', $id_adviser)
-                ->with(['date' => function ($query) use ($d) {
-                    $query->where('day', $d)
-                        ->with('reserve');
-                }])
-                ->get();
+                ->with(['date' ])
+               ->get();
             DB::commit();
 
 
 
-            return response()->json(
-
+            return response()->json([
+               'result' =>
           ShowAdviser::collection($result)
 
 
-           );
+            ]);
 
         } catch (\Exception $e) {
             DB::rollBack();

@@ -16,6 +16,8 @@ return new class extends Migration
             $table->text('about');
             $table->string('name');
             $table->text("photo");
+            $table->text("text");
+            $table->String("teacher");
             $table->timestamps();
         });
     }

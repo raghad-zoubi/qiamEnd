@@ -5,18 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Certificate extends Model
+class Information extends Model
 {
     use HasFactory;
 
-    protected $table="certificates";
-    protected $fillable = [
-        'id',
-        'photo'
 
+
+    protected $table = "information";
+    protected $fillable = [
+     'director',
+'site',
+'time' ,
     ];
 
     protected $hidden = [
 
     ];
+
 }

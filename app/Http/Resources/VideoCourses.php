@@ -13,7 +13,6 @@ class VideoCourses extends JsonResource
 
     public function toArray(Request $request): array
     {
-
         $result = [];
         foreach ($this->video as $item) {
             $data = [

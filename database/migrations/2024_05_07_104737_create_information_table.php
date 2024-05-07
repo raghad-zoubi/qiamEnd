@@ -9,12 +9,14 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('certificates', function (Blueprint $table) {
+        Schema::create('information', function (Blueprint $table) {
             $table->id();
-            $table->string("photo");
-        //    $table->foreignId("id_course")->constrained("courses")->cascadeOnDelete();
+            $table->String("director")->nullable();
+            $table->text("site")->nullable();
+            $table->text("time")->nullable();
+
 
             $table->timestamps();
         });
@@ -23,8 +25,8 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('certificates');
+        Schema::dropIfExists('information');
     }
 };

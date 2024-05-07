@@ -7,6 +7,7 @@ use App\Http\Controllers\auth\AuthenticationController;
 use App\Http\Controllers\auth\ProfileController;
 use App\Http\Controllers\auth\UserController;
 use App\Http\Controllers\BookTrackCer\BookingController;
+use App\Http\Controllers\BookTrackCer\CertificateController;
 use App\Http\Controllers\course\CenterController;
 use App\Http\Controllers\course\CoursController;
 use App\Http\Controllers\course\FavoriteController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\course\OnlineController;
 use App\Http\Controllers\course\RateController;
 use App\Http\Controllers\Exam\ExameController;
 use App\Http\Controllers\course\FileController;
+use App\Http\Controllers\InformationController;
 use App\Http\Controllers\Papers\PaperController;
 use App\Http\Controllers\course\VideoController;
 use App\Http\Controllers\StatisticController;
@@ -180,7 +182,19 @@ Route::controller(AuthenticationController::class)
 //_________________________________________Statistics
 
 //for user
+
 Route::get("proportion",  [StatisticController::class, 'proportion']);
 Route::get("count",  [StatisticController::class, 'count']);
 Route::get("statistic",  [StatisticController::class, 'statistic']);
 Route::get("advisernow",  [StatisticController::class, 'advisernow']);
+//-----------------------------------Information
+Route::prefix("information")->
+group(function () {
+    Route::post("create",  [InformationController::class, 'create']);
+    Route::get("index",  [InformationController::class, 'index']);
+    Route::post("update",  [InformationController::class, 'update']);;
+});Route::prefix("certificate")->
+group(function () {
+    Route::post("create",  [CertificateController::class, 'create']);
+    Route::get("index",  [CertificateController::class, 'index']);
+});

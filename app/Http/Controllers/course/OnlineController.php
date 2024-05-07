@@ -94,11 +94,11 @@ class OnlineController extends Controller
                     "id_course" =>$request->id_prefix,
                 ]);
 
-            if($request->exam=="1"&& $request->has('id_exam'))
+            if($request->exam=="1")
                 $courseexam = CourseExame::create([
                     "id_online_center"=>$onlinecenter->id,
-                 "id_content"=>null,
-                "id_exam" =>$request->id_exam,
+              //   "id_content"=>null,
+             //   "id_exam" =>$request->id_exam,
             ]);
 
 $r2=0;

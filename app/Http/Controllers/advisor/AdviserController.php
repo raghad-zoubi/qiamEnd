@@ -70,9 +70,17 @@ class AdviserController extends Controller
                 }])
                 ->get();
             DB::commit();
-            return response()->json([
-                'result' => ShowAdviser::collection($result),
-            ]);        } catch (\Exception $e) {
+
+
+
+            return response()->json(
+
+          ShowAdviser::collection($result)
+
+
+           );
+
+        } catch (\Exception $e) {
             DB::rollBack();
             throw new \Exception($e->getMessage());
         }

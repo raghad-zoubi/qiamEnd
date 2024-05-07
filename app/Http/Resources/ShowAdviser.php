@@ -58,6 +58,7 @@ class ShowAdviser extends JsonResource
                         'from' => $item['from'] ?? null,
                         'to' => $item['to'] ?? null,
                         'day' => $item['day'] ?? null,
+                        'id' => $item['id'] ?? null,
                         'reserve' => $reserve ?? null,
                     ];
 

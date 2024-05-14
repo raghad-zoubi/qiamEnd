@@ -17,18 +17,25 @@ class Booking extends Model
     use HasFactory;
 
     protected $table ='booking';
-    protected $fillable = [   "id_online_center", "id_user" ,"id","mark","status",'done'
+    protected $fillable = [   "id_online_center", "id_user" ,"id","mark","status",'done',
+     'created_at'
     ];
-    protected $hidden = ["created_at","updated_at"];
+
+    protected $hidden = ["updated_at"];
 
 
     public function booking(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Online_Center::class,"id_online_center","id")->withDefault();
+    } public function bookingindex(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Online_Center::class,"id_online_center","id")->
+        with(['coursepaper','course']);
     }
     public function users(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(User::class,"id_user","id")->withDefault();
+        return $this->belongsTo(User::class,"id_user","id")
+            ->with('profile')->select();
     }
 
 }

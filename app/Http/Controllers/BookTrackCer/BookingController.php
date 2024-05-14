@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\BookTrackCer;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\IndexNewBooking;
 use App\Models\Booking;
+use App\Models\CoursePaper;
 use App\Models\Online_Center;
 use App\MyApplication\MyApp;
 use Illuminate\Http\Request;
@@ -20,26 +22,55 @@ class BookingController extends Controller
     }
 //عرض الحجوزات كلا والموافق عليها و اللي لسا مو محددة حسب الid_onlinecenter
     //dash
-    public function index( $type,$id)
+    public function indexNew( $id)
 
     {
         //$request->validate($this->rules->onlyKey(["id","status"], true));
         if (Booking::query()->where("id_online_center", $id)->exists()) {
             try {
                 DB::beginTransaction();
-if ($type=='all') {
-    $ad = Booking::where(["id_online_center", $id])->get();
 
-}
-                if ($type=='ok') {
-                    $ad = Booking::where(["id_online_center", $id])->
-                    where('status',1)->get();
+                $ad = Booking::where("id_online_center", $id)
+                    ->where('status', '=', '1')
+                    ->with('users')
+                    ->with('bookingindex')
+                    ->orderBy('created_at', 'asc') // Order by 'created_at' column in descending order
+                    ->get();
 
-                    }
-                    else {
-                        $ad = Booking::where(["id_online_center", $id])->
-                        where('status', 0)->get();
-                    }DB::commit();
+                DB::commit();
+                 return MyApp::Json()->dataHandle(IndexNewBooking::Collection($ad), "data");
+                //   return MyApp::Json()->dataHandle($ad);
+
+                   }
+
+           catch (\Exception $e) {
+
+                DB::rollBack();
+                throw new \Exception($e->getMessage());
+            }
+
+        } else
+
+            return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
+
+
+    }
+    public function indexOk( $id)
+
+    {
+        //$request->validate($this->rules->onlyKey(["id","status"], true));
+        if (Booking::query()->where("id_online_center", $id)->exists()) {
+            try {
+                DB::beginTransaction();
+
+            $ad = Booking::where("id_online_center", $id)->
+             where('status','=','1')->
+              with('users')->
+            with('bookingindex')->
+              get();
+
+
+                    DB::commit();
                         return MyApp::Json()->dataHandle($ad, "date");
                    }
 
@@ -56,18 +87,25 @@ if ($type=='all') {
 
     }
     // user
+
+    public function book( $id)
+    {
+
+        $rate = CoursePaper::where([
+            'id_online_center' => $id,
+        ])->get();
+
+
+
+            return response()->json([
+                "message" => $rate,
+                "status" => "success",
+            ]);
+
+    }
     public function create( $id)
     {
-//        $validator = Validator::make($request->all(), [
-//            'id' => ['required', Rule::exists("online_centers", "id")],
-//        ]);
-//        if ($validator->fails()) {
-//            return response()->json([
-//                "error" => $validator->errors()->all()[0],
-//                "status" => "failure",
-//                "message" => "error!"
-//            ]);
-//        }
+
         $rate = Booking::where([
             'id_online_center' => $id,
             'id_user' => Auth::id()
@@ -84,6 +122,8 @@ if ($type=='all') {
             Booking::create([
                 'id_online_center' => $id,
                 'mark' => 0,
+                'done' => 0,
+                'status' => 0,
                 'id_user' =>Auth::id()
             ]);
             return response()->json([
@@ -94,7 +134,7 @@ if ($type=='all') {
     }
     // dash
     public function check(Request $request,$id)
-{
+{// في معلومات استمارة
     //$request->validate($this->rules->onlyKey(["id","status"], true));
     if (Booking::query()->where("id", $id)->exists()) {
         try {

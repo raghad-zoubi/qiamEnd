@@ -63,6 +63,7 @@ Route::prefix("user")->group(function () {
     Route::prefix("booking")->controller(BookingController::class)->group(function () {
         //for user
         Route::get("create/{id}", "create");
+        Route::get("book/{id}", "book");
     });
 
     Route::get('center/show/{id}', [CenterController::class, 'show']);
@@ -97,7 +98,8 @@ Route::prefix("auth")->controller(UserController::class)->group(function () {
 
 Route::prefix("booking")->controller(BookingController::class)->group(function () {
     Route::post("check/{id}", "check");
-    Route::post("index/{type}/{id}", "index");
+    Route::get("indexNew/{id}", "indexNew");
+    Route::get("indexOk/{id}", "indexOk");
 });
 //------------
 Route::prefix("course")->controller(CoursController::class)->group(function () {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\BookTrackCer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\IndexNewBooking;
+use App\Http\Resources\IndexOkBooking;
 use App\Models\Booking;
 use App\Models\CoursePaper;
 use App\Models\Online_Center;
@@ -31,7 +32,7 @@ class BookingController extends Controller
                 DB::beginTransaction();
 
                 $ad = Booking::where("id_online_center", $id)
-                    ->where('status', '=', '1')
+                    ->where('status', '=', '0')
                     ->with('users')
                     ->with('bookingindex')
                     ->orderBy('created_at', 'asc') // Order by 'created_at' column in descending order
@@ -71,7 +72,7 @@ class BookingController extends Controller
 
 
                     DB::commit();
-                        return MyApp::Json()->dataHandle($ad, "date");
+                return MyApp::Json()->dataHandle(IndexOkBooking::Collection($ad), "data");
                    }
 
            catch (\Exception $e) {

@@ -199,4 +199,5 @@ group(function () {
 group(function () {
     Route::post("create",  [CertificateController::class, 'create']);
     Route::get("index",  [CertificateController::class, 'index']);
+    Route::get("delete/{id}",  [CertificateController::class, 'delete']);
 });

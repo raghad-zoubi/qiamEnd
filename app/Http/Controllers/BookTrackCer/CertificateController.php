@@ -4,6 +4,7 @@ namespace App\Http\Controllers\BookTrackCer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Certificate;
+use App\Models\Course;
 use App\MyApplication\MyApp;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -47,4 +48,30 @@ class CertificateController extends Controller
     }
 
 
+    public function delete($id): JsonResponse
+    {
+        if (Certificate::query()->where("id", $id)->exists()) {
+            try {
+
+
+                $file = Certificate::where("id", $id)->first();
+                DB::beginTransaction();
+                $temp_path = $file->photo;
+                $file->delete();
+                if (MyApp::uploadFile()->deleteFile('photo/',$temp_path,'Uploads/file/'));
+                {DB::commit();
+                    return MyApp::Json()->dataHandle("Successfully deleted  .", "data");
+                }
+            } catch (\Exception $e) {
+
+                DB::rollBack();
+                throw new \Exception($e->getMessage());
+            }
+
+        } else
+
+            return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+
+
+    }
 }

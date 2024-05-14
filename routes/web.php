@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,3 +26,6 @@ Route::get('/m', function () {
     return view('email-template');
 
 });
+
+Route::get('/video', [VideoController::class, 'show']);
+

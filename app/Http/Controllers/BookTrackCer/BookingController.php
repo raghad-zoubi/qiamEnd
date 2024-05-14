@@ -23,16 +23,16 @@ class BookingController extends Controller
     }
 //عرض الحجوزات كلا والموافق عليها و اللي لسا مو محددة حسب الid_onlinecenter
     //dash
-    public function indexNew( $id)
+    public function indexNew()
 
     {
         //$request->validate($this->rules->onlyKey(["id","status"], true));
-        if (Booking::query()->where("id_online_center", $id)->exists()) {
             try {
                 DB::beginTransaction();
 
-                $ad = Booking::where("id_online_center", $id)
-                    ->where('status', '=', '0')
+                $ad = Booking::
+                //where("id_online_center", $id) ->
+                   where('status', '=', '0')
                     ->with('users')
                     ->with('bookingindex')
                     ->orderBy('created_at', 'asc') // Order by 'created_at' column in descending order
@@ -46,11 +46,10 @@ class BookingController extends Controller
 
            catch (\Exception $e) {
 
-                DB::rollBack();
-                throw new \Exception($e->getMessage());
-            }
+               DB::rollBack();
+               throw new \Exception($e->getMessage());
 
-        } else
+           }
 
             return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
 
@@ -64,7 +63,8 @@ class BookingController extends Controller
             try {
                 DB::beginTransaction();
 
-            $ad = Booking::where("id_online_center", $id)->
+            $ad = Booking::
+            where("id_online_center", $id)->
              where('status','=','1')->
               with('users')->
             with('bookingindex')->

@@ -4,6 +4,7 @@ use App\Http\Controllers\advisor\AdviserController;
 use App\Http\Controllers\advisor\DateController;
 use App\Http\Controllers\advisor\ReserveController;
 use App\Http\Controllers\auth\AuthenticationController;
+use App\Http\Controllers\auth\EmployeeController;
 use App\Http\Controllers\auth\ProfileController;
 use App\Http\Controllers\auth\UserController;
 use App\Http\Controllers\BookTrackCer\BookingController;
@@ -98,7 +99,7 @@ Route::prefix("auth")->controller(UserController::class)->group(function () {
 
 Route::prefix("booking")->controller(BookingController::class)->group(function () {
     Route::post("check/{id}", "check");
-    Route::get("indexNew/{id}", "indexNew");
+    Route::get("indexNew", "indexNew");
     Route::get("indexOk/{id}", "indexOk");
 });
 //------------
@@ -195,7 +196,16 @@ group(function () {
     Route::post("create",  [InformationController::class, 'create']);
     Route::get("index",  [InformationController::class, 'index']);
     Route::post("update",  [InformationController::class, 'update']);;
-});Route::prefix("certificate")->
+});
+Route::prefix("employee")->
+group(function () {
+    Route::post("create",  [EmployeeController::class, 'create']);
+    Route::get("index",  [EmployeeController::class, 'index']);
+    Route::post("update/{id}",  [EmployeeController::class, 'update']);
+    Route::get("delete/{id}",  [EmployeeController::class, 'delete']);
+    Route::post("login",  [EmployeeController::class, 'login']);
+});
+Route::prefix("certificate")->
 group(function () {
     Route::post("create",  [CertificateController::class, 'create']);
     Route::get("index",  [CertificateController::class, 'index']);

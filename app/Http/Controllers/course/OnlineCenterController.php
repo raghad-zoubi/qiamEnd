@@ -19,9 +19,6 @@ class OnlineCenterController extends Controller
     public function displayCopy($id_course)
     {
         try {
-
-
-
             $courses = Online::query()
                 ->join('online_centers', 'onlines.id', '=', 'online_centers.id_online')
                 ->where('onlines.id_course', $id_course)

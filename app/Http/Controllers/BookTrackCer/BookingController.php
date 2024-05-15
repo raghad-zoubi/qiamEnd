@@ -135,38 +135,38 @@ class BookingController extends Controller
     }
     // dash
     public function check(Request $request,$id)
-{// في معلومات استمارة
-    //$request->validate($this->rules->onlyKey(["id","status"], true));
-    if (Booking::query()->where("id", $id)->exists()) {
-        try {
-            DB::beginTransaction();
+    {// في معلومات استمارة
+        //$request->validate($this->rules->onlyKey(["id","status"], true));
+        if (Booking::query()->where("id", $id)->exists()) {
+            try {
+                DB::beginTransaction();
 
-            $ad = Booking::where(["id", $id])->first();
-            if ($ad ) {
-                if($request->status=='1'){
-                    $ad->status = ($request->status);
-                    $ad->save();
-                    DB::commit();
-                    return MyApp::Json()->dataHandle("bookin successfully", "date");
-                }
-                else{
-                    $ad = Booking::query()->where("id", $request->id)->delete();
-                    DB::commit();
-                    return MyApp::Json()->dataHandle("booking unsuccessfully", "date");
-                }}
+                $ad = Booking::where("id", $id)->first();
+                if ($ad ) {
+                    if($request->status=='1'){
+                        $ad->status = ($request->status);
+                        $ad->save();
+                        DB::commit();
+                        return MyApp::Json()->dataHandle("bookin successfully", "date");
+                    }
+                    else{
+                        $ad = Booking::query()->where("id", $request->id)->delete();
+                        DB::commit();
+                        return MyApp::Json()->dataHandle("booking unsuccessfully", "date");
+                    }}
 
-        } catch (\Exception $e) {
+            } catch (\Exception $e) {
 
-            DB::rollBack();
-            throw new \Exception($e->getMessage());
-        }
+                DB::rollBack();
+                throw new \Exception($e->getMessage());
+            }
 
-    } else
+        } else
 
-        return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
+            return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
 
 
-}
+    }
 
 
 

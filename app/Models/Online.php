@@ -23,6 +23,7 @@ class Online extends Model
         'numberHours',
         'numberVideos',
         'id',
+        'isopen',
     ];
 
 
@@ -33,7 +34,8 @@ class Online extends Model
      *
      * @var array<int, string>
      */
-    protected $hidden = ['pivot'];
+    protected $hidden = ['pivot',    "updated_at","created_at"
+];
 
 //
 //    public function forms()

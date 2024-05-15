@@ -135,8 +135,7 @@ class BookingController extends Controller
     }
     // dash
     public function check(Request $request,$id)
-    {// في معلومات استمارة
-        //$request->validate($this->rules->onlyKey(["id","status"], true));
+    {
         if (Booking::query()->where("id", $id)->exists()) {
             try {
                 DB::beginTransaction();
@@ -152,7 +151,7 @@ class BookingController extends Controller
                     else{
                         $ad = Booking::query()->where("id", $request->id)->delete();
                         DB::commit();
-                        return MyApp::Json()->dataHandle("booking unsuccessfully", "date");
+                        return MyApp::Json()->dataHandle("unbooking successfully", "date");
                     }}
 
             } catch (\Exception $e) {

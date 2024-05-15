@@ -150,6 +150,8 @@ Route::prefix("paper")->controller(PaperController::class)->group(function () {
 Route::prefix("course")->
 group(function () {
     Route::get("displayCopy/{id_course}",  [OnlineCenterController::class, 'displayCopy']);
+    Route::get("deleteCopy/{id_online_center}",  [OnlineCenterController::class, 'deleteCopy']);
+    Route::post("activateCopy/{id_online_center}",  [OnlineCenterController::class, 'activateCopy']);
 });
 Route::prefix("profile")->
 group(function () {

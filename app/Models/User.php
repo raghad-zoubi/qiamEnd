@@ -36,14 +36,15 @@ class User extends Authenticatable   implements  MustVerifyEmail
         'code',
         'email_verified_at',
         'fcm_token',
-        'token'
+        'token',
+        'role'
     ];
 
 
 
 
     protected $hidden = [
-        'password',
+    //    'password',
         'remember_token',
         'created_at',
         'updated_at'

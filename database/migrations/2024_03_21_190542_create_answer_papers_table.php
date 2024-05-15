@@ -13,11 +13,10 @@ return new class extends Migration
     {
         Schema::create('answer_papers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("id_option_paper")->constrained("option_papers")->cascadeOnDelete();
             $table->foreignId("id_user")->constrained("users")->cascadeOnDelete();
             $table->text("answer")->nullable();
-
-
+            $table->foreignId("id_question_paper")->constrained("question_papers")->cascadeOnDelete();
+            $table->foreignId("id_option_paper")->nullable()->constrained("option_papers")->cascadeOnDelete();
             $table->timestamps();
         });
     }

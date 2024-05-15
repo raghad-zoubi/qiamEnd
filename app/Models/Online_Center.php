@@ -62,7 +62,15 @@ public function course()
         return $this->hasMany(Content::class,"id_online_center","id")
            ;// ->with(['file','video']);
 
+    }   public function coursepaper(){
+        return $this->hasMany(CoursePaper::class,"id_online_center","id")
+           ;// ->with(['file','video']);
+
     }
 
+ public function papers()
+    {
+        return $this->belongsToMany(Paper::class);
+    }
 
 }

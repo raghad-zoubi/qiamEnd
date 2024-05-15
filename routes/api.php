@@ -17,6 +17,7 @@ use App\Http\Controllers\course\RateController;
 use App\Http\Controllers\Exam\ExameController;
 use App\Http\Controllers\course\FileController;
 use App\Http\Controllers\InformationController;
+use App\Http\Controllers\Papers\CoursePaperController;
 use App\Http\Controllers\Papers\PaperController;
 use App\Http\Controllers\course\VideoController;
 use App\Http\Controllers\StatisticController;
@@ -75,7 +76,6 @@ Route::prefix("user")->group(function () {
     Route::get('file/{id}', [FileController::class, 'show']);
     Route::get('file/{id}', [FileController::class, 'show']);
     Route::get("display/{type}", [AdviserController::class, 'display']);
-
     Route::prefix("profile")->
    // controller(ProfileController::class)->
     group(function () {
@@ -85,6 +85,13 @@ Route::prefix("user")->group(function () {
         Route::post("delete",  [ProfileController::class, 'destroy']);
     });
 
+    Route::prefix("paper")->
+    group(function () {
+        Route::get("show/{id}",  [CoursePaperController::class, 'show']);
+//        Route::get("show",  [ProfileController::class, 'show']);
+//        Route::post("update",  [ProfileController::class, 'update']);;
+//        Route::post("delete",  [ProfileController::class, 'destroy']);
+    });
 
 });
 

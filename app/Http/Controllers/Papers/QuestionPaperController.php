@@ -12,7 +12,7 @@ class QuestionPaperController extends Controller
      */
     public function index()
     {
-        //
+
     }
 
     /**

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static find(int $int)
  * @method static whereBelongsTo($id)
  * @method static where(string $string, $id)
+ * @method static whereHas(string $string, \Closure $param)
  */
 class Paper extends Model
 {
@@ -22,36 +23,34 @@ class Paper extends Model
         'id',
     ];
 
+    protected $hidden = ["created_at","updated_at"];
     /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>
      */
-    protected $hidden = [
-
-    ];
 
 
-//    public function onlinecours()
-//    {
-//        return $this->belongsTo(OnlineCours::class);
-//
-//    }
-//    public function onlinecourses(){
-//        return $this->hasMany(Online::class,"id_poll","id");
-//    }
-//    public function centercourses(){
-//        return $this->hasMany(Center::class,"id_course","id");
-//    }
+
     public function questionpaper()
     {
-        return $this->hasMany(QuestionPaper::class)
-           // ->with('optionpaper')
+    return $this->hasMany(QuestionPaper::class, 'id_paper');
+            ;
+    }    public function questionpaperwith()
+    {
+    return $this->hasMany(QuestionPaper::class, 'id_paper')->
+    with('optionpaper')
             ;
     }
 
-//    public function optionQuestion()
-//    {
-//        return $this->hasManyThrough(OptionPaper::class, QuestionPaper::class);
-//    }
+    public function coursepaper()
+    {
+        return $this->HasMany(CoursePaper::class, "id_paper", "id");
+    }
+    public function onlineCenters()
+    {
+        return $this->belongsToMany(Online_Center::class);
+    }
+
+
 }

@@ -30,7 +30,8 @@ protected $table='option_papers';
 
     public function users()
     {
-        return $this->belongsToMany(User::class,"favorites","id_online_course","id_user","id","id");
+        return $this->belongsToMany(User::class,
+        );
     }
     public function paper()
     {

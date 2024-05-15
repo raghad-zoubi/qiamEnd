@@ -12,6 +12,7 @@ use App\Http\Controllers\BookTrackCer\CertificateController;
 use App\Http\Controllers\course\CenterController;
 use App\Http\Controllers\course\CoursController;
 use App\Http\Controllers\course\FavoriteController;
+use App\Http\Controllers\course\OnlineCenterController;
 use App\Http\Controllers\course\OnlineController;
 use App\Http\Controllers\course\RateController;
 use App\Http\Controllers\Exam\ExameController;
@@ -89,7 +90,7 @@ Route::prefix("user")->group(function () {
     group(function () {
         Route::get("show/{id}",  [CoursePaperController::class, 'show']);
 //        Route::get("show",  [ProfileController::class, 'show']);
-//        Route::post("update",  [ProfileController::class, 'update']);;
+      Route::post("answer",  [CoursePaperController::class, 'answer'])->middleware('auth:sanctum');;
 //        Route::post("delete",  [ProfileController::class, 'destroy']);
     });
 
@@ -141,7 +142,16 @@ Route::prefix("paper")->controller(PaperController::class)->group(function () {
     Route::get("show/{id}", "show");
     Route::get("delete/{id}", "delete");
 
+});Route::prefix("paper")->controller(CoursePaperController::class)->group(function () {
+    Route::get("displayUser/{id_user}/{id_online_center}", "displayPaperUser");
+
+
 });
+Route::prefix("course")->
+group(function () {
+    Route::get("displayCopy/{id_course}",  [OnlineCenterController::class, 'displayCopy']);
+});
+
 Route::prefix("exam")->controller(ExameController::class)->group(function () {
     Route::post("create", "create");
     Route::post("addQuestions", "addQuestions");

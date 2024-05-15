@@ -17,6 +17,7 @@ class QuestionPaper extends Model
     protected $table = 'question_papers';
     protected $fillable = ['select', 'id_paper', 'question', 'required','id'];
 
+    protected $hidden = ["created_at","updated_at"];
 
 
 
@@ -24,12 +25,16 @@ class QuestionPaper extends Model
     {
         return $this->hasMany(
             OptionPaper::class,'id_question_paper','id');
+    }  public function optionpaperwithUser()
+    {
+        return $this->hasMany(
+            OptionPaper::class,'id_question_paper','id');
     }
-
     public function paper()
     {
-        return $this->belongsTo(Paper::class);
+        return $this->belongsTo(Paper::class, 'id_paper'); // 'id_paper' is the correct foreign key
     }
+
 
 
 }

@@ -151,6 +151,11 @@ Route::prefix("course")->
 group(function () {
     Route::get("displayCopy/{id_course}",  [OnlineCenterController::class, 'displayCopy']);
 });
+Route::prefix("profile")->
+group(function () {
+    Route::get("displayprofile/{id}",  [ProfileController::class, 'displayprofile']);
+
+});
 
 Route::prefix("exam")->controller(ExameController::class)->group(function () {
     Route::post("create", "create");

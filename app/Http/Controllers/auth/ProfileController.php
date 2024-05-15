@@ -20,7 +20,7 @@ class ProfileController extends Controller
 
     public function __construct()
     {
-        $this->middleware(["auth:sanctum"]);
+        $this->middleware(["auth:sanctum"])->except('displayprofile');
         $this->rule = new ProfileRuleValidation();
     }
 
@@ -131,6 +131,27 @@ class ProfileController extends Controller
         } else
 
             return MyApp::Json()->errorHandle("profile", "انت لا تملك برفايل لحذفه");//,$prof->getErrorMessage);
+
+
+    }
+    public function displayprofile($id)
+    {
+        if (Profile::query()->where("id", $id)->exists()) {
+            try {
+
+                DB::beginTransaction();
+               $data= Profile::where("id", $id)->get();
+                DB::commit();
+                return MyApp::Json()->dataHandle($data, "data");
+            } catch (\Exception $e) {
+
+                DB::rollBack();
+                throw new \Exception($e->getMessage());
+            }
+
+        } else
+
+            return MyApp::Json()->errorHandle("data", "حدث خطا ما ");//,$prof->getErrorMessage);
 
 
     }

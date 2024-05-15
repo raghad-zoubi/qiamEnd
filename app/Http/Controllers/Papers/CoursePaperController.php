@@ -23,43 +23,68 @@ class CoursePaperController extends Controller
 
         try {
           DB::beginTransaction();
-           $questionsWithOptions = Paper::
-            with('questionpaperwith'
-            )->whereHas('coursepaper', function ($query) use ($id_online_center) {
-                $query->where('id_online_center', $id_online_center);
-            })->
-            get();
-            $optionsWithanswe = AnswerPaper::query()->
-           where('id_user', $id_user)->
-            get();
+//           $questionsWithOptions = Paper::
+//            with('questionpaperwith'
+//            )->whereHas('coursepaper', function ($query) use ($id_online_center) {
+//                $query->where('id_online_center', $id_online_center);
+//            })->
+//            get();
+//            $optionsWithanswe = AnswerPaper::query()->
+//           where('id_user', $id_user)->
+//            get();
 
-            $mergedData = [];
-
-            foreach ($questionsWithOptions as $question) {
-                $mergedItem = $question->toArray();
-                $mergedItem['optionpaper'] = [];
-
+//            $questionPapers = QuestionPaper::query()
+//                ->join('papers', 'papers.id', '=', 'question_papers.id_paper')
+//                ->join('course_papers', 'course_papers.id_paper', '=', 'papers.id')
+//                ->join('online_centers', 'online_centers.id', '=', 'course_papers.id_online_center')
+//                ->where('online_centers.id', 2)
+//                ->select('question_papers.*')
+//                ->get();
 //
-//                foreach ($optionsWithanswe as $option) {
-//                    if ($option->id_question_paper === $question->id) {
-//                        $mergedItem['optionpaper'][] = $option->toArray();
-//                    }
-//                }
-
-              //  $mergedData[] = $mergedItem;
-            }
-
-// Now $mergedData contains the merged data with each question's options
-
+//            $options = OptionPaper::query()
+//                ->join('question_papers', 'question_papers.id', '=', 'option_papers.id_question_paper')
+//                ->join('papers', 'papers.id', '=', 'question_papers.id_paper')
+//                ->join('course_papers', 'course_papers.id_paper', '=', 'papers.id')
+//                ->join('online_centers', 'online_centers.id', '=', 'course_papers.id_online_center')
+//                ->where('online_centers.id', 2)
+//                ->select('option_papers.*')
+//                ->get();
+//
+//            $answers = AnswerPaper::query()
+//                ->join('question_papers', 'question_papers.id', '=', 'answer_papers.id_question_paper')
+//                ->join('papers', 'papers.id', '=', 'question_papers.id_paper')
+//                ->join('course_papers', 'course_papers.id_paper', '=', 'papers.id')
+//                ->join('online_centers', 'online_centers.id', '=', 'course_papers.id_online_center')
+//                ->where('online_centers.id', 2)
+//                ->where('answer_papers.id_user', 1)
+//                ->select('answer_papers.*')
+//                ->get();
+//
+//
+            $data = DB::table('question_papers')
+                ->select(
+                    'question_papers.*',
+                    'papers.*',
+                    'option_papers.*',
+                    'answer_papers.*'
+                )
+                ->join('papers', 'papers.id', '=', 'question_papers.id_paper')
+                ->leftJoin('option_papers', 'option_papers.id_question_paper', '=', 'question_papers.id')
+                ->leftJoin('answer_papers', 'answer_papers.id_question_paper', '=', 'question_papers.id')
+                ->join('course_papers', 'course_papers.id_paper', '=', 'papers.id')
+                ->join('online_centers', 'online_centers.id', '=', 'course_papers.id_online_center')
+                ->where('online_centers.id', 2)
+                ->where('answer_papers.id_user', 11)
+                ->get();
 
             DB::commit();
 
             //return MyApp::Json()->dataHandle($optionsWithanswe, "paper");
             return response()->json([
-
-            'questionsWithOptions' ,$questionsWithOptions,
-                //       //     'mergedData' ,$mergedData,
-              'optionsWithanswe' ,$optionsWithanswe,
+'data',$data
+//            'questionsWithOptions' ,$questionsWithOptions,
+//                //       //     'mergedData' ,$mergedData,
+//              'optionsWithanswe' ,$optionsWithanswe,
             ]);
         } catch (\Exception $e) {
 

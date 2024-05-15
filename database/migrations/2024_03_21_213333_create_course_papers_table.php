@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId("id_paper")->constrained("papers")->cascadeOnDelete();
             $table->foreignId("id_online_center")->constrained("online_centers")->cascadeOnDelete();
-
             $table->timestamps();
         });
     }

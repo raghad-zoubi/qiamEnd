@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string("title");
             $table->string("description");
             $table->enum("type",["استبيان","استمارة"])->default("استبيان");
-
             $table->timestamps();
         });
     }

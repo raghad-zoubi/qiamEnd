@@ -4,6 +4,7 @@ namespace App\Http\Controllers\course;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Center;
 use App\Models\Course;
 use App\Models\Online;
 use App\Models\Online_Center;
@@ -19,31 +20,72 @@ class OnlineCenterController extends Controller
     public function displayCopy($id_course)
     {
         try {
-            $courses = Online::query()
+//            $courses = Online::query()
+//                ->join('online_centers', 'onlines.id', '=', 'online_centers.id_online')
+//                ->where('onlines.id_course', $id_course)
+//                ->select(
+//                    'onlines.id',
+//                    'onlines.isopen',
+//                    'online_centers.*',
+//                    DB::raw('IFNULL((SELECT avg(value) FROM rates WHERE rates.id_online_center = onlines.id), 0) as average_rate'),
+//                    DB::raw('(SELECT count(booking.id) FROM booking WHERE booking.id_online_center = onlines.id AND booking.status = 1) as total_bookings')
+//                )
+//                ->get();
+//            $courases = Center::query()
+//                ->join('online_centers', 'centers.id', '=', 'online_centers.id_center')
+//                ->where('centers.id_course', $id_course)
+//                ->select(
+//                    'centers.id',
+//                    'centers.start',
+//                    'centers.end',
+//                    'online_centers.*',
+//                    DB::raw('IFNULL((SELECT avg(value) FROM rates WHERE rates.id_online_center = centers.id), 0) as average_rate'),
+//                    DB::raw('(SELECT count(booking.id) FROM booking WHERE booking.id_online_center = centers.id AND booking.status = 1) as total_bookings')
+//                )
+//                ->get();
+
+
+            $onlineCourses = Online::query()
                 ->join('online_centers', 'onlines.id', '=', 'online_centers.id_online')
                 ->where('onlines.id_course', $id_course)
                 ->select(
-                    'onlines.id',
+                    'onlines.id as id',
                     'onlines.isopen',
                     'online_centers.*',
                     DB::raw('IFNULL((SELECT avg(value) FROM rates WHERE rates.id_online_center = onlines.id), 0) as average_rate'),
-                    DB::raw('(SELECT count(booking.id) FROM booking WHERE booking.id_online_center = onlines.id AND booking.status = 1) as total_bookings')
-                )
-                ->get();
+                    DB::raw('(SELECT count(booking.id) FROM booking WHERE booking.id_online_center = onlines.id AND booking.status = 1) as total_bookings'),
+                    DB::raw('null as start'),
+                    DB::raw('null as end')
+                );
+
+            $centerCourses = Center::query()
+                ->join('online_centers', 'centers.id', '=', 'online_centers.id_center')
+                ->where('centers.id_course', $id_course)
+                ->select(
+                    'centers.id as id',
+                    DB::raw('null as isopen'),
+                    'online_centers.*',
+                    DB::raw('IFNULL((SELECT avg(value) FROM rates WHERE rates.id_online_center = centers.id), 0) as average_rate'),
+                    DB::raw('(SELECT count(booking.id) FROM booking WHERE booking.id_online_center = centers.id AND booking.status = 1) as total_bookings'),
+                    'centers.start',
+                    'centers.end'
+                );
+
+            $courses = $onlineCourses->union($centerCourses)->get();
 
             return MyApp::Json()->dataHandle($courses, "data");
 
-    }
-    catch (\Exception $e) {
+        } catch (\Exception $e) {
 
-        DB::rollBack();
-        throw new \Exception($e->getMessage());
-    }
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
 
 
         return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
 
     }
+
     public function deleteCopy($id_online_center)
     {
         if (Online_Center::query()->where("id", $id_online_center)->exists()
@@ -52,13 +94,14 @@ class OnlineCenterController extends Controller
 
                 DB::beginTransaction();
                 $count = Booking::where('id_online_center', $id_online_center)->count();
-if($count<1) {
-    Online_Center::where("id", $id_online_center)->delete();
-    DB::commit();
-    return MyApp::Json()->dataHandle("success", "data");}
-else
-{    DB::commit();
-    return MyApp::Json()->dataHandle("تحتوي نسخة الدورة على مسجلين لا يمكن حذفها", "data");}
+                if ($count < 1) {
+                    Online_Center::where("id", $id_online_center)->delete();
+                    DB::commit();
+                    return MyApp::Json()->dataHandle("success", "data");
+                } else {
+                    DB::commit();
+                    return MyApp::Json()->dataHandle("تحتوي نسخة الدورة على مسجلين لا يمكن حذفها", "data");
+                }
 
             } catch (\Exception $e) {
 
@@ -72,27 +115,28 @@ else
 
 
     }
-  public function activateCopy    (Request $request,$id_online_center)
+
+    public function activateCopy(Request $request, $id_online_center)
     {
         if (Online_Center::query()->where("id", $id_online_center)->exists()
         ) {
-              try {
-                        DB::beginTransaction();
+            try {
+                DB::beginTransaction();
 
-                  $ad = Online::whereHas('onlineCenters', function ($query) use ($id_online_center) {
-                      $query->where('id', $id_online_center);
-                  })->get();
+                $ad = Online::whereHas('onlineCenters', function ($query) use ($id_online_center) {
+                    $query->where('id', $id_online_center);
+                })->get();
 
-                  if ($ad->isNotEmpty()) {
-                      foreach ($ad as $item) {
-                          $item->isopen = $request->isopen;
-                          $item->save();
-                      }
-                      DB::commit();
-                      return MyApp::Json()->dataHandle($ad, "date");
-                  }
+                if ($ad->isNotEmpty()) {
+                    foreach ($ad as $item) {
+                        $item->isopen = $request->isopen;
+                        $item->save();
+                    }
+                    DB::commit();
+                    return MyApp::Json()->dataHandle($ad, "date");
+                }
 
-              } catch (\Exception $e) {
+            } catch (\Exception $e) {
 
                 DB::rollBack();
                 throw new \Exception($e->getMessage());

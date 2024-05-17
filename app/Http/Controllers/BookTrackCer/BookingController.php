@@ -64,11 +64,12 @@ class BookingController extends Controller
                 DB::beginTransaction();
 
             $ad = Booking::
-            where("id_online_center", $id)->
-             where('status','=','1')->
               with('users')->
             with('bookingindex')->
-              get();
+            where("id_online_center", $id)->
+            where('status','=','1')->
+
+            get();
 
 
                     DB::commit();

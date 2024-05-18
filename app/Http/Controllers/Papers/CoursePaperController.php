@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Papers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DisplayPaperUser;
 use App\Models\AnswerPaper;
 use App\Models\CoursePaper;
 use App\Models\OptionPaper;
@@ -21,26 +22,55 @@ class CoursePaperController extends Controller
     {
         try {
             DB::beginTransaction();
+//
+//            $data = DB::table('question_papers')
+//                ->select(
+//                    'profiles.name',
+//                    'profiles.lastName',
+//                    'profiles.mobilePhone',
+//                    'question_papers.select',
+//                    'question_papers.question',
+//                    'papers.title',
+//                    'papers.description',
+//                    'papers.type',
+//// 'papers.*', // 'question_papers.*',//'answer_papers.*', // 'course_papers.*', // 'option_papers.*',
+//                    'option_papers.value as answer1',
+//                    'answer_papers.answer as  answer2',
+//                    'question_papers.id as id_question',
+//                    'answer_papers.id as  id_answer',
+//
+//                  //  'option_papers.id as id_option',
+//                  //  'answer_papers.id_option_paper',
+//                    'profiles.id_user',
+//
+//                )
+//                ->join('papers', 'papers.id', '=', 'question_papers.id_paper')
+//                ->leftJoin('option_papers', 'option_papers.id_question_paper', '=', 'question_papers.id')
+//                ->leftJoin('answer_papers', 'answer_papers.id_question_paper', '=', 'question_papers.id')
+//                ->join('course_papers', 'course_papers.id_paper', '=', 'papers.id')
+//                ->join('online_centers', 'online_centers.id', '=', 'course_papers.id_online_center')
+//                ->join('users', 'users.id', '=', 'answer_papers.id_user')
+//                ->join('profiles', 'profiles.id_user', '=', 'users.id')
+//                ->where('online_centers.id', $id_online_center)
+//                ->where('answer_papers.id_user', $id_user)
+//                ->get();
+
 
             $data = DB::table('question_papers')
-                ->select( 'profiles.name',
+                ->select(
+                    'profiles.name',
                     'profiles.lastName',
                     'profiles.mobilePhone',
-                    'question_papers.select as type',
+                    'question_papers.select',
                     'question_papers.question',
                     'papers.title',
                     'papers.description',
                     'papers.type',
-// 'papers.*', // 'question_papers.*',//'answer_papers.*', // 'course_papers.*', // 'option_papers.*',
                     'option_papers.value as answer1',
-                    'answer_papers.answer as  answer2',
+                    'answer_papers.answer as answer2',
                     'question_papers.id as id_question',
-                    'answer_papers.id as  id_answer',
-
-                    'option_papers.id as id_option',
-                  //  'answer_papers.id_option_paper',
-                    'profiles.id_user',
-
+                    'answer_papers.id as id_answer',
+                    'profiles.id_user'
                 )
                 ->join('papers', 'papers.id', '=', 'question_papers.id_paper')
                 ->leftJoin('option_papers', 'option_papers.id_question_paper', '=', 'question_papers.id')
@@ -53,11 +83,20 @@ class CoursePaperController extends Controller
                 ->where('answer_papers.id_user', $id_user)
                 ->get();
 
-            DB::commit();
+// Use Laravel Collection to remove duplicates based on a specific key (e.g., 'id_question')
+            $uniqueData = collect($data)->unique('id_question');
+          DB::commit();
 
-            return response()->json([
-                'data', $data
-            ]);
+// Transform the unique data using the resource
+            return DisplayPaperUser::collection($uniqueData);
+
+
+
+//            DB::commit();
+//
+//            return response()->json([
+//                'data', $data
+//            ]);
         } catch (\Exception $e) {
 
             DB::rollBack();

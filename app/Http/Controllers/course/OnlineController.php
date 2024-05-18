@@ -94,12 +94,12 @@ class OnlineController extends Controller
                     "id_course" =>$request->id_prefix,
                 ]);
 
-            if($request->exam=="1")
-                $courseexam = CourseExame::create([
-                    "id_online_center"=>$onlinecenter->id,
-              //   "id_content"=>null,
-             //   "id_exam" =>$request->id_exam,
-            ]);
+//            if($request->exam=="1")
+//                $courseexam = CourseExame::create([
+//                    "id_online_center"=>$onlinecenter->id,
+//              //   "id_content"=>null,
+//             //   "id_exam" =>$request->id_exam,
+//            ]);
 
 $r2=0;
 $r1=0;
@@ -129,9 +129,9 @@ $r3=0;
 
 
 
-                    if($inner['exam']=="1")
+                    if($inner['id_exam']!=null)
                     $courseexam = CourseExame::create([
-                        "id_online_center"=>null,
+                        "id_online_center"=>$onlinecenter->id,
                         "id_content"=>$content->id,
                         "id_exam" =>$inner['id_exam'],
                     ]);

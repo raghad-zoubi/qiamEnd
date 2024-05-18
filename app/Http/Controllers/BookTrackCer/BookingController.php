@@ -64,7 +64,7 @@ class BookingController extends Controller
                 DB::beginTransaction();
 
             $ad = Booking::
-              with('users')->
+            with('users')->
             with('bookingindex')->
             where("id_online_center", $id)->
             where('status','=','1')->

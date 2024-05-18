@@ -16,16 +16,15 @@ class DisplayPaperUser extends JsonResource{
     {
 
         $result =  [
-            'name' => $this->name,
-            'lastName' => $this->lastName,
-            'mobilePhone' => $this->mobilePhone,
-            'select' => $this->select,
-            'question' => $this->question,
             'title' => $this->title,
             'description' => $this->description,
             'type' => $this->type,
-            'answer1' => $this->answer1,
-            'answer2' => $this->answer2,
+            'name' => $this->name,
+            'lastName' => $this->lastName,
+            'mobilePhone' => $this->mobilePhone,
+            'type_question' => $this->select,
+            'question' => $this->question,
+            'answer' => $this->answer,
             'id_question' => $this->id_question,
             'id_answer' => $this->id_answer,
             'id_user' => $this->id_user,

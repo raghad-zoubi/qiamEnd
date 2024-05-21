@@ -35,16 +35,19 @@ class EmployeeController extends Controller
     {
 
 
-        $users = User::query()->get(['email', 'password', 'role']); // Fetch only the necessary fields
+        $users = User::query()
+        ->where ('role','!=','2') // Fetch only the necessary fields
+     // ->where ('role','=','0')
+            ->get(['email', 'password', 'role']); // Fetch only the necessary fields
 
         $transformedUsers = $users->map(function ($user) {
-            if ($user->role == 1) {
+            if ($user->role == '1') {
                 return [
                     'email' => $user->email,
                     'password' => $user->password,
                     'role' => 'موظف', // 'موظف' means 'employee'
                 ];
-            } elseif ($user->role == 0) {
+            } elseif ($user->role == '0') {
                 return [
                     'email' => $user->email,
                     'password' => $user->password,
@@ -52,7 +55,7 @@ class EmployeeController extends Controller
                 ];
             }
 
-            return $user; // In case the role is neither 0 nor 1, return the user as is
+         return $user; // In case the role is neither 0 nor 1, return the user as is
         });
 
         return MyApp::Json()->dataHandle($transformedUsers);

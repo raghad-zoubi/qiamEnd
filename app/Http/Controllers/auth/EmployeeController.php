@@ -28,54 +28,34 @@ class EmployeeController extends Controller
         return MyApp::Json()->dataHandle($user);
     }
 
-    public function inddexAll()
-    {
 
-        $users = User::query()->with('profile')->get(['email', 'password', 'profile.name', 'role']);
-
-// Iterate through each user and modify the role if it's equal to 1
-        $users->transform(function ($user) {
-            if ($user->role == 1) {
-                $user->role = 'user';
-            }
-            return $user;
-        });
-
-// Return the transformed data
-        return MyApp::Json()->dataHandle($users);
-
-    }
 
 
     public function indexAll()
     {
-        // Hash the password for storage
-//        $hashedPassword = password_hash($request->password, PASSWORD_DEFAULT);
-//
-//// Encode the password for transmission
-//        $encodedPassword = ($request->password);
 
-        $users = User::query()->with('profile')->get();//['email', 'password', 'profile.name', 'role']);
-        $users->transform(function ($user) {
+
+        $users = User::query()->get(['email', 'password', 'role']); // Fetch only the necessary fields
+
+        $transformedUsers = $users->map(function ($user) {
             if ($user->role == 1) {
                 return [
-                    'name' => $user->email,
-                    'password' =>  ($user->password),
-                    'role' => 'موظف',
+                    'email' => $user->email,
+                    'password' => $user->password,
+                    'role' => 'موظف', // 'موظف' means 'employee'
                 ];
-            } elseif ($user->role == 2) {
+            } elseif ($user->role == 0) {
                 return [
-                    'password' =>  ($user->password),
-                    'name' => optional($user->profile)->name,
-                    'lastName' => optional($user->profile)->lastName,
-                    'role' => 'مستخدم',
+                    'email' => $user->email,
+                    'password' => $user->password,
+                    'role' => 'مدير', // 'مدير' means 'manager'
                 ];
             }
 
-            return $user;
+            return $user; // In case the role is neither 0 nor 1, return the user as is
         });
 
-  return MyApp::Json()->dataHandle($users);
+        return MyApp::Json()->dataHandle($transformedUsers);
     }
 
 
@@ -86,15 +66,13 @@ public function create(Request $request)
         $request->validate([
             "name" => ["required", Rule::unique("users", "email")],
             "password" => ["required", "min:8"],
-            // "role" => ["nullable","string"],//Rule::in([Role::Admin->value,Role::User->value])],
+            "role" => ["required","string"],//Rule::in([Role::Admin->value,Role::User->value])],
         ]);
         $user = User::create([
             "email" => $request->name,
             "password" => ($request->password),
-            "role" => '1',
-            //$request->role
+            "role" => $request->role,
         ]);
-        //  $token = $user->createToken('ProductsTolken')->plainTextToken;
         $data["password"] = $request->password;
         $data["name"] = $user->email;
         $data["id"] = $user->id;

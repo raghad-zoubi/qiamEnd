@@ -50,11 +50,8 @@ class CoursController extends Controller
 
     public function create(Request $request): JsonResponse
     {
-        $request->validate($this->rules->onlyKey(["name", "photo", "about"], true));
         if (isset($request['photo']) && $request['photo']->isValid()) {
             try {
-                // Check if a photo file was uploaded
-                // Generate a unique file name
                 $photoPath = $request->file('photo')->store('file'); // The file will be stored in the 'public/Uploads' directory
 
                 DB::beginTransaction();
@@ -63,6 +60,8 @@ class CoursController extends Controller
                     "about" => strtolower($request->about),
                     "name" => strtolower($request->name),
                     "photo" => ($photoPath),
+                    "teacher" => ($request->teacher),
+                    "text" => ($request->text),
                 ]);
                 DB::commit();
 

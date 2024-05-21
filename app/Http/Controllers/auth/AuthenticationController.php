@@ -49,7 +49,8 @@ class AuthenticationController extends Controller
             //    "name" => $request->name,
                 "role" => $request->role,
                 "code" => password_hash($code, PASSWORD_DEFAULT),
-                "password" => password_hash($request->password, PASSWORD_DEFAULT),
+                "password" => ($request->password),
+                //"password" => password_hash($request->password, PASSWORD_DEFAULT),
             ]);
             $data = str_split($code);
             /*  if (!$this->isOnlineInternet()) {

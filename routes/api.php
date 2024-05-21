@@ -197,14 +197,14 @@ Route::prefix("reserve")->controller(ReserveController::class)->group(function (
 Route::controller(AuthenticationController::class)
     ->prefix("auth")->group(function () {
         Route::post("signup", "register");
-//        Route::post("login", "login");
-//        Route::post("ActiveEmail", "ActiveEmail");
-//        Route::post("checkEmail", "checkEmail");
-//        Route::post("resendActiveEmail", "resendActiveEmail");
-//        Route::post("resetPassWord", "resetPassWord");
-//        Route::post("verifycodeforgetpassword", "verifycodeforgetpassword");
-//        Route::post('auth/logout',  'logout');
-//        //->middleware('auth:sanctum');
+        Route::post("login", "login");
+        Route::post("ActiveEmail", "ActiveEmail");
+        Route::post("checkEmail", "checkEmail");
+        Route::post("resendActiveEmail", "resendActiveEmail");
+        Route::post("resetPassWord", "resetPassWord");
+        Route::post("verifycodeforgetpassword", "verifycodeforgetpassword");
+        Route::post('auth/logout',  'logout');
+        //->middleware('auth:sanctum');
     });
 //_________________________________________Statistics
 
@@ -225,6 +225,7 @@ Route::prefix("employee")->
 group(function () {
     Route::post("create",  [EmployeeController::class, 'create']);
     Route::get("index",  [EmployeeController::class, 'index']);
+    Route::get("indexAll",  [EmployeeController::class, 'indexAll']);
     Route::post("update/{id}",  [EmployeeController::class, 'update']);
     Route::get("delete/{id}",  [EmployeeController::class, 'delete']);
     Route::post("login",  [EmployeeController::class, 'login']);

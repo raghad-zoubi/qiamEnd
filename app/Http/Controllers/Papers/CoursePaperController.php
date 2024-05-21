@@ -115,8 +115,6 @@ class CoursePaperController extends Controller
                     "id_option_paper" => $item['id_option_paper']
                 ]);
             }
-
-
             DB::commit();
 
             return MyApp::Json()->dataHandle('correct', "data");

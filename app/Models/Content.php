@@ -27,7 +27,7 @@ class Content extends Model
     ];
 
     protected $hidden = [
-
+'created_at','updated_at','pivot'
     ];
     public function OnlineCenter()
     {
@@ -42,4 +42,11 @@ class Content extends Model
         return $this->hasMany(Video::class,"id_content","id");
 
     }
+
+
+    public function courseexam()
+    {
+        return $this->hasMany(CourseExame::class, 'id_content', 'id');
+    }
+
 }

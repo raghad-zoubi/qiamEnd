@@ -59,7 +59,9 @@ class BookingController extends Controller
 
     {
         //$request->validate($this->rules->onlyKey(["id","status"], true));
-        if (Booking::query()->where("id_online_center", $id)->exists()) {
+     //   if (Booking::query()->where("id_online_center", $id)->exists())
+     //   if (true)
+        {
             try {
                 DB::beginTransaction();
 
@@ -68,12 +70,14 @@ class BookingController extends Controller
             with('bookingindex')->
             where("id_online_center", $id)->
             where('status','=','1')->
-
             get();
 
 
                     DB::commit();
+                    if($ad->isNotEmpty())
                 return MyApp::Json()->dataHandle(IndexOkBooking::Collection($ad), "data");
+                     else if(!$ad->isNotEmpty())
+                return MyApp::Json()->dataHandle('لا يوجد حجز لعرضه', "data");
                    }
 
            catch (\Exception $e) {
@@ -82,7 +86,7 @@ class BookingController extends Controller
                 throw new \Exception($e->getMessage());
             }
 
-        } else
+        }
 
             return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
 

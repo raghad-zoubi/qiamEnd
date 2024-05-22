@@ -20,9 +20,7 @@ class Video extends Model
         'duration',
         'id',
     ];
-
     protected $hidden = [
-
+        'created_at','updated_at','pivot'
     ];
-
 }

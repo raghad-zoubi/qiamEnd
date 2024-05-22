@@ -52,7 +52,7 @@ class Online_Center extends Model
     {
         return $this->belongsTo(Online::class, 'id_online', 'id')
 
-       ;// ->where('isopen','=','1');
+       ;
     }
 public function course()
     {
@@ -62,7 +62,13 @@ public function course()
         return $this->hasMany(Content::class,"id_online_center","id")
            ;// ->with(['file','video']);
 
-    }   public function coursepaper(){
+    }
+    public function content2(){
+        return $this->hasMany(Content::class,"id_online_center","id")
+        ->with(['file','video','courseexam.exam']);
+
+    }
+    public function coursepaper(){
         return $this->hasMany(CoursePaper::class,"id_online_center","id")
            ;// ->with(['file','video']);
 

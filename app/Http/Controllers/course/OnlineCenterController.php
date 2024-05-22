@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\course;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CommonCourses;
+use App\Http\Resources\DetailsCenterCopy;
+use App\Http\Resources\DetailsOnlineCopy;
 use App\Models\Booking;
 use App\Models\Center;
 use App\Models\Course;
@@ -63,6 +66,63 @@ class OnlineCenterController extends Controller
         return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
 
     }
+    public function detailsOnlineCopy($id_online_center)
+    {
+        try {
+
+            $onlineData = Online_Center::with([
+                'online',
+               'content2',
+               'coursepaper.paper',
+            ])->where('id',$id_online_center)->get();
+
+            return response()->json([
+               'data' => DetailsOnlineCopy::collection($onlineData),
+            ]);
+
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+        return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+
+
+
+                }
+
+    public function detailsCenterCopy($id_online_center)
+    {try{
+        $onlineData = Online_Center::with([
+            'center',
+        ])->where('id',$id_online_center)->get();
+
+        return response()->json([
+         'data' => DetailsCenterCopy::collection($onlineData),
+            //      'data' => ($onlineData),
+        ]);
+
+
+    } catch (\Exception $e) {
+
+DB::rollBack();
+throw new \Exception($e->getMessage());
+}
+
+
+return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+
+
+}
+
+
+
+
+
+
 
     public function deleteCopy($id_online_center)
     {

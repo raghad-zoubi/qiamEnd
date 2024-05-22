@@ -22,6 +22,8 @@ class Course extends Model
         'about',
         'photo',
         'id',
+        'teacher',
+        'text',
     ];
 
     protected $hidden = [

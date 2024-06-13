@@ -17,7 +17,8 @@ class EmployeeController extends Controller
 {
     public function __construct()
     {
-        //  $this->middleware(["auth:sanctum"])->only("Logout");
+        $this->middleware(["auth:sanctum","multi.auth:0"])->except(['Login','update']);
+        $this->middleware(["auth:sanctum","multi.auth:0|1"])->only(['Login','update']);
     }
 
     public function index()
@@ -27,10 +28,6 @@ class EmployeeController extends Controller
 
         return MyApp::Json()->dataHandle($user);
     }
-
-
-
-
     public function indexAll()
     {
 
@@ -60,11 +57,7 @@ class EmployeeController extends Controller
 
         return MyApp::Json()->dataHandle($transformedUsers);
     }
-
-
-
-
-public function create(Request $request)
+   public function create(Request $request)
     {
         $request->validate([
             "name" => ["required", Rule::unique("users", "email")],
@@ -154,5 +147,5 @@ public function create(Request $request)
 
 
     }
-    ///
+
 }

@@ -32,7 +32,7 @@ class CoursController extends Controller
 {
     public function __construct()
     {
-        //$this->middleware(["auth:sanctum"]);
+        $this->middleware(["auth:sanctum","multi.auth:0|1|2"]);
         $this->rules = new CoursesRuleValidation();
     }
     public function indexname(): JsonResponse
@@ -268,16 +268,63 @@ return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  �
 public function search(Request $request): JsonResponse
     {
         try {
-            // Retrieve search parameters from the request
             $searchTerm = $request->input('searchTerm');
+            $by = $request->input('by');
 
-//            $twoLetters = substr($searchTerm, 0, 1);
-//dd($twoLetters);
-
-            $courses = Course::query()
-                ->where('name', 'like',  DB::raw("'$searchTerm'"))
-
+        if($by=='course') {
+            $courses = DB::table('courses')
+                ->leftJoin('online_centers', 'courses.id', '=', 'online_centers.id_course')
+                ->leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
+                ->select(
+                    'courses.id',
+                    'courses.name',
+                    'courses.about',  // Add all other columns you need from the 'courses' table
+                    'courses.photo',
+                    'courses.teacher',
+                    'online_centers.id as online_center_id',
+                    DB::raw('COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
+                )
+                ->where('courses.name', $searchTerm)
+                ->orWhere('courses.name', 'like', '%' . $searchTerm . '%')
+                ->groupBy(
+                    'courses.id',
+                    'courses.name',
+                    'courses.about',  // Add all other columns you need from the 'courses' table
+                    'courses.photo',
+                    'courses.teacher',
+                    'online_centers.id'
+                )
                 ->get();
+
+
+        }
+           else if($by=='teacher') {
+               $courses = DB::table('courses')
+                   ->leftJoin('online_centers', 'courses.id', '=', 'online_centers.id_course')
+                   ->leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
+                   ->select(
+                       'courses.id',
+                       'courses.name',
+                       'courses.about',  // Add all other columns you need from the 'courses' table
+                       'courses.photo',
+                       'courses.teacher',
+                       'online_centers.id as online_center_id',
+                       DB::raw('COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
+                   )
+                   ->where('courses.teacher', $searchTerm)
+                   ->orWhere('courses.teacher', 'like', '%' . $searchTerm . '%')
+                   ->groupBy(
+                       'courses.id',
+                       'courses.name',
+                       'courses.about',  // Add all other columns you need from the 'courses' table
+                       'courses.photo',
+                       'courses.teacher',
+                       'online_centers.id'
+                   )
+                   ->get();
+
+
+           }
 
 
 

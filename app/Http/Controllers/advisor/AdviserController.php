@@ -24,8 +24,8 @@ class AdviserController extends Controller
     public function __construct()
     {
 //        $this->middleware(["auth:sanctum"]);
-//        $this->rules = new AdviserRuleValidation();
     }
+
 //عرض الكل
     public function index()
     {
@@ -68,17 +68,16 @@ class AdviserController extends Controller
 //                   // $query->where('day', $d)
 //                     //   ->with('reserve');
 //                }])
-             //   ->get();
+            //   ->get();
             $result = Adviser::where('id', $id_adviser)
-                ->with(['date' ])
-               ->get();
+                ->with(['date'])
+                ->get();
             DB::commit();
 
 
-
             return response()->json([
-               'result' =>
-          ShowAdviser::collection($result)
+                'result' =>
+                    ShowAdviser::collection($result)
 
 
             ]);
@@ -109,136 +108,159 @@ class AdviserController extends Controller
                     "photo" => $photoPath
 
                 ]);
-                if ($request->has('date') && $request->date!= '[]'){
-                if (isset($request['date']))
-                    {$dataArray = json_decode(($request->date ), true);
-                        foreach ($dataArray as $index => $date){
-                        if (is_array($date) && isset($date['day']) && //raghad
-                            isset($date['times']) && is_array($date['times'])) {
-                            $day = $date['day'];
-                            foreach ($date['times'] as $time) {
-                                {$dateAdded = Date::create([
-                                        "from" => ($time['from']),
-                                        "to" => ($time['to']),
-                                        "day" => $day,
-                                        "id_adviser" => $adviserAdded->id
-                                    ]);}}
-                        }}}}
+                if ($request->has('date') && $request->date != '[]') {
+                    if (isset($request['date'])) {
+                        $dataArray = json_decode(($request->date), true);
+                        foreach ($dataArray as $index => $date) {
+                            if (is_array($date) && isset($date['day']) && //raghad
+                                isset($date['times']) && is_array($date['times'])) {
+                                $day = $date['day'];
+                                foreach ($date['times'] as $time) {
+                                    {
+                                        $dateAdded = Date::create([
+                                            "from" => ($time['from']),
+                                            "to" => ($time['to']),
+                                            "day" => $day,
+                                            "id_adviser" => $adviserAdded->id
+                                        ]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 DB::commit();
                 return MyApp::Json()->dataHandle($adviserAdded, "Adviser");
+            } catch (\Exception $e) {
+                MyApp::uploadFile()->deleteFile($photoPath);
+                DB::rollBack();
+                DB::rollBack();
+                throw new \Exception($e->getMessage());
             }
-         catch (\Exception $e) {
-             MyApp::uploadFile()->deleteFile($photoPath) ;             DB::rollBack();
-            DB::rollBack();
-            throw new \Exception($e->getMessage());
-        }
+        } else
+
+
+            return MyApp::Json()->errorHandle("adviser", "حدث خطا ما في الاضافة  لديك ");//,$prof->getErrorMessage);
+
     }
-    else
 
+    public function update($id, Request $request)
+    {
+        if (Adviser::query()->where("id", $id)->exists()) {
+            $ad = Adviser::where("id", $id)->first();
+            $oldPath = $ad->photo;
+            //  dd($newFile);
+            $newFile = $request->file("photo");
+            if ($newFile->isValid()) {
+                try {
+                    DB::beginTransaction();
 
-    return MyApp::Json()->errorHandle("adviser", "حدث خطا ما في الاضافة  لديك ");//,$prof->getErrorMessage);
+                    $photoPath = $newFile->store('file'); // The file will be stored in the 'public/Uploads' directory
 
-}
-
-        public
-        function update($id,Request $request)
-        {
-            if (Adviser::query()->where("id", $id)->exists()) {
-                $ad = Adviser::where("id", $id)->first();
-                $oldPath = $ad->photo;
-                //  dd($newFile);
-                $newFile = $request->file("photo");
-                if ($newFile->isValid()) {
-                    try {
-                        DB::beginTransaction();
-
-                        $photoPath = $newFile->store('file'); // The file will be stored in the 'public/Uploads' directory
-
-                        if ($ad) {
-                            $ad->about = strtolower($request->about);
-                            $ad->name = strtolower($request->name);
-                            $ad->type = strtolower($request->type);
-                            $ad->id_user = ($request->id_user)??null;
-                            $ad->photo = ($photoPath);
-                            $ad->save();
-                        }
-
-
-                       if (MyApp::uploadFile()->deleteFile($oldPath)) {
-
-
-                           DB::commit();
-                            return MyApp::Json()->dataHandle("Successfully updated course.", "data");
-                       }
-                    } catch (\Exception $e) {
-
-                        DB::rollBack();
-                        throw new \Exception($e->getMessage());
+                    if ($ad) {
+                        $ad->about = strtolower($request->about);
+                        $ad->name = strtolower($request->name);
+                        $ad->type = strtolower($request->type);
+                        $ad->id_user = ($request->id_user) ?? null;
+                        $ad->photo = ($photoPath);
+                        $ad->save();
                     }
 
-                }
 
-            } else
-
-                return MyApp::Json()->errorHandle("adviser", "حدث خطا ما في تعديل  لديك ");//,$prof->getErrorMessage);
+                    if (MyApp::uploadFile()->deleteFile($oldPath)) {
 
 
-        }
-
-        public
-        function delete($id)
-        {
-            if (Adviser::query()->where("id", $id)->exists()) {
-                try {
-
-                    DB::beginTransaction();
-                    $ad = Adviser::where("id", $id)->first();
-                    $oldPath = $ad->photo;
-                    if (MyApp::uploadFile()->deleteFile($oldPath));
-                    { Adviser::where("id", $id)->delete();
-                    DB::commit();
-                    return MyApp::Json()->dataHandle("success deleted", "adviser");
-                }} catch (\Exception $e) {
+                        DB::commit();
+                        return MyApp::Json()->dataHandle("Successfully updated course.", "data");
+                    }
+                } catch (\Exception $e) {
 
                     DB::rollBack();
                     throw new \Exception($e->getMessage());
                 }
 
-            } else
+            }
 
-                return MyApp::Json()->errorHandle("adviser", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+        } else
+
+            return MyApp::Json()->errorHandle("adviser", "حدث خطا ما في تعديل  لديك ");//,$prof->getErrorMessage);
 
 
-        }
+    }
 
-        //user
-        public function display($type)
-        {
-
+    public function delete($id)
+    {
+        if (Adviser::query()->where("id", $id)->exists()) {
             try {
 
                 DB::beginTransaction();
-                $adviserGet = Adviser::query()->
-                //   with('user')->
-                where('type', '=', $type)->
-                get();
-                DB::commit();
-//
-                return response()->json([
-                    //    'course' =>DetailsCenterCourses::collection($courses),
-                    'adviserGet' => ($adviserGet),
-                ]);
-
-                //     return MyApp::Json()->dataHandle(IndexTypeAdvisor::Collection($adviserGet), "adviser");
+                $ad = Adviser::where("id", $id)->first();
+                $oldPath = $ad->photo;
+                if (MyApp::uploadFile()->deleteFile($oldPath)) ;
+                {
+                    Adviser::where("id", $id)->delete();
+                    DB::commit();
+                    return MyApp::Json()->dataHandle("success deleted", "adviser");
+                }
             } catch (\Exception $e) {
 
                 DB::rollBack();
                 throw new \Exception($e->getMessage());
             }
 
+        } else
 
-            return MyApp::Json()->errorHandle("adviser", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
+            return MyApp::Json()->errorHandle("adviser", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
 
-        }
+
     }
+
+    //user
+    public function display($type)
+    {
+
+        try {
+            DB::beginTransaction();
+            $adviserGet = Adviser::query()->
+            //   with('user')->
+            where('type', '=', $type)->
+            get(["name", "photo", "id"]);
+            DB::commit();
+
+            return response()->json([
+                'adviserGet' => ($adviserGet),
+            ]);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+        return MyApp::Json()->errorHandle("adviser", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
+
+    }
+
+    public function deteils($id_adviser)
+    {
+        try {
+
+            DB::beginTransaction();
+            $result = Adviser::where('id', $id_adviser)->get(["id", "name", "photo", "about"]);
+            DB::commit();
+
+            return response()->json([
+                'result' => $result
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+        return MyApp::Json()->errorHandle("Adviser", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
+
+    }
+
+}

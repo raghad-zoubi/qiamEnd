@@ -4,6 +4,8 @@
 namespace App\Http\Controllers\advisor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ShowDay;
+use App\Http\Resources\ShowDayUser;
 use App\Models\Rate;
 use App\Models\Reserve;
 use App\Models\Date;
@@ -17,7 +19,7 @@ class ReserveController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(["auth:sanctum"]);
+     $this->middleware(["auth:sanctum"])->only("create");
         $this->rules = new AdviserRuleValidation();
     }
     public function index($id)
@@ -61,6 +63,7 @@ class ReserveController extends Controller
                     "status" => "success",
                 ]);
             }else{
+
             $dateAdded = Reserve::create([
                 "status" =>'0',
                 "id_date" => ($request->id_date),
@@ -137,4 +140,35 @@ class ReserveController extends Controller
     {
 
     }
+    public function display($id_adviser,$day )
+    {
+
+        try {
+
+
+            DB::beginTransaction();
+
+            $DateGet = Date::where('id_adviser', $id_adviser)
+                ->where('day', $day)
+                ->with('reserve')
+                ->get();
+            DB::commit();
+            return response()->json([
+                'DateGet' =>//              $DateGet
+      ShowDayUser::collection($DateGet),
+            ]);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+        return MyApp::Json()->errorHandle("date", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
+
+    }
+
+
+
 }

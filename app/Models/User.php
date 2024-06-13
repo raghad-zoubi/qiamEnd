@@ -78,6 +78,21 @@ class User extends Authenticatable   implements  MustVerifyEmail
          //   dd("send");
         });
     }
+
+    public function isAdmin()
+    {
+        return $this->role=='0' ;
+    }
+
+    public function isUser()
+    {
+        return $this->role=='2' ;
+    }
+    public function isEmployee()
+    {
+        return $this->role=='1' ;
+    }
+    /////////////////
 //
 public function favorite()
 {

@@ -1,5 +1,6 @@
 <?php
 
+
 use App\Http\Controllers\advisor\AdviserController;
 use App\Http\Controllers\advisor\DateController;
 use App\Http\Controllers\advisor\ReserveController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\auth\ProfileController;
 use App\Http\Controllers\auth\UserController;
 use App\Http\Controllers\BookTrackCer\BookingController;
 use App\Http\Controllers\BookTrackCer\CertificateController;
+use App\Http\Controllers\BookTrackCer\UserCertificateController;
 use App\Http\Controllers\course\CenterController;
 use App\Http\Controllers\course\CoursController;
 use App\Http\Controllers\course\FavoriteController;
@@ -77,8 +79,10 @@ Route::prefix("user")->group(function () {
     Route::get('file/{id}', [FileController::class, 'show']);
     Route::get('file/{id}', [FileController::class, 'show']);
     Route::get("display/{type}", [AdviserController::class, 'display']);
+    Route::get("deteils/{id_adviser}", [AdviserController::class, 'deteils']);
+    Route::get("display/{id_adviser}/{day}", [ReserveController::class, 'display']);
+
     Route::prefix("profile")->
-   // controller(ProfileController::class)->
     group(function () {
         Route::post("create",  [ProfileController::class, 'create']);
         Route::get("show",  [ProfileController::class, 'show']);
@@ -89,9 +93,12 @@ Route::prefix("user")->group(function () {
     Route::prefix("paper")->
     group(function () {
         Route::get("show/{id}",  [CoursePaperController::class, 'show']);
-//        Route::get("show",  [ProfileController::class, 'show']);
       Route::post("answer",  [CoursePaperController::class, 'answer'])->middleware('auth:sanctum');;
-//        Route::post("delete",  [ProfileController::class, 'destroy']);
+    });
+    Route::prefix("exame")->
+    group(function () {
+        Route::get("show/{id}",  [CoursePaperController::class, 'show']);
+      Route::post("answer",  [CoursePaperController::class, 'answer'])->middleware('auth:sanctum');;
     });
 
 });
@@ -237,5 +244,12 @@ group(function () {
     Route::post("create",  [CertificateController::class, 'create']);
     Route::get("index",  [CertificateController::class, 'index']);
     Route::get("delete/{id}",  [CertificateController::class, 'delete']);
+    Route::get("generateCertificate",  [UserCertificateController::class, 'generateCertificate']);
 });
 Route::get("www/{id}",  [CoursController::class, 'displaydetils']);
+
+//
+//Route::get('/test-image', function () {
+//    $img = Image::canvas(800, 600, '#ff0000');
+//    return $img->response('jpg');
+//});

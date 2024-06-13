@@ -67,9 +67,10 @@ Route::prefix("user")->group(function () {
     });
     Route::prefix("booking")->controller(BookingController::class)->group(function () {
         //for user
-        Route::get("create/{id}", "create");
         Route::get("book/{id}", "book");
+        Route::get("create/{id}", "create");
     });
+
 
     Route::get('center/show/{id}', [CenterController::class, 'show']);
 

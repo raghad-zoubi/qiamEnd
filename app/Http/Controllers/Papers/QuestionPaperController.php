@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Papers;
 
+use App\Http\Controllers\Controller;
 use App\Models\QuestionPaper;
 use Illuminate\Http\Request;
 

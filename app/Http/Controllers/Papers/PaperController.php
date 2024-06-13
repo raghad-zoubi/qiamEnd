@@ -23,9 +23,7 @@ class PaperController extends Controller
 {
 
     public function __construct()
-    {
-      //  $this->middleware(["auth:sanctum"]);
-   //     $this->rules = new PaperRuleValidation();
+    {//$this->middleware(["auth:sanctum"]);
     }
     public function indexname($type): JsonResponse
     {
@@ -237,13 +235,3 @@ class PaperController extends Controller
     }
 
 }
-/*
- * country
- * hasmany city
- * hasmanythrough shop  city  country->with('shops)
- *                                     whithcount
- *         city
- *               shop
- * belongstocity
- *                    employee
- *  * */

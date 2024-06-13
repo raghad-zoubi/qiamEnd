@@ -30,9 +30,6 @@ class ReserveController extends Controller
             DB::beginTransaction();
 
             $dateGet =
-             //   Date::with('reserve')
-//                    ->where('id_adviser','=',$id)
-//                    ->get();
             $dates = Date::doesntHave('reserve')
                 ->where('id_adviser', '=', $id)
                 ->get();

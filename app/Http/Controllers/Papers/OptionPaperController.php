@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Papers;
 
-use App\Models\d5;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class OptionPaperController extends Controller

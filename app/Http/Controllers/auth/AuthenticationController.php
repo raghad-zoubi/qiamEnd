@@ -47,7 +47,7 @@ class AuthenticationController extends Controller
                 "email_verified_at" => Carbon::now(),
                 "email" => $request->email,
             //    "name" => $request->name,
-                "role" => '0',
+                "role" => 'user',
                 "code" => password_hash($code, PASSWORD_DEFAULT),
                 "password" => password_hash($request->password, PASSWORD_DEFAULT),
             ]);

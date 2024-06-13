@@ -20,7 +20,7 @@ return new class extends Migration
             $table->boolean('active_code')->default(false);//
             $table->string("fcm_token")->nullable();
             $table->string("token")->nullable();
-            $table->enum('role',["0","1","2"])->default("2");
+            $table->enum('role',["admin","employee","user"])->default("2");
             $table->rememberToken();
             $table->timestamps();
         });

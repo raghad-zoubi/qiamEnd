@@ -18,7 +18,8 @@ class EmployeeController extends Controller
     public function __construct()
     {
         $this->middleware(["auth:sanctum","multi.auth:0"])->except(['Login','update']);
-        $this->middleware(["auth:sanctum","multi.auth:0|1"])->only(['Login','update']);
+        $this->middleware(["multi.auth:0|1"])->only(['Login']);
+        $this->middleware(["auth:sanctum","multi.auth:0|1"])->only(['update']);
     }
 
     public function index()
@@ -77,7 +78,6 @@ class EmployeeController extends Controller
 
         return MyApp::Json()->dataHandle($data);
     }
-
     public function Login(Request $request)
     {
         $request->validate([
@@ -93,7 +93,6 @@ class EmployeeController extends Controller
         $password->password = ["the password is not valid"];
         return MyApp::Json()->errorHandle("Validation", $password);
     }
-
     public function update(Request $request, $id)
     {
 
@@ -123,7 +122,6 @@ class EmployeeController extends Controller
 
         //return MyApp::Json()->dataHandle($data);
     }
-
     public function delete($id)
     {
 

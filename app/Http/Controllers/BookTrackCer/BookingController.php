@@ -8,6 +8,7 @@ use App\Http\Resources\IndexOkBooking;
 use App\Models\Booking;
 use App\Models\CoursePaper;
 use App\Models\Online_Center;
+use App\Models\Paper;
 use App\MyApplication\MyApp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -92,52 +93,7 @@ class BookingController extends Controller
 
 
     }
-    // user
 
-    public function book( $id)
-    {
-
-        $rate = CoursePaper::where([
-            'id_online_center' => $id,
-        ])->get();
-
-
-
-            return response()->json([
-                "message" => $rate,
-                "status" => "success",
-            ]);
-
-    }
-    public function create( $id)
-    {
-
-        $rate = Booking::where([
-            'id_online_center' => $id,
-            'id_user' => Auth::id()
-        ])->first();
-
-        if (!is_null($rate)) {
-            return response()->json([
-                "message" => "حدث خطا ما يرجى المحلولة لاحقا",
-                "status" => "success",
-            ]);
-        }
-        else {
-
-            Booking::create([
-                'id_online_center' => $id,
-                'mark' => 0,
-                'done' => 0,
-                'status' => 0,
-                'id_user' =>Auth::id()
-            ]);
-            return response()->json([
-                "message" => "done",
-                "status" => "success",
-            ]);
-        }
-    }
     // dash
     public function check(Request $request,$id)
     {
@@ -169,6 +125,65 @@ class BookingController extends Controller
 
             return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
 
+
+    }
+
+
+    // user
+    public function create( $id)
+    {
+
+        $rate = Booking::where([
+            'id_online_center' => $id,
+            'id_user' => Auth::id()
+        ])->first();
+
+        if (!is_null($rate)) {
+            return response()->json([
+                "message" => "حدث خطا ما يرجى المحلولة لاحقا",
+                "status" => "success",
+            ]);
+        }
+        else {
+
+            Booking::create([
+                'id_online_center' => $id,
+                'mark' => 0,
+                'done' => 0,
+                'status' => 0,
+                'id_user' =>Auth::id()
+            ]);
+            return response()->json([
+                "message" => "done",
+                "status" => "success",
+            ]);
+        }
+    }
+    public function book($id)
+    {
+
+        try {
+            DB::beginTransaction();
+            $questionsWithOptions = Paper::
+
+            with('questionpaperwith'
+            )->whereHas('coursepaper', function ($query) use ($id) {
+                $query->where('id_online_center', $id);
+            })->where("type","استمارة")->
+            get();
+
+
+            DB::commit();
+
+            return MyApp::Json()->dataHandle($questionsWithOptions, "paper");
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+        return MyApp::Json()->errorHandle("paper", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
 
     }
 

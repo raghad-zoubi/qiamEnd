@@ -17,15 +17,15 @@ class EmployeeController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(["auth:sanctum","multi.auth:admin"])->except(['Login','update']);
-        $this->middleware(["multi.auth:admin|employee"])->only(['Login']);
-        $this->middleware(["auth:sanctum","multi.auth:admin|employee"])->only(['update']);
+        $this->middleware(["auth:sanctum","multi.auth:0"])->except(['Login','update']);
+        $this->middleware(["multi.auth:0|1"])->only(['Login']);
+        $this->middleware(["auth:sanctum","multi.auth:0|1"])->only(['update']);
     }
 
     public function index()
     {
 
-        $user = User::query()->where('role', 'employee')->get(['email', 'id']);
+        $user = User::query()->where('role', '1')->get(['email', 'id']);
 
         return MyApp::Json()->dataHandle($user);
     }
@@ -34,18 +34,18 @@ class EmployeeController extends Controller
 
 
         $users = User::query()
-        ->where ('role','!=','user') // Fetch only the necessary fields
-     // ->where ('role','=','admin')
+        ->where ('role','!=','2') // Fetch only the necessary fields
+     // ->where ('role','=','0')
             ->get(['email', 'password', 'role']); // Fetch only the necessary fields
 
         $transformedUsers = $users->map(function ($user) {
-            if ($user->role == 'employee') {
+            if ($user->role == '1') {
                 return [
                     'email' => $user->email,
                     'password' => $user->password,
-                    'role' => 'موظف', // 'موظف' means 'employee'
+                    'role' => 'موظف', // 'موظف' means '1'
                 ];
-            } elseif ($user->role == 'admin') {
+            } elseif ($user->role == '0') {
                 return [
                     'email' => $user->email,
                     'password' => $user->password,
@@ -53,7 +53,7 @@ class EmployeeController extends Controller
                 ];
             }
 
-         return $user; // In case the role is neither admin nor employee, return the user as is
+         return $user; // In case the role is neither 0 nor 1, return the user as is
         });
 
         return MyApp::Json()->dataHandle($transformedUsers);
@@ -104,7 +104,7 @@ class EmployeeController extends Controller
                 if ($p) {
                     $p->email = strtolower($request->name);
                     $p->password = strtolower($request->password);
-                    $p->role = 'employee';
+                    $p->role = '1';
                     $p->save();
                 }
                 DB::commit();

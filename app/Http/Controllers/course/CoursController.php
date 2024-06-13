@@ -32,7 +32,7 @@ class CoursController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(["auth:sanctum","multi.auth:user"]);
+        $this->middleware(["auth:sanctum","multi.auth:2"]);
         $this->rules = new CoursesRuleValidation();
     }
     public function indexname(): JsonResponse

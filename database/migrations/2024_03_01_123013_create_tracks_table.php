@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId("id_video")->constrained("videos")->cascadeOnDelete();
             $table->foreignId("id_booking")->constrained("booking")->cascadeOnDelete();
-            $table->bigInteger("endTime")->default("0");
+            $table->time("endTime");
             $table->enum("done",["0","1"])->default("0");
             $table->timestamps();
         });

@@ -3,64 +3,125 @@
 namespace App\Http\Controllers\course;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ContentUserBook;
+use App\Http\Resources\ExameUserContent;
+use App\Models\Booking;
 use App\Models\Content;
+use App\Models\Online;
+use App\Models\Online_Center;
+use App\Models\Track;
+use App\Models\Video;
+use App\MyApplication\MyApp;
+use App\Services\FFmpegService;
+use FFMpeg\FFMpeg;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use FFMpeg\Coordinate\TimeCode;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use function Intervention\Image\Typography\add;
 
 class ContentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+    protected $ffmpegService;
+    public function __construct(FFmpegService $ffmpegService)
+    {        $this->ffmpegService = $ffmpegService;
+
+        $this->middleware('auth:sanctum');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show($id_content)
     {
-        //
+        $content = Content::where('id', $id_content)->first();
+        if (!$content) {
+
+            return response()->json([
+                "data" =>"Content not found"]);
+        } else {
+            $booking = Booking::where([
+                'id_online_center' => $content->id_online_center,
+                'id_user' => Auth::id(),
+                'status' => "1",
+            ])->first();
+            if (!$booking) {
+                return response()->json([
+                    "data" => "Unauthorized access to content"
+
+                ]);    } else {
+                if ($content->rank == '0') {
+                    $content_data = Content::query()->
+                    where('id', $id_content)->with(['video', 'file'])->get();
+                    $data = new ContentUserBook($content_data[0]);
+                    return response()->json([
+                        "data" => $data
+
+                    ]);
+                }
+                if ($content->rank != '0') {
+                    $rank = $content->rank - 1;
+
+                    $v = Content::where('id_online_center', $content->id_online_center)
+                        ->where('rank', $rank)
+                        ->with('video')
+                        ->first();
+
+                    if ($v) {
+                        if ($v->exam == '0') {
+                            $idVideos = $v->video->pluck('id')->toArray();
+                            $can = Track::where('id_booking', $booking->id)
+                                ->where('done', '1')
+                                ->whereIn('id_video', $idVideos)
+                                ->exists();
+                            if ($can) {
+                                $content_data = Content::query()->
+                                where('id', $id_content)->with(['video', 'file'])->get();
+                                $data = new ContentUserBook($content_data[0]);
+                                return response()->json([
+                                    "data" => $data
+
+                                ]);
+                            } else {
+                                return response()->json([
+                                    "data" => "Unauthorized access to content"
+                                ]);
+                            }
+
+                        }
+                        //    else//معالجة حالة الامتحان
+                    }
+
+                }
+
+            }
+        }
+        return response()->json([
+            "data" => "حدث خطا ما اعد المحاولة لاحقا"]);
+
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+
+public function convertVideo()
+    {//public\storage\app\public\input\video.mp4
+        $inputPath = storage_path('app/public/input/video.mp4');
+        $outputPath = storage_path('app/public/output/video.mp4');
+
+        return $this->ffmpegService->convertVideo($inputPath, $outputPath);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Content $content)
+    public function getVideoInfo()
     {
-        //
+        $videoPath = storage_path('app/public/input/video.mp4');
+        $videoInfo = $this->ffmpegService->getVideoInfo($videoPath);
+
+        return response()->json($videoInfo);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Content $content)
+    public function extractFrame(Request $request)
     {
-        //
-    }
+        $videoPath = storage_path('app/public/' . $request->input('video_path'));
+        $frameTime = $request->input('frame_time'); // in seconds
+        $outputImagePath = storage_path('app/public/' . $request->input('output_image_path'));
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Content $content)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Content $content)
-    {
-        //
+        return $this->ffmpegService->extractFrame($videoPath, $frameTime, $outputImagePath);
     }
 }

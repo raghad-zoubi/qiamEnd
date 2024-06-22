@@ -25,8 +25,9 @@ class Date extends Model
     ];
 
     protected $hidden = [
-
-    ];
+    "created_at",
+    "updated_at","pivot"
+];
 
     public function adviser()
     {

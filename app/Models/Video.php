@@ -17,10 +17,19 @@ class Video extends Model
         'name',
         'rank',
         'video',
+        'poster',
         'duration',
         'id',
     ];
     protected $hidden = [
         'created_at','updated_at','pivot'
-    ];
+    ]; public function content()
+{
+    return $this->belongsTo(Content::class, "id_content", "id");
 }
+}
+
+
+
+
+

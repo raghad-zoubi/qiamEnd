@@ -27,22 +27,16 @@ class Exame extends Model
 
     ];
 
+    public function questionexamwith()
+    {
+        return $this->hasMany(Question::class, 'id_exame')->
+        with('option');//->limit(1);
+    }
 
-//    public function onlinecours()
-//    {
-//        return $this->belongsTo(OnlineCours::class);
-//
-//    }
-//    public function onlinecourses(){
-//        return $this->hasMany(Online::class,"id_poll","id");
-//    }
-//    public function centercourses(){
-//        return $this->hasMany(Center::class,"id_course","id");
-//    }
-//    public function pollForms()
-//    {
-//        return $this->hasMany(d2::class, 'id_poll');
-//    }
+    public function coursexam()
+    {
+        return $this->HasMany(CourseExame::class, "id_exam", "id");
+    }
 
 
 

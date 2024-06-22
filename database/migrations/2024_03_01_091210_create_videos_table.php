@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->time('duration');
             $table->text("video");
+            $table->text("poster");
             $table->integer("rank");
             $table->timestamps();
         });

@@ -93,7 +93,6 @@ class OnlineCenterController extends Controller
 
 
                 }
-
     public function detailsCenterCopy($id_online_center)
     {try{
         $onlineData = Online_Center::with([
@@ -117,13 +116,6 @@ return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  �
 
 
 }
-
-
-
-
-
-
-
     public function deleteCopy($id_online_center)
     {
         if (Online_Center::query()->where("id", $id_online_center)->exists()

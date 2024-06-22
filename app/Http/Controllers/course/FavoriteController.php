@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\course;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AllCourses;
 use App\Models\Favorite;
+use App\Models\Online_Center;
+use App\MyApplication\MyApp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -54,143 +58,35 @@ class FavoriteController extends Controller
     public function index()
     {
 
-        $fav = Favorite::with("favorites")->whereHas("favorites", function ($q) {
-            $q->where("id_user", "=", Auth::id());
-        })->get();
-//        dd($fav);
+        try {
+            $favoriteOnlineCenterIds = Favorite::where('id_user', Auth::id())
+                ->pluck('id_online_center');
 
-        /*  $items = Category::with('items')
-        ->where("id",">",0) //this is from Category table
-        ->WhereHas('items', function($query)  {
-            $query->where("id","3")
-            ->where("item_count","0");
-            $query->whereHas('fav',function($q){
-                $q->where('id_user', 1);
-            });
-        }) ->dd();*/
+            // Create a subquery to calculate average rates
+            $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
+                ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
+                ->groupBy('online_centers.id')
+                ->getQuery();
 
-        /*  $items = Item::with('category')
-        //->where("id",3) //this is from Category table
-        ->WhereHas('fav', function($query)  {
-            $query->where("id_user",1);
-            //->where("item_count","0");
+            // Join the subquery to the main query and fetch courses
+            $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
+                $join->on('online_centers.id', '=', 'subquery.id');
+            })
+                ->whereIn('online_centers.id', $favoriteOnlineCenterIds) // Only fetch favorite courses
+                ->with(['course', 'center'])
+                ->get();
 
-        })->get();*/
-
-
-
-
-
-
-
+            return response()->json([
+                'data' => AllCourses::collection($courses),
+            ]);
+        } catch (\Exception $e) {
+            // Handle exception
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], 500);
+        }
 
 
 
-
-        /* $items = Item::all();
-        foreach ($items as $item) {
-            $x= Favorite::where("id_online_center","=", $item->id)
-                ->where("id_user" ,"=", 1)->get();
-                if(count($x)>0) {
-                    $item->fav=true;
-                }else{
-                    $item->fav=false;
-                }
-        }*/
-
-
-
-
-
-        ///just item in faforite
-        /* $q = Item::query();
-        $q->whereHas("fav", function ($q) {
-            $q->where("id_user", Auth::id());
-        })->where("id", "=", 5);
-        $items =  $q->with("category")->get();*/
-        ////////
-
-        //   just item+catecory+fave in faforite
-
-        /*$q = Category::query();
-        $q->with("items");
-        $q = $q->whereHas("items", function ($q) {
-            $q->where("id","!=",4);
-        });*/
-
-        /* $items = Item::with("category")->get();
-        foreach ($items as $item) {
-            $temp = Favorite::where("id_online_center","=", $item->id)
-            ->where("id_user" ,"=", Auth::id())->get();
-            if (count($temp) > 0) {
-                $item['isfavorite'] = true;
-            } else {
-                $item["isfavorite"] = false;
-            }
-        }*/
-        /*  $items=DB::table('categories')
-        ->join('items', function ($join) {
-        $join->on('categories.id', '=', 'items.categories_id')
-        ->where('items.item_discount', '!=', 0);
-        })->get( );
-
-        foreach ($items as $item) {
-            $temp = Favorite::where("id_online_center","=", $item->id)
-            ->where("id_user" ,"=", Auth::id())->get();
-            if (count($temp) > 0) {
-                $item->isfavorite = true;
-            } else {
-                $item->isfavorite = false;
-            }
-        }*/
-        /* $collection = collect([
-             [
-                 "fav_id" => 9,
-                 "id_online_center" => 5,
-                 "id_user" => 3,
-                 "created_at" => null,
-                 "updated_at" => null,
-                 "favorites" => [
-                     "id" => 5,
-                     "item_name" => "camera1",
-                     "item_name_ar" => "fefw",
-                     "item_desc_ar" => "werwr",
-                     "item_desc" => "werwerwerw",
-                     "item_image" => "",
-                     "item_count" => 3,
-                     "item_price" => 23,
-                     "item_active" => 1,
-                     "item_discount" => 23,
-                     "categories_id" => 3,
-                     "created_at" => null,
-                     "updated_at" => null
-                 ]
-             ]
-         ]);*/
-
-
-
-        $mapped = $fav->map(function ($item, $key) {
-            //  $item["item_id"] = $item["favorites"]["id"];
-            $item["item_name"] = $item["favorites"]["id"];
-            //$item["item_name"] = $item["id"];
-//            $item["item_name_ar"] = $item["favorites"]["item_name_ar"];
-//            $item["item_desc"] = $item["favorites"]["item_desc"];
-//            $item["item_image"] = $item["favorites"]["item_image"];
-//            $item["item_count"] = $item["favorites"]["item_count"];
-//            $item["item_price"] = $item["favorites"]["item_price"];
-//            $item["item_active"] = $item["favorites"]["item_active"];
-//            $item["item_discount"] = $item["favorites"]["item_discount"];
-//            $item["categories_id"] = $item["favorites"]["categories_id"];
-            //unset($item["favorites"]);
-            //unset($item["id"]);
-         //   unset($item['']);
-            return $item;
-        });
-
-        return response([
-            'item' =>  $mapped,
-            "status" => "success",
-        ]);
     }
 }

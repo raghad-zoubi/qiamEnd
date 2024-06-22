@@ -32,7 +32,10 @@ class CourseExame extends Model
     }
     public function exam(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Exame::class,"id_exam","id");}
+        return $this->belongsTo(Exame::class,"id_exam","id");
+
+
+    }
 
 
 }

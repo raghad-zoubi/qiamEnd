@@ -16,5 +16,8 @@ class UserCertificate extends Model
     ];
     protected $hidden = ["created_at","updated_at"];
 
-
+    public function book()
+    {
+        return $this->belongsTo(Booking::class,'id_booking');
+    }
 }

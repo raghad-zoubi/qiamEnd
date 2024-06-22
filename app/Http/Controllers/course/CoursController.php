@@ -33,7 +33,7 @@ class CoursController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(["auth:sanctum", "multi.auth:2"]);
+        $this->middleware(["auth:sanctum"]);//, "multi.auth:2|1|0"]);
         $this->rules = new CoursesRuleValidation();
     }
 
@@ -198,14 +198,7 @@ class CoursController extends Controller
     }
 
     public function all(): JsonResponse
-    {//     $rates = Online_Center::
-//        leftJoin('rates', 'online_centers.id', '=', 'rates.id')
-//       ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
-//       ->groupBy('online_centers.id');
-//
-//        $courses= Online_Center::
-//       with(['course', 'online', 'center']) ->paginate(10);
-
+    {
         try {
             $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
                 ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')

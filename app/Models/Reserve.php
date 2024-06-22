@@ -20,9 +20,9 @@ class Reserve extends Model
         'id_date',
         'id_user',
     ];
-
     protected $hidden = [
-
+        "created_at",
+        "updated_at","pivot"
     ];
 
 

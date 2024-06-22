@@ -36,7 +36,8 @@ class Paper extends Model
     {
     return $this->hasMany(QuestionPaper::class, 'id_paper');
             ;
-    }    public function questionpaperwith()
+    }
+    public function questionpaperwith()
     {
     return $this->hasMany(QuestionPaper::class, 'id_paper')->
     with('optionpaper')

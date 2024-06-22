@@ -5,16 +5,26 @@ namespace App\Http\Controllers\BookTrackCer;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\IndexNewBooking;
 use App\Http\Resources\IndexOkBooking;
+use App\Models\AnswerPaper;
 use App\Models\Booking;
+use App\Models\Content;
 use App\Models\CoursePaper;
+use App\Models\Information;
+use App\Models\Online;
 use App\Models\Online_Center;
 use App\Models\Paper;
+use App\Models\Track;
+use App\Models\Video;
 use App\MyApplication\MyApp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use function Intervention\Image\has;
+use function Nette\Utils\isEmpty;
+use function PHPUnit\Framework\isNull;
+use function PHPUnit\TextUI\executeHelpCommandWhenThereIsNothingElseToDo;
 
 class BookingController extends Controller
 {
@@ -28,60 +38,57 @@ class BookingController extends Controller
 
     {
         //$request->validate($this->rules->onlyKey(["id","status"], true));
-            try {
-                DB::beginTransaction();
+        try {
+            DB::beginTransaction();
 
-                $ad = Booking::
-                //where("id_online_center", $id) ->
-                   where('status', '=', '0')
-                    ->with('users')
-                    ->with('bookingindex')
-                    ->orderBy('created_at', 'asc') // Order by 'created_at' column in descending order
-                    ->get();
+            $ad = Booking::
+            //where("id_online_center", $id) ->
+            where('status', '=', '0')
+                ->with('users')
+                ->with('bookingindex')
+                ->orderBy('created_at', 'asc') // Order by 'created_at' column in descending order
+                ->get();
 
-                DB::commit();
-                 return MyApp::Json()->dataHandle(IndexNewBooking::Collection($ad), "data");
-                //   return MyApp::Json()->dataHandle($ad);
+            DB::commit();
+            return MyApp::Json()->dataHandle(IndexNewBooking::Collection($ad), "data");
+            //   return MyApp::Json()->dataHandle($ad);
 
-                   }
+        } catch (\Exception $e) {
 
-           catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
 
-               DB::rollBack();
-               throw new \Exception($e->getMessage());
+        }
 
-           }
-
-            return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
+        return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
 
 
     }
-    public function indexOk( $id)
+
+    public function indexOk($id)
 
     {
         //$request->validate($this->rules->onlyKey(["id","status"], true));
-     //   if (Booking::query()->where("id_online_center", $id)->exists())
-     //   if (true)
+        //   if (Booking::query()->where("id_online_center", $id)->exists())
+        //   if (true)
         {
             try {
                 DB::beginTransaction();
 
-            $ad = Booking::
-            with('users')->
-            with('bookingindex')->
-            where("id_online_center", $id)->
-            where('status','=','1')->
-            get();
+                $ad = Booking::
+                with('users')->
+                with('bookingindex')->
+                where("id_online_center", $id)->
+                where('status', '=', '1')->
+                get();
 
 
-                    DB::commit();
-                    if($ad->isNotEmpty())
-                return MyApp::Json()->dataHandle(IndexOkBooking::Collection($ad), "data");
-                     else if(!$ad->isNotEmpty())
-                return MyApp::Json()->dataHandle('لا يوجد حجز لعرضه', "data");
-                   }
-
-           catch (\Exception $e) {
+                DB::commit();
+                if ($ad->isNotEmpty())
+                    return MyApp::Json()->dataHandle(IndexOkBooking::Collection($ad), "data");
+                else if (!$ad->isNotEmpty())
+                    return MyApp::Json()->dataHandle('لا يوجد حجز لعرضه', "data");
+            } catch (\Exception $e) {
 
                 DB::rollBack();
                 throw new \Exception($e->getMessage());
@@ -89,31 +96,48 @@ class BookingController extends Controller
 
         }
 
-            return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
+        return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
 
 
     }
 
     // dash
-    public function check(Request $request,$id)
+    public function check(Request $request, $id)
     {
         if (Booking::query()->where("id", $id)->exists()) {
             try {
                 DB::beginTransaction();
 
                 $ad = Booking::where("id", $id)->first();
-                if ($ad ) {
-                    if($request->status=='1'){
+                if ($ad) {
+                    if ($request->status == '1') {
                         $ad->status = ($request->status);
                         $ad->save();
+
+                        $type=Online_Center::query()->where('id',$ad->id_online_center)->first();
+                        if($type->id_online!=null) {
+                        $id_online_cente=$type->id;
+                            $id_video=Video ::query()->
+                                whereHas('content', function ($rank) use ($id_online_cente) {
+                                $rank  ->where('rank','=', "0")->
+                                where('id_online_center','=', $id_online_cente);
+                                })->
+                            where('rank','=',"0")->first();
+                            $track = Track::create([
+                                'id_video' => $id_video->id,
+                                'id_booking' => $id,
+                                'endTime' => "00:00:00",
+                                'done' => "0",
+                            ]);
+                        }
                         DB::commit();
                         return MyApp::Json()->dataHandle("bookin successfully", "date");
-                    }
-                    else{
+                    } else {
                         $ad = Booking::query()->where("id", $request->id)->delete();
                         DB::commit();
                         return MyApp::Json()->dataHandle("unbooking successfully", "date");
-                    }}
+                    }
+                }
 
             } catch (\Exception $e) {
 
@@ -130,53 +154,49 @@ class BookingController extends Controller
 
 
     // user
-    public function create( $id)
-    {
-
-        $rate = Booking::where([
-            'id_online_center' => $id,
-            'id_user' => Auth::id()
-        ])->first();
-
-        if (!is_null($rate)) {
-            return response()->json([
-                "message" => "حدث خطا ما يرجى المحلولة لاحقا",
-                "status" => "success",
-            ]);
-        }
-        else {
-
-            Booking::create([
-                'id_online_center' => $id,
-                'mark' => 0,
-                'done' => 0,
-                'status' => 0,
-                'id_user' =>Auth::id()
-            ]);
-            return response()->json([
-                "message" => "done",
-                "status" => "success",
-            ]);
-        }
-    }
     public function book($id)
     {
 
         try {
-            DB::beginTransaction();
-            $questionsWithOptions = Paper::
+            $rate = Booking::where([
+                'id_online_center' => $id,
+                'id_user' => Auth::id()
+            ])->first();
 
-            with('questionpaperwith'
-            )->whereHas('coursepaper', function ($query) use ($id) {
-                $query->where('id_online_center', $id);
-            })->where("type","استمارة")->
-            get();
+            if (!is_null($rate)) {
+                return MyApp::Json()->dataHandle('أنت تملك حجز مسبقا', "data");
+
+            }else {
+                DB::beginTransaction();
+
+                $isopen =
+                    Online::query()
+                        ->whereHas('onlineCenters', function ($query) use ($id) {
+                            $query->where('id', $id);
+                        })->select('isopen')->
+                        get();
+                if ($isopen[0]['isopen'] == '1') {
+
+                    $questionsWithOptions = Paper::
+                    with('questionpaperwith'
+                    )->whereHas('coursepaper', function ($query) use ($id) {
+                        $query->where('id_online_center', $id);
+                    })->where("type", "استمارة")->
+                    get();
 
 
-            DB::commit();
+                    DB::commit();
 
-            return MyApp::Json()->dataHandle($questionsWithOptions, "paper");
-        } catch (\Exception $e) {
+//            return MyApp::Json()->dataHandle($questionsWithOptions, "paper");
+                    return MyApp::Json()->dataHandle($questionsWithOptions, "data");
+                } else
+
+
+                    DB::commit();
+
+//            return MyApp::Json()->dataHandle($questionsWithOptions, "paper");
+                return MyApp::Json()->dataHandle('غير متاح للحجز حاليا', "data");
+            }  } catch (\Exception $e) {
 
             DB::rollBack();
             throw new \Exception($e->getMessage());
@@ -188,6 +208,90 @@ class BookingController extends Controller
     }
 
 
+    public function create(Request $request, $id)
+    {
+
+        $rate = Booking::where([
+            'id_online_center' => $id,
+            'id_user' => Auth::id()
+        ])->first();
+
+   if (!is_null($rate)) {
+                return MyApp::Json()->dataHandle('أنت تملك حجز مسبقا', "data");
+
+        }
+        else {
+
+            $isopen = Online::query()
+                ->whereHas('onlineCenters', function ($query) use ($id) {
+                    $query->where('id', $id);
+                })->select('isopen')->
+                get();
+            if ($isopen[0]['isopen'] == '0') {
+                return MyApp::Json()->dataHandle('غير متاح للحجز حاليا', "data");
+
+            }
+            else if ($isopen[0]['isopen'] == '1') {
+                $ispapper = CoursePaper::query()
+                    ->where('id_online_center', $id)
+                    ->exists();
+//
+       if ($ispapper )
+                {
+           foreach ($request->options as $item) {
+               if ($item!=null){
+                   DB::beginTransaction();
+
+                   foreach ($request->options as $item) {
+                       AnswerPaper::create([
+                           "id_user" => auth()->id(),
+                           "answer" => $item['answer'],
+                           "id_question_paper" => $item['id_question_paper'],
+                           "id_option_paper" => $item['id_option_paper']
+                       ]);
+                   }
+                   Booking::create([
+                       'id_online_center' => $id,
+                       'mark' => 0,
+                       'done' => 0,
+                       'status' => 0,
+                       'id_user' => Auth::id()
+                   ]);
+                   DB::commit();
+                   return response()->json([
+                       "message" => "done",
+                       "status" => "success",
+                   ]);
+                   return MyApp::Json()->dataHandle('success', "data");
+
+               } else {
+//                     dd($request["options"]);
+                   return MyApp::Json()->dataHandle('يرجى تعبئة الاستمارة', "data");
+               }
+           }
+                }
+
+                else if (!$ispapper ){
+                    DB::beginTransaction();
+
+                    Booking::create([
+                        'id_online_center' => $id,
+                        'mark' => 0,
+                        'done' => 0,
+                        'status' => 0,
+                        'id_user' => Auth::id()
+                    ]);
+                    return response()->json([
+                        "message" => "done",
+                        "status" => "success",
+                    ]);
+                }
+else{
+    return MyApp::Json()->dataHandle('حدث خطا يرجى المحاولة لاحقا', "data");
+
+}            }
+        }
 
 
+    }
 }

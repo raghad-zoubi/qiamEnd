@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Http\Controllers\Exam;
 
 use App\Http\Controllers\Controller;
@@ -19,8 +20,9 @@ class ExameController extends Controller
 {
     public function __construct()
     {
-        //  $this->middleware(["auth:sanctum"]);
-        //     $this->rules = new PaperRuleValidation();
+        $this->middleware(["auth:sanctum","multi.auth:0|1"])->except(['showUser']);
+        $this->middleware(["auth:sanctum","multi.auth:0|1|2"])->only(['showUser']);
+
     }
 
     public function index()

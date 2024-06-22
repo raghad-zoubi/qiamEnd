@@ -12,11 +12,13 @@ use App\Http\Controllers\BookTrackCer\BookingController;
 use App\Http\Controllers\BookTrackCer\CertificateController;
 use App\Http\Controllers\BookTrackCer\UserCertificateController;
 use App\Http\Controllers\course\CenterController;
+use App\Http\Controllers\course\ContentController;
 use App\Http\Controllers\course\CoursController;
 use App\Http\Controllers\course\FavoriteController;
 use App\Http\Controllers\course\OnlineCenterController;
 use App\Http\Controllers\course\OnlineController;
 use App\Http\Controllers\course\RateController;
+use App\Http\Controllers\Exam\CourseExameController;
 use App\Http\Controllers\Exam\ExameController;
 use App\Http\Controllers\course\FileController;
 use App\Http\Controllers\InformationController;
@@ -37,13 +39,15 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::get("/d", function () {
-    return "sakmkmas";
-});
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+//;
 
+Route::post('/frame', [ContentController::class, 'extractFrame']);
+Route::get('/converto', [ContentController::class, 'convertVideo']);
+Route::get('/getinfo', [ContentController::class, 'getVideoInfo']);
+Route::post("/add/{id}",  [UserCertificateController::class, 'addText2']);
+Route::post("/addText",  [UserCertificateController::class, 'addText']);
+
+////////////////////
 
 
 
@@ -53,42 +57,42 @@ Route::prefix("user")->group(function () {
         Route::get("all", "all");
         Route::post("search", "search");
         Route::get("each/{type}", "each");
-
     });
     Route::prefix("favorite")->controller(FavoriteController::class)->group(function () {
-
         //for user
         Route::get("index", "index");//all status date
         Route::post("create", "create");
     });
     Route::prefix("rate")->controller(RateController::class)->group(function () {
-        //for user
         Route::post("create", "create");
     });
-    Route::prefix("booking")->controller(BookingController::class)->group(function () {
-        //for user
-        Route::get("book/{id}", "book");
-        Route::get("create/{id}", "create");
-    });
-
-
-    Route::get('center/show/{id}', [CenterController::class, 'show']);
-
-
-    Route::get('online/show/{id}', [OnlineController::class, 'show']);
-    Route::get('video/{id}', [VideoController::class, 'show']);
-    Route::get('file/{id}', [FileController::class, 'show']);
-    Route::get('file/{id}', [FileController::class, 'show']);
-    Route::get("display/{type}", [AdviserController::class, 'display']);
-    Route::get("deteils/{id_adviser}", [AdviserController::class, 'deteils']);
-    Route::get("display/{id_adviser}/{day}", [ReserveController::class, 'display']);
-
-    Route::prefix("profile")->
-    group(function () {
+    Route::prefix("profile")->group(function () {
         Route::post("create",  [ProfileController::class, 'create']);
         Route::get("show",  [ProfileController::class, 'show']);
         Route::post("update",  [ProfileController::class, 'update']);;
         Route::post("delete",  [ProfileController::class, 'destroy']);
+    });
+    Route::get('center/show/{id}', [CenterController::class, 'show']);
+    Route::get('online/show/{id}', [OnlineController::class, 'show']);
+    Route::get('content/{id_content}', [ContentController::class, 'show']);
+    Route::get('video/{id}', [VideoController::class, 'show']);
+    Route::get('afterVideo/{id}/{endTime}', [VideoController::class, 'afterVideo']);
+    Route::post('/extract-frame', [ContentController::class, 'extractFrame']);
+    Route::get('file/{id}', [FileController::class, 'show']);
+    Route::prefix("bookingCourse")->controller(BookingController::class)->group(function () {
+        //for user
+        Route::get("book/{id}", "book");
+        Route::post("create/{id}", "create");
+        });
+    //advisor
+    Route::prefix("advisor")->group(function () {
+
+        Route::get("display/{type}", [AdviserController::class, 'display']);
+    Route::get("deteils/{id_adviser}", [AdviserController::class, 'deteils']);
+    Route::get("display/{id_adviser}/{day}", [ReserveController::class, 'display']);
+        Route::post("create", [ReserveController::class,"create"]);//الموعيد المتاحه
+    Route::get("display", [ReserveController::class,"present"]);//موعيدي
+//
     });
 
     Route::prefix("paper")->
@@ -101,9 +105,18 @@ Route::prefix("user")->group(function () {
         Route::get("show/{id}",  [CoursePaperController::class, 'show']);
       Route::post("answer",  [CoursePaperController::class, 'answer'])->middleware('auth:sanctum');;
     });
+    Route::prefix("exam")->group(function () {
+        //for user
+        Route::get("course/{id_online_center}/{id_online})",
+            [CourseExameController::class, 'showUserCourse']);
+
+        Route::get("content/{id_online_center}/{id_content}",
+            [CourseExameController::class, 'showUserContent']);
+    });
 
 });
 
+//*************************************************************************
 
 //------------
 Route::prefix("auth")->controller(UserController::class)->group(function () {
@@ -247,10 +260,20 @@ group(function () {
     Route::get("delete/{id}",  [CertificateController::class, 'delete']);
     Route::get("generateCertificate",  [UserCertificateController::class, 'generateCertificate']);
 });
-Route::get("www/{id}",  [CoursController::class, 'displaydetils']);
+//*****************************
+//Route::get("www/{id}",  [CoursController::class, 'displaydetils']);
 
 //
 //Route::get('/test-image', function () {
 //    $img = Image::canvas(800, 600, '#ff0000');
 //    return $img->response('jpg');
 //});
+
+
+//Route::post('/add', [UserCertificateController::class, 'addTextToImage']);
+//Route::get("/d", function () {
+//    return "sakmkmas";
+//});
+//Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//    return $request->user();
+//})    Route::get('ra', [UserCertificateController::class, 'resizeImage']);

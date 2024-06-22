@@ -19,6 +19,7 @@ use App\Models\Serial;
 use App\Models\Video;
 use App\MyApplication\MyApp;
 use App\MyApplication\Services\CoursesRuleValidation;
+use App\Services\FFmpegService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -40,25 +41,195 @@ use Illuminate\Support\Facades\Validator;
 class OnlineController extends Controller
 {
 
-    public function __construct()
-    {
-    //    $this->middleware(["auth:sanctum"]);
-        $this->rules = new CoursesRuleValidation();
-    }
+//    protected $ffmpegService;
+//
+//    public function __construct(FfmpegService $ffmpegService)
+//    {
+//        $this->ffmpegService = $ffmpegService;
+////        $this->middleware('auth:sanctum');
+//        $this->rules = new CoursesRuleValidation();
+//    }
+//    public function index()
+//    {
+//        $online = Online::query()->get();
+//        return MyApp::Json()->dataHandle($online, "online");
+//    }
+//
+//    public function create(Request $request)
+//    {
+////        $request->validate($this->rules->onlyKey(["Exam", "price", "serial",
+////            "durationExam", "id_course", "id_form", "id_poll"], true));
+//     try {
+//
+//            DB::beginTransaction();
+//            $online = Online::create([
+//                "exam" => strtolower($request->exam),
+//                "price" => $request->price,
+//                "serial" => $request->serial,
+//                "durationExam" => $request->durationExam,
+//                "numberQuestion" => $request->numberQuestion,
+//                "numberContents" => $request->numberContents,
+//                "numberHours" => $request->numberHours,
+//                "id_course" => $request->id_course,
+//            ]);//dd('p');
+//            $onlinecenter = Online_Center::create([
+//                "id_online"=>$online->id,
+//                 "id_center"=>null,
+//                "id_course" =>$request->id_course,
+//            ]);
+//
+//            if($request->has('id_form'))
+//            $onlinepaper = CoursePaper::create([
+//                "id_online_center"=>$onlinecenter->id,
+//                "id_paper"=>$request->id_form,
+//
+//            ]);
+//            if($request->has('id_poll'))
+//                $onlinepaper = CoursePaper::create([
+//                    "id_online_center"=>$onlinecenter->id,
+//                    "id_paper"=>$request->id_poll,
+//                ]);
+//
+//
+//            if($request->serial=="1"&& $request->has('id_prefix'))
+//                $serial=Serial::create([
+//                    "id_online_center"=>$onlinecenter->id,
+//                    "id_course" =>$request->id_prefix,
+//                ]);
+//
+////            if($request->exam=="1")
+////                $courseexam = CourseExame::create([
+////                    "id_online_center"=>$onlinecenter->id,
+////              //   "id_content"=>null,
+////             //   "id_exam" =>$request->id_exam,
+////            ]);
+//
+//$r2=0;
+//$r1=0;
+//$r3=0;
+////            $v='';
+////            $filePath='';
+////            $f='';
+//            foreach ($request['content'] as $inner) {
+//                $file = $inner['photo']; // Assuming 'photo' is the key for the uploaded file
+//                if ($file->isValid()) {
+//                    // Store the file and get the path
+//                    $filePath = $file->store('file'); // The file will be stored in the 'public/photo' directory
+//
+//                    // Create a new Content record
+//                    $content = Content::create([
+//                        "id_online_center" => $onlinecenter->id,
+//                        "numberHours" => $inner['numberHours'],
+//                        "numberVideos" => $inner['numberVideos'],
+//                        "durationExam" => $inner['durationExam'],
+//                        "numberQuestion" => $inner['numberQuestion'],
+//                        "photo" => strtolower($filePath), // Store the file path in lowercase
+//                        "name" => $inner['name'],
+//                        "rank" => $r1,
+//                        "exam" => $inner['exam'],
+//                    ]);
+//
+//
+//
+//
+//                    if($inner['id_exam']!=null)
+//                    $courseexam = CourseExame::create([
+//                        "id_online_center"=>$onlinecenter->id,
+//                        "id_content"=>$content->id,
+//                        "id_exam" =>$inner['id_exam'],
+//                    ]);
+//                foreach ($inner['pdfFiles'] as $item) {
+//
+//                    //         $file = $request->file($item["file"]);
+//                    $file = $item['file'];
+//                    if ($file->isValid()) {
+//                        $f = $file->store('file'); // The file will be stored in the 'public/Uploads' directory
+//
+//                        $file = File::create([
+//                            "name" => $item["name"],
+//                            "file" => strtolower($f),
+//                            //   "file" => $item["file"],
+//                            "id_content" => $content->id,
+//                            "rank" => $r2
+//                        ]);
+//                        $r2 = $r2 + 1;
+//
+//                    }
+//                }
+//                foreach ($inner['videoFiles'] as $item) {
+//                    $file = $item['video'];
+//                    if ($file->isValid()) {
+//                        $v=$file->store('file'); // The file will be stored in the 'public/Uploads' directory
+//
+//                        $video = Video::create([
+//                            "id_content" => $content->id,
+//                            "name" => $item["name"],
+//                            "rank" => $r3,
+//                            "video" => strtolower($v),
+//                           "poster"=> $this->extractFrame($item['video']),
+//
+//
+//
+//                        "duration" => $item["duration"],
+//
+//                        ]);//
+//                        $r3 = $r3 + 1;
+//
+//                    }
+//
+//                }
+////dd("s");
+//                    $r3 = 0;
+//                    $r2 = 0;
+//                    $r1 = $r1 + 1;
+//                }
+//            }
+//
+//            DB::commit();
+//
+//            return MyApp::Json()->dataHandle($online, "cours");
+//       }
+//
+//
+//
+//
+//       catch (\Exception $e) {
+////            MyApp::uploadFile()->deleteFile($v);
+////            MyApp::uploadFile()->deleteFile($f);
+////            MyApp::uploadFile()->deleteFile($filePath);
+//            DB::rollBack();
+//            throw new \Exception($e->getMessage());
+//        }
+//
+//
+//        return MyApp::Json()->errorHandle("course", $file->getErrorMessage());
+//    }
+//
+//    public function extractFrame($videoPath)
+//    {
+//        $frameTime = 10; // Assuming frame time in seconds
+//        $outputImagePath = public_path('Uploads/file/' . basename($videoPath, '.mp4') . '.jpg');
+//
+//        $this->ffmpegService->extractFrame(public_path($videoPath), $frameTime, $outputImagePath);
+//
+//        return 'Uploads/file/' . basename($videoPath, '.mp4') . '.jpg';
+//    }
+///////////
 
-    public function index()
+
+    protected $ffmpegService;
+
+    public function __construct(FfmpegService $ffmpegService)
     {
-        $online = Online::query()->get();
-        return MyApp::Json()->dataHandle($online, "online");
+        $this->ffmpegService = $ffmpegService;
+//        $this->middleware('auth:sanctum');
     }
 
     public function create(Request $request)
     {
-//        $request->validate($this->rules->onlyKey(["Exam", "price", "serial",
-//            "durationExam", "id_course", "id_form", "id_poll"], true));
-     try {
-
+        try {
             DB::beginTransaction();
+
             $online = Online::create([
                 "exam" => strtolower($request->exam),
                 "price" => $request->price,
@@ -68,136 +239,129 @@ class OnlineController extends Controller
                 "numberContents" => $request->numberContents,
                 "numberHours" => $request->numberHours,
                 "id_course" => $request->id_course,
-            ]);//dd('p');
+            ]);
+
             $onlinecenter = Online_Center::create([
-                "id_online"=>$online->id,
-                 "id_center"=>null,
-                "id_course" =>$request->id_course,
+                "id_online" => $online->id,
+                "id_center" => null,
+                "id_course" => $request->id_course,
             ]);
 
-            if($request->has('id_form'))
-            $onlinepaper = CoursePaper::create([
-                "id_online_center"=>$onlinecenter->id,
-                "id_paper"=>$request->id_form,
-
-            ]);
-            if($request->has('id_poll'))
-                $onlinepaper = CoursePaper::create([
-                    "id_online_center"=>$onlinecenter->id,
-                    "id_paper"=>$request->id_poll,
+            if ($request->has('id_form')) {
+                CoursePaper::create([
+                    "id_online_center" => $onlinecenter->id,
+                    "id_paper" => $request->id_form,
                 ]);
+            }
 
-
-            if($request->serial=="1"&& $request->has('id_prefix'))
-                $serial=Serial::create([
-                    "id_online_center"=>$onlinecenter->id,
-                    "id_course" =>$request->id_prefix,
+            if ($request->has('id_poll')) {
+                CoursePaper::create([
+                    "id_online_center" => $onlinecenter->id,
+                    "id_paper" => $request->id_poll,
                 ]);
+            }
 
-//            if($request->exam=="1")
-//                $courseexam = CourseExame::create([
-//                    "id_online_center"=>$onlinecenter->id,
-//              //   "id_content"=>null,
-//             //   "id_exam" =>$request->id_exam,
-//            ]);
+            if ($request->serial == "1" && $request->has('id_prefix')) {
+                Serial::create([
+                    "id_online_center" => $onlinecenter->id,
+                    "id_course" => $request->id_prefix,
+                ]);
+            }
 
-$r2=0;
-$r1=0;
-$r3=0;
-//            $v='';
-//            $filePath='';
-//            $f='';
+            $r1 = 0;
+            $r2 = 0;
+            $r3 = 0;
+
             foreach ($request['content'] as $inner) {
                 $file = $inner['photo']; // Assuming 'photo' is the key for the uploaded file
                 if ($file->isValid()) {
-                    // Store the file and get the path
-                    $filePath = $file->store('file'); // The file will be stored in the 'public/photo' directory
-
-                    // Create a new Content record
+                    $filePath = $file->store('file'); // The file will be stored in the 'public/file' directory
                     $content = Content::create([
                         "id_online_center" => $onlinecenter->id,
                         "numberHours" => $inner['numberHours'],
                         "numberVideos" => $inner['numberVideos'],
                         "durationExam" => $inner['durationExam'],
                         "numberQuestion" => $inner['numberQuestion'],
-                        "photo" => strtolower($filePath), // Store the file path in lowercase
+                        "photo" => strtolower($filePath),
                         "name" => $inner['name'],
                         "rank" => $r1,
                         "exam" => $inner['exam'],
                     ]);
-
-
-
-
-                    if($inner['id_exam']!=null)
-                    $courseexam = CourseExame::create([
-                        "id_online_center"=>$onlinecenter->id,
-                        "id_content"=>$content->id,
-                        "id_exam" =>$inner['id_exam'],
-                    ]);
-                foreach ($inner['pdfFiles'] as $item) {
-
-                    //         $file = $request->file($item["file"]);
-                    $file = $item['file'];
-                    if ($file->isValid()) {
-                        $f = $file->store('file'); // The file will be stored in the 'public/Uploads' directory
-
-                        $file = File::create([
-                            "name" => $item["name"],
-                            "file" => strtolower($f),
-                            //   "file" => $item["file"],
+                    if (isset($inner['id_exam']))
+                    if ($inner['id_exam'] != null) {
+                        CourseExame::create([
+                            "id_online_center" => $onlinecenter->id,
                             "id_content" => $content->id,
-                            "rank" => $r2
+                            "id_exam" => $inner['id_exam'],
                         ]);
-                        $r2 = $r2 + 1;
-
                     }
-                }
-                foreach ($inner['videoFiles'] as $item) {
-                    $file = $item['video'];
-                    if ($file->isValid()) {
-                        $v=$file->store('file'); // The file will be stored in the 'public/Uploads' directory
+                    if (isset($inner['pdfFiles']))
+                    foreach ($inner['pdfFiles'] as $item) {
+                        $file = $item['file'];
+                        if ($file->isValid()) {
+                            $f = $file->store('file'); // The file will be stored in the 'public/file' directory
 
-                        $video = Video::create([
-                            "id_content" => $content->id,
-                            "name" => $item["name"],
-                            "rank" => $r3,
-                            "video" => strtolower($v),
-                            //  "video"=>$item["video"],
-                            "duration" => $item["duration"],
+                            File::create([
+                                "name" => $item["name"],
+                                "file" => strtolower($f),
+                                "id_content" => $content->id,
+                                "rank" => $r2
+                            ]);
 
-                        ]);
-                        $r3 = $r3 + 1;
+                            $r2++;
+                        }
                     }
 
-                }
-//dd("s");
-                    $r3 = 0;
-                    $r2 = 0;
-                    $r1 = $r1 + 1;
+                    foreach ($inner['videoFiles'] as $item) {
+                        $file = $item['video'];
+                      //  dd($file->isValid());
+
+                        if ($file->isValid()) {
+                            $v = $file->store('file'); // The file will be stored in the 'public/file' directory
+                            $posterPath = $this->extractFrame($v); // Extract frame from video
+
+                            Video::create([
+                                "id_content" => $content->id,
+                                "name" => $item["name"],
+                                "rank" => $r3,
+                                "video" => strtolower($v),
+                                "poster" => $posterPath,
+                                "duration" => $item["duration"],
+                            ]);
+
+                            $r3++;
+                        }
+                    }
+
+                    $r1++;
                 }
             }
 
             DB::commit();
 
-            return MyApp::Json()->dataHandle($online, "cours");
-       }
-
-
-
-
-       catch (\Exception $e) {
-//            MyApp::uploadFile()->deleteFile($v);
-//            MyApp::uploadFile()->deleteFile($f);
-//            MyApp::uploadFile()->deleteFile($filePath);
+            return response()->json(['data' => $online, 'message' => 'Course created successfully']);
+        } catch (\Exception $e) {
             DB::rollBack();
-            throw new \Exception($e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
         }
+        return response()->json(['data' => $online, 'message' => 'Course created Unsuccessfully']);
 
-
-        return MyApp::Json()->errorHandle("course", $file->getErrorMessage());
     }
 
+    public function extractFrame($videoPath)
+    {
+        $frameTime = 10; // Assuming frame time in seconds
+        $outputDir = public_path('uploads/file/');
+        $outputImagePath = $outputDir . basename($videoPath, '.mp4') . '.jpg';
+
+        if (!file_exists($outputDir)) {
+            mkdir($outputDir, 0755, true);
+        }
+
+        $this->ffmpegService->extractFrame(public_path($videoPath), $frameTime, $outputImagePath);
+
+        return 'file/' . basename($videoPath, '.mp4') . '.jpg';
+    }
 
     public function destroy($id)
     {

@@ -19,7 +19,7 @@ class ReserveController extends Controller
 {
     public function __construct()
     {
-     $this->middleware(["auth:sanctum"])->only("create");
+     $this->middleware(["auth:sanctum"])->only("create","show","present");
         $this->rules = new AdviserRuleValidation();
     }
     public function index($id)
@@ -67,7 +67,7 @@ class ReserveController extends Controller
                 "id_user" => auth()->id()
             ]);}
             DB::commit();
-            return MyApp::Json()->dataHandle($dateAdded, "Date");
+            return MyApp::Json()->dataHandle("success", "Date");
         } catch (\Exception $e) {
 
             DB::rollBack();
@@ -133,10 +133,50 @@ class ReserveController extends Controller
         return MyApp::Json()->errorHandle("date", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
 
     }
-    public function destroy(Reserve $adv_Dat_Use)
+    public function present()
     {
 
+        try {
+
+            DB::beginTransaction();
+            $dateGet = Reserve::with('reserve')->
+            where("id_user",auth()->id())->
+                orderBy(
+                    "updated_at",'asc')->
+          get();
+            // get(["status","reserve"]);
+            DB::commit();
+            return MyApp::Json()->dataHandle($dateGet, "date");
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+        return MyApp::Json()->errorHandle("date", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
+
     }
+//    public function display()
+//    {
+//
+//        try {
+//
+//            DB::beginTransaction();
+//            $dateGet = Reserve::with('reserve')->
+//            where("id_user",auth()->id())->get();
+//            DB::commit();
+//            return MyApp::Json()->dataHandle($dateGet, "date");
+//        } catch (\Exception $e) {
+//
+//            DB::rollBack();
+//            throw new \Exception($e->getMessage());
+//        }
+//
+//
+//        return MyApp::Json()->errorHandle("date", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
+//
+//    }
     public function display($id_adviser,$day )
     {
 

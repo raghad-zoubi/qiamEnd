@@ -30,48 +30,23 @@ class EmployeeController extends Controller
 }
    public function indexAll()
     {
-//
-//
-//        $user= User::query()
-//        ->where ('role','!=','2') // Fetch only the necessary fields
-//     // ->where ('role','=','0')
-//            ->get(['email', 'remember_token', 'role']); // Fetch only the necessary fields
-//
-//        $transformedUsers = $user->map(function ($user) {
-//            if ($user->role == '1') {
-//                return [
-//                    'name' => $user->email,
-//                    'password' => $user->remember_token,
-//                    'role' => 'موظف', // 'موظف' means '1'
-//                ];
-//            } elseif ($user->role == '0') {
-//                return [
-//                    'name' => $user->email,
-//                    'password' => $user->remember_token,
-//                    'role' => 'مدير', // 'مدير' means 'manager'
-//                ];
-//            }
-//
-//       //  return $transformedUsers; // In case the role is neither 0 nor 1, return the user as is
-//        });
-//
-//        return MyApp::Json()->dataHandle($transformedUsers);
-//    }
         $users = User::query()
             ->where('role', '!=', '2') // Fetch only the necessary fields
-            ->get(['email', 'remember_token', 'role']); // Fetch only the necessary fields
+            ->get(['email', 'remember_token', 'role','id']); // Fetch only the necessary fields
 
         $transformedUsers = $users->map(function ($user) {
             if ($user->role == '1') {
                 return [
                     'name' => $user->email,
                     'password' => $user->remember_token,
+                    'id' => $user->id,
                     'role' => 'موظف', // 'موظف' means 'employee'
                 ];
             } elseif ($user->role == '0') {
                 return [
                     'name' => $user->email,
                     'password' => $user->remember_token,
+                    'id' => $user->id,
                     'role' => 'مدير', // 'مدير' means 'manager'
                 ];
             }

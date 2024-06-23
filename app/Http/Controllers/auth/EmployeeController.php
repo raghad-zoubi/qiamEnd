@@ -136,10 +136,11 @@ class EmployeeController extends Controller
             ]);
         }
         $user = User::where("email", $request->name)->first();
-        if (($request->password== $user->remember_token))
-          {
+        if( $user )
+           if( $user->role!='0') {
+            if (($request->password == $user->remember_token)) {
 
-              $token = $user->createToken($user->email, ["*"])->plainTextToken;
+                $token = $user->createToken($user->email, ["*"])->plainTextToken;
                 return Response()->json([
                     "password" => $user->remember_token,
                     "name" => $user->email,
@@ -147,13 +148,19 @@ class EmployeeController extends Controller
                     "status" => "success",
                 ]);
             }
-       else {
-            return Response()->json([
-                "message" => "password is error!!",
-                "status" => "failure",
-            ]);
-        }    //
-        return MyApp::Json()->errorHandle("Validation", $user);
+            else {
+                return Response()->json([
+                    "message" => "password is error!!",
+                    "status" => "failure",
+                ]);
+            }}
+           else
+               return MyApp::Json()->errorHandle("data", "Unauthorized access to exam");
+
+
+        else
+        return MyApp::Json()->errorHandle("data", "Unauthorized access to exam");
+
     }
     public function update(Request $request)
     {

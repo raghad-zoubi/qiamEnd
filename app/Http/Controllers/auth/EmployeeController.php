@@ -10,6 +10,7 @@ use App\MyApplication\Services\FileRuleValidation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 
@@ -17,93 +18,154 @@ class EmployeeController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(["auth:sanctum","multi.auth:0"])->except(['Login','update']);
-        $this->middleware(["multi.auth:0|1"])->only(['Login']);
-        $this->middleware(["auth:sanctum","multi.auth:0|1"])->only(['update']);
+       $this->middleware(["auth:sanctum","multi.auth:0"])->except('login');
     }
 
     public function index()
     {
 
-        $user = User::query()->where('role', '1')->get(['email', 'id']);
+        $user= User::where('role', '1')->get(['email as name', 'id']);
 
         return MyApp::Json()->dataHandle($user);
-    }
-    public function indexAll()
+}
+   public function indexAll()
     {
-
-
+//
+//
+//        $user= User::query()
+//        ->where ('role','!=','2') // Fetch only the necessary fields
+//     // ->where ('role','=','0')
+//            ->get(['email', 'remember_token', 'role']); // Fetch only the necessary fields
+//
+//        $transformedUsers = $user->map(function ($user) {
+//            if ($user->role == '1') {
+//                return [
+//                    'name' => $user->email,
+//                    'password' => $user->remember_token,
+//                    'role' => 'موظف', // 'موظف' means '1'
+//                ];
+//            } elseif ($user->role == '0') {
+//                return [
+//                    'name' => $user->email,
+//                    'password' => $user->remember_token,
+//                    'role' => 'مدير', // 'مدير' means 'manager'
+//                ];
+//            }
+//
+//       //  return $transformedUsers; // In case the role is neither 0 nor 1, return the user as is
+//        });
+//
+//        return MyApp::Json()->dataHandle($transformedUsers);
+//    }
         $users = User::query()
-        ->where ('role','!=','2') // Fetch only the necessary fields
-     // ->where ('role','=','0')
-            ->get(['email', 'password', 'role']); // Fetch only the necessary fields
+            ->where('role', '!=', '2') // Fetch only the necessary fields
+            ->get(['email', 'remember_token', 'role']); // Fetch only the necessary fields
 
         $transformedUsers = $users->map(function ($user) {
             if ($user->role == '1') {
                 return [
-                    'email' => $user->email,
-                    'password' => $user->password,
-                    'role' => 'موظف', // 'موظف' means '1'
+                    'name' => $user->email,
+                    'password' => $user->remember_token,
+                    'role' => 'موظف', // 'موظف' means 'employee'
                 ];
             } elseif ($user->role == '0') {
                 return [
-                    'email' => $user->email,
-                    'password' => $user->password,
+                    'name' => $user->email,
+                    'password' => $user->remember_token,
                     'role' => 'مدير', // 'مدير' means 'manager'
                 ];
             }
 
-         return $user; // In case the role is neither 0 nor 1, return the user as is
+            return $user; // In case the role is neither 0 nor 1, return the user as is
         });
 
         return MyApp::Json()->dataHandle($transformedUsers);
     }
-   public function create(Request $request)
+
+//   public function create(Request $request)
+//    {
+//        $request->validate([
+//            "name" => ["required", Rule::unique("users", "email")],
+//            "password" => ["required", "min:8"],
+//            "role" => ["required","string"]
+//        ]);
+//        $user = User::create([
+//            "email" => $request->name,
+//            "password" => bcrypt($request->password),
+//            "role" => $request->role,
+//        ]);
+//        dd($user->remember_token);
+//        $data["password"] = $request->password;
+//        $data["name"] = $user->email;
+//        $data["id"] = $user->id;
+//
+//
+//        return MyApp::Json()->dataHandle($data);
+//    }
+    public function create(Request $request)
     {
         $request->validate([
-            "name" => ["required", Rule::unique("users", "email")],
-            "password" => ["required", "min:8"],
-            "role" => ["required","string"],//Rule::in([Role::Admin->value,Role::User->value])],
+            "name" => "required",
+            "password" => "required|min:8",
+            "role" => "required|string"
         ]);
+
         $user = User::create([
             "email" => $request->name,
-            "password" => ($request->password),
+            'remember_token'=> $request->password,
             "role" => $request->role,
         ]);
-        $data["password"] = $request->password;
-        $data["name"] = $user->email;
-        $data["id"] = $user->id;
-        // $data["access_token"] =$token;
 
+        $data["name"] = $user->email;
+        $data["password"] = $user->remember_token;
+        $data["id"] = $user->id;
 
         return MyApp::Json()->dataHandle($data);
     }
-    public function Login(Request $request)
+
+    public function login(Request $request)
     {
-        $request->validate([
-            "name" => ["required", Rule::exists("users", "email")],
-            "password" => ["required"],
+        $validate = Validator::make($request->all(), [
+            "name" => ["required"],
+            "password" => ["required","min:8", "string"],
         ]);
-        $user = User::where("email", $request->name)->first();
-        if (password_verify($request->password, $user->password)) {
-            return MyApp::Json()->dataHandle($user->createToken('ProductsTolken')->plainTextToken, "user");
+        if ($validate->fails()) {
+            return Response()->json([
+                "status" => "failure",
+                "message" => $validate->errors()->all()[0]
+            ]);
         }
-        $password = new class {
-        };
-        $password->password = ["the password is not valid"];
-        return MyApp::Json()->errorHandle("Validation", $password);
+        $user = User::where("email", $request->name)->first();
+        if (($request->password== $user->remember_token))
+          {
+
+              $token = $user->createToken($user->email, ["*"])->plainTextToken;
+                return Response()->json([
+                    "password" => $user->remember_token,
+                    "name" => $user->email,
+                    "token" => $token,
+                    "status" => "success",
+                ]);
+            }
+       else {
+            return Response()->json([
+                "message" => "password is error!!",
+                "status" => "failure",
+            ]);
+        }    //
+        return MyApp::Json()->errorHandle("Validation", $user);
     }
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
 
-        if (User::query()->where("id", $id)->exists()) {
+        if (User::query()->where("id", $request->id)->exists()) {
             try {
                 DB::beginTransaction();
 
-                $p = User::where("id", $id)->first();
+                $p = User::where("id", $request->id)->first();
                 if ($p) {
                     $p->email = strtolower($request->name);
-                    $p->password = strtolower($request->password);
+                    $p->remember_token = strtolower($request->password);
                     $p->role = '1';
                     $p->save();
                 }
@@ -122,6 +184,42 @@ class EmployeeController extends Controller
 
         //return MyApp::Json()->dataHandle($data);
     }
+
+    public function resetPassWord(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $user = User::where('id', $request->id)
+            ->where('remember_token', $request->oldPassword)
+            ->first();
+
+        if ($user) {
+            try {
+                DB::beginTransaction();
+
+                $user->remember_token = ($request->newPassword);
+                $user->save();
+
+                DB::commit();
+
+                return \response()->json([
+                    "status" => "success",
+                    "message" => "Password reset successfully",
+                ]);
+            } catch (\Exception $exception) {
+                DB::rollBack();
+
+                return \response()->json([
+                    "status" => "failure",
+                    "message" => $exception->getMessage()
+                ]);
+            }
+        } else {
+            return \response()->json([
+                "status" => "unsuccess",
+                "message" => "User not found or incorrect credentials",
+            ]);
+        }
+    }
+
     public function delete($id)
     {
 
@@ -129,7 +227,7 @@ class EmployeeController extends Controller
             try {
                 DB::beginTransaction();
 
-                $p = User::where("id", $id)->first();
+                $p = User::query()->where("id", $id)->delete();
 
                 DB::commit();
                 return MyApp::Json()->dataHandle("success", "data");

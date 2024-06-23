@@ -17,8 +17,13 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static whereHas(string $string, \Closure $param)
  * @method static selectRaw(string $string)
  */
+use Illuminate\Database\Eloquent\Model;
+
+
+
 class User extends Authenticatable   implements  MustVerifyEmail
-{
+{    use \Illuminate\Auth\Authenticatable;
+
     use HasApiTokens, HasFactory, Notifiable;
     //, Queueable;
 
@@ -37,7 +42,8 @@ class User extends Authenticatable   implements  MustVerifyEmail
         'email_verified_at',
         'fcm_token',
         'token',
-        'role'
+        'role',
+        'remember_token',
     ];
 
 
@@ -45,7 +51,6 @@ class User extends Authenticatable   implements  MustVerifyEmail
 
     protected $hidden = [
     //    'password',
-        'remember_token',
         'created_at',
         'updated_at'
     ];
@@ -60,6 +65,8 @@ class User extends Authenticatable   implements  MustVerifyEmail
         'password' => 'hashed',
 
     ];
+
+
 
     public static function GenerateCode(): int
     {
@@ -79,19 +86,7 @@ class User extends Authenticatable   implements  MustVerifyEmail
         });
     }
 
-    public function isAdmin()
-    {
-        return $this->role=='0' ;
-    }
 
-    public function isUser()
-    {
-        return $this->role=='2' ;
-    }
-    public function isEmployee()
-    {
-        return $this->role=='1' ;
-    }
     /////////////////
 //
 public function favorite()

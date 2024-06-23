@@ -72,13 +72,16 @@ Route::prefix("user")->group(function () {
         Route::post("update",  [ProfileController::class, 'update']);;
         Route::post("delete",  [ProfileController::class, 'destroy']);
     });
+
     Route::get('center/show/{id}', [CenterController::class, 'show']);
     Route::get('online/show/{id}', [OnlineController::class, 'show']);
+    Route::get('still', [OnlineController::class, 'still']);
+    Route::get('done', [OnlineController::class, 'done']);
     Route::get('content/{id_content}', [ContentController::class, 'show']);
     Route::get('video/{id}', [VideoController::class, 'show']);
     Route::get('afterVideo/{id}/{endTime}', [VideoController::class, 'afterVideo']);
-    Route::post('/extract-frame', [ContentController::class, 'extractFrame']);
     Route::get('file/{id}', [FileController::class, 'show']);
+    //Route::post('/extract-frame', [ContentController::class, 'extractFrame']);
     Route::prefix("bookingCourse")->controller(BookingController::class)->group(function () {
         //for user
         Route::get("book/{id}", "book");
@@ -100,18 +103,16 @@ Route::prefix("user")->group(function () {
         Route::get("show/{id}",  [CoursePaperController::class, 'show']);
       Route::post("answer",  [CoursePaperController::class, 'answer'])->middleware('auth:sanctum');;
     });
-    Route::prefix("exame")->
-    group(function () {
-        Route::get("show/{id}",  [CoursePaperController::class, 'show']);
-      Route::post("answer",  [CoursePaperController::class, 'answer'])->middleware('auth:sanctum');;
-    });
+//    Route::prefix("exame")->
+//    group(function () {
+//        Route::get("content/{id_content}",  [CoursePaperController::class, 'show']);
+//      Route::post("answer",  [CoursePaperController::class, 'answer'])->middleware('auth:sanctum');;
+//    });
     Route::prefix("exam")->group(function () {
-        //for user
-        Route::get("course/{id_online_center}/{id_online})",
-            [CourseExameController::class, 'showUserCourse']);
-
+        Route::get("course/{id_online_center}/{id_online}",
+            [CourseExameController::class, 'showExamCourse']);
         Route::get("content/{id_online_center}/{id_content}",
-            [CourseExameController::class, 'showUserContent']);
+            [CourseExameController::class, 'showExamContent']);
     });
 
 });
@@ -249,7 +250,8 @@ group(function () {
     Route::post("create",  [EmployeeController::class, 'create']);
     Route::get("index",  [EmployeeController::class, 'index']);
     Route::get("indexAll",  [EmployeeController::class, 'indexAll']);
-    Route::post("update/{id}",  [EmployeeController::class, 'update']);
+    Route::post("update",  [EmployeeController::class, 'update']);
+    Route::post("resetpass",  [EmployeeController::class, 'resetPassword']);
     Route::get("delete/{id}",  [EmployeeController::class, 'delete']);
     Route::post("login",  [EmployeeController::class, 'login']);
 });

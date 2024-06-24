@@ -41,7 +41,8 @@ use Illuminate\Support\Facades\Route;
 */
 //;
 
-Route::post('/frame', [ContentController::class, 'extractFrame']);
+Route::post('/framep', [ContentController::class, 'extractFrame']);
+Route::get('/frameg/{video_path}', [ContentController::class, 'extractFrameg']);
 Route::get('/converto', [ContentController::class, 'convertVideo']);
 Route::get('/getinfo', [ContentController::class, 'getVideoInfo']);
 Route::post("/add/{id}",  [UserCertificateController::class, 'addText2']);
@@ -81,7 +82,7 @@ Route::prefix("user")->group(function () {
     Route::get('video/{id}', [VideoController::class, 'show']);
     Route::get('afterVideo/{id}/{endTime}', [VideoController::class, 'afterVideo']);
     Route::get('file/{id}', [FileController::class, 'show']);
-    //Route::post('/extract-frame', [ContentController::class, 'extractFrame']);
+    Route::post('/extract-frame', [ContentController::class, 'extractFrame']);
     Route::prefix("bookingCourse")->controller(BookingController::class)->group(function () {
         //for user
         Route::get("book/{id}", "book");

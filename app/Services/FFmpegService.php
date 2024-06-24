@@ -25,10 +25,14 @@ class FFmpegService
 
     public function convertVideo($inputPath, $outputPath)
     {
-        $video = $this->ffmpeg->open($inputPath);
-        $video->save(new \FFMpeg\Format\Video\X264(), $outputPath);
+        try {
+            $video = $this->ffmpeg->open($inputPath);
+            $video->save(new \FFMpeg\Format\Video\X264(), $outputPath);
 
-        return "Video converted successfully!";
+            return "Video converted successfully!";
+        } catch (RuntimeException $e) {
+            return "An error occurred: " . $e->getMessage();
+        }
     }
 
     public function getVideoInfo($path)

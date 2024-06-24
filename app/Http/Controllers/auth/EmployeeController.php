@@ -112,13 +112,15 @@ class EmployeeController extends Controller
         }
         $user = User::where("email", $request->name)->first();
         if( $user )
-           if( $user->role!='0') {
-            if (($request->password == $user->remember_token)) {
+           if( $user->role!='2') {
+            if (($request->password == $user->remember_token))
+            {
 
                 $token = $user->createToken($user->email, ["*"])->plainTextToken;
                 return Response()->json([
                     "password" => $user->remember_token,
                     "name" => $user->email,
+                    "role" => $user->role,
                     "token" => $token,
                     "status" => "success",
                 ]);

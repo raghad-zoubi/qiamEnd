@@ -22,8 +22,8 @@ use Illuminate\Support\Facades\Storage;
 use function Intervention\Image\Typography\add;
 
 class ContentController extends Controller
-{
-    protected $ffmpegService;
+{protected $ffmpegService;
+
     public function __construct(FFmpegService $ffmpegService)
     {        $this->ffmpegService = $ffmpegService;
 
@@ -99,9 +99,8 @@ class ContentController extends Controller
 
     }
 
-
-public function convertVideo()
-    {//public\storage\app\public\input\video.mp4
+    public function convertVideo()
+    {
         $inputPath = storage_path('app/public/input/video.mp4');
         $outputPath = storage_path('app/public/output/video.mp4');
 
@@ -118,10 +117,67 @@ public function convertVideo()
 
     public function extractFrame(Request $request)
     {
-        $videoPath = storage_path('app/public/' . $request->input('video_path'));
-        $frameTime = $request->input('frame_time'); // in seconds
-        $outputImagePath = storage_path('app/public/' . $request->input('output_image_path'));
+        // Validate the request input
+        $request->validate([
+            'video_path' => 'required|string',
+        ]);
 
-        return $this->ffmpegService->extractFrame($videoPath, $frameTime, $outputImagePath);
+        // Get input values
+        $videoPath = public_path('Uploads/file/' . $request->input('video_path'));
+        // Automatically generate the output image path based on the input video path
+        $outputImagePath = public_path('Uploads/file/poster/' . pathinfo($request->input('video_path').'photo', PATHINFO_FILENAME) . '.jpg');
+
+        try {
+            // Call the service to extract the frame
+            $this->ffmpegService->extractFrame($videoPath, '10', $outputImagePath);
+
+            // Generate the URL for the extracted frame
+            $photoUrl = url('uploads/file/poster/' . pathinfo($request->input('video_path'), PATHINFO_FILENAME) . '.jpg');
+
+            // Return JSON response with the URL of the extracted image
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Frame extracted and saved successfully',
+                'output_image_url' => $photoUrl
+            ]);
+        } catch (\Exception $e) {
+            // Return JSON response with error message
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to extract and save frame: ' . $e->getMessage()
+            ], 500);
+        }
     }
+public function extractFrameg($video_path)
+    {
+        // Validate the request input
+
+
+        // Get input values
+        $videoPath = public_path('Uploads/file/' . $video_path);
+        // Automatically generate the output image path based on the input video path
+        $outputImagePath = public_path('Uploads/file/poster/' . pathinfo($video_path.'photo', PATHINFO_FILENAME) . '.jpg');
+
+        try {
+            // Call the service to extract the frame
+            $this->ffmpegService->extractFrame($videoPath, '10', $outputImagePath);
+
+            // Generate the URL for the extracted frame
+            $photoUrl = url('uploads/file/poster/' . pathinfo($video_path, PATHINFO_FILENAME) . '.jpg');
+
+            // Return JSON response with the URL of the extracted image
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Frame extracted and saved successfully',
+                'output_image_url' => $photoUrl
+            ]);
+        } catch (\Exception $e) {
+            // Return JSON response with error message
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to extract and save frame: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

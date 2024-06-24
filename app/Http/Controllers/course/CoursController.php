@@ -90,7 +90,6 @@ class CoursController extends Controller
                 DB::beginTransaction();
 
                 $photoPath = $newFile->store('file'); // The file will be stored in the 'public/Uploads' directory
-
                 $file->update([
                     "teacher" => ($request->teacher),
                     "text" => ($request->text),

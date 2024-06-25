@@ -16,9 +16,20 @@ class DetailsCenterCopy extends JsonResource
 
 
     public function toArray(Request $request): array
-    {
+    {  $poll=null;
+        $form=null;
+        foreach ($this->coursepaper as $p){
+        if($p->paper->type=='استمارة')
+        {$poll=$p->paper->title;}
+        else if($p->paper->type=='استبيان')
+        {$form=$p->paper->title;}
 
-            $result = ['start' => $this->center->start,
+    }
+
+            $result = [
+                'form' => $form,
+                'poll' => $poll,
+                'start' => $this->center->start,
         'end' => $this->center->end,
         'numberHours' => $this->center->numberHours,
         'numberContents' => $this->center->numberContents,

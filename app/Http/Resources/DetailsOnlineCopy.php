@@ -54,8 +54,8 @@ class DetailsOnlineCopy extends JsonResource
         return [
             'form' => $form,
             'poll' => $poll,
-               'examforcourse' =>  $this->online->exam == '1' ?"yes" : "no",
-                'serial' => $this->online->serial == '1' ?"yes" : "no",
+               'examforcourse' =>  $this->online->exam == '1' ?"  نعم يوجدامتحان" : " لا يوجدامتحان",
+                'serial' => $this->online->serial == '1'  ?" نعم متسلسة" : "ليست متسلسلة",
                 'price' => $this->online->price,
                'content' => $this->content2->map(function ($content) {
                 return [
@@ -70,6 +70,7 @@ class DetailsOnlineCopy extends JsonResource
 //                            'id_content' => $video->id_content,
                             'name' => $video->name,
                             'duration' => $video->duration,
+                            'poster' => $video->poster,
                             'video' => $video->video,
                             //'rank' => $video->rank,
                         ];

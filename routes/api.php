@@ -21,6 +21,7 @@ use App\Http\Controllers\course\RateController;
 use App\Http\Controllers\Exam\CourseExameController;
 use App\Http\Controllers\Exam\ExameController;
 use App\Http\Controllers\course\FileController;
+use App\Http\Controllers\FirbaseController;
 use App\Http\Controllers\InformationController;
 use App\Http\Controllers\Papers\CoursePaperController;
 use App\Http\Controllers\Papers\PaperController;
@@ -29,18 +30,11 @@ use App\Http\Controllers\StatisticController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
-//;
 
+Route::get('/reseve_notification', [FirbaseController::class, 'reseveNotification']);
+Route::get('/send', [FirbaseController::class, 'send'])->middleware('auth:sanctum');
+
+Route::post('/send-notification', [FirbaseController::class, 'sendNotification']);
 Route::post('/framep', [ContentController::class, 'extractFrame']);
 Route::get('/frameg/{video_path}', [ContentController::class, 'extractFrameg']);
 Route::get('/converto', [ContentController::class, 'convertVideo']);

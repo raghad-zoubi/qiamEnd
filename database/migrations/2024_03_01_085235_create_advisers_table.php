@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId("id_user")->nullable()->constrained("users")
                 ->cascadeOnDelete();
             $table->string('name')->nullable();
-            $table->enum('type',["قانونيه","أسريه","نفسية"])->default("نفسية");
+            $table->enum('type',["قانونية","أسرية","نفسية"])->default("نفسية");
             $table->string('photo')->nullable();
             $table->text('about')->nullable();
 

@@ -14,7 +14,8 @@ class CertificateController extends Controller
 {
 
     public function index(): JsonResponse
-    {
+    {        $this->middleware(["auth:sanctum"]);
+
         $data = Certificate::query()->get();
         return MyApp::Json()->dataHandle($data, "data");
     }

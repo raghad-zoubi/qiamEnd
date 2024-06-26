@@ -4,109 +4,116 @@ namespace App\Http\Controllers\BookTrackCer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Certificate;
-use Intervention\Image\Facades\Image;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+use App\Services\ImageProcessingService;
+use Illuminate\Support\Facades\Response;
 
 class UserCertificateController extends Controller
 {
-//
-//    public function destroy(UserCertificate $cer_Pat)
-//    {
-//
-//// create image manager with desired driver
-//        $manager = new ImageManager(new Driver());
-//
-//// read image from file system
-//        $image = $manager->read('images/example.jpg');
-//
-//// resize image proportionally to 300px width
-//        $image->scale( 300,0);
-//
-//// insert watermark
-//$image->place('images/watermark.png');
-//
-//// save modified image in new format
-//$image->toPng()->save('images/foo.png');
-//    }
+    protected $imageProcessingService;
 
-    public function generateCertificate()
-    {
-         // Retrieve data from the database
-        $user = 'u';
-        //User::find($userId);
-        $photoPath =  Certificate::query()->where("id","=",6)->get("photo");
-        $name ="user->name";
-        $course = "user->course";
-        $image = Image::make($photoPath);
-        dd("g");
+    public function __construct(ImageProcessingService $imageProcessingService)
+    {        $this->middleware(["auth:sanctum"]);
 
-        $image->text($name, 100, 100);
-        $image->text($course, 100, 120);
-
-        //$user->photo =;
-        dd( $image->encode('jpg'));// assuming the photo field is binary in the database
-        //$user->save();
+        $this->imageProcessingService = $imageProcessingService;
     }
-// public function generateCertificate()
+
+//
+//    public function addTextToImage(Request $request)
 //    {
-//        // Load the certificate template image
-//        $certificateImage =
-//            //Certificate::query()->where("id","=",6)->get('photo');
+//        // Validate the incoming request data
+//        $request->validate([
+//            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+//            'text' => 'required|string|max:255',
+//        ]);
 //
-//        Image::make(public_path('path/to/blank_certificate.jpg'));
+//        // Get the uploaded image file and the text
+//        $imageFile = $request->file('image');
+//        $text = $request->input('text');
 //
-//        // Set path path
-//        $fontPath = public_path('path/to/Arabic.ttf');
-//// Debugging code to verify the path path
+//        // Create an image resource from the uploaded file
+//        $image = imagecreatefromstring(file_get_contents($imageFile));
 //
-//        // Add course name
-//        $certificateImage->text('Course: ' . "course->name", 100, 100, function($font) use ($fontPath) {
-//        //    $font->file($fontPath);
-//            $font->size(24);
-//            $font->color('#000000');
-//            $font->align('left');
-//            $font->valign('top');
-//        });
-//     dd("ww");
+//        // Define the text settings (e.g., font size, color, position)
+//        $fontPath = public_path('fonts/Arabic.ttf'); // Path to the font file
+//        $fontSize = 20; // Font size
+//        $fontColor = imagecolorallocate($image, 255, 255, 255); // Font color (white)
+//        $x = 10; // X position of the text
+//        $y = 50; // Y position of the text
 //
-//        // Add course logo
-//        if (file_exists(public_path($course->logo_path))) {
-//            $courseLogo = Image::make(public_path($course->logo_path));
-//            $certificateImage->insert($courseLogo, 'top-left', 100, 150);
-//        }
+//        // Add the text to the image
+//        imagettftext($image, $fontSize, 0, $x, $y, $fontColor, $fontPath, $text);
 //
-//        // Add supervisor name
-//        $certificateImage->text('Supervisor: ' . "course->supervisor_name", 100, 300, function($font) use ($fontPath) {
-//            $font->file($fontPath);
-//            $font->size(24);
-//            $font->color('#000000');
-//            $font->align('left');
-//            $font->valign('top');
-//        });
+//        // Generate a unique filename for the output image
+//        $filename = 'images/' . Str::random(10) . '.png';
 //
-//        // Add student name
-//        $certificateImage->text('Student: ' ." student->name", 100, 350, function($font) use ($fontPath) {
-//            $font->file($fontPath);
-//            $font->size(24);
-//            $font->color('#000000');
-//            $font->align('left');
-//            $font->valign('top');
-//        });
+//        // Save the image with the text to the public storage
+//        imagepng($image, public_path($filename));
 //
-//        // Add student grade
-//        $certificateImage->text('Grade: ' . "student->pivot->grade", 100, 400, function($font) use ($fontPath) {
-//            $font->file($fontPath);
-//            $font->size(24);
-//            $font->color('#000000');
-//            $font->align('left');
-//            $font->valign('top');
-//        });
+//        // Free up memory
+//        imagedestroy($image);
 //
-//        // Save the generated certificate
-//        $outputPath = public_path('certificates/' . "student->id" . '_certificate.jpg');
-//        $certificateImage->save($outputPath);
-//
-//        return $outputPath;
+//        return response()->json(['message' => 'Image saved successfully!', 'path' => $filename]);
 //    }
+//
+
+
+
+
+
+
+    public function show($id)
+    {
+        // Retrieve image from database
+        $image = Image::findOrFail($id);
+
+        // Return the image as a response
+        return response($image->image_data)->header('Content-Type', 'image/jpeg');
+    }
+
+    public function addText2(Request $request, $id)
+    {
+        // Retrieve image from database
+        $image = Certificate::findOrFail($id);
+        $imagePath = storage_path('app/' . $image->photo); // Adjust the path if necessary
+
+        // Get text and position from request
+        $text = $request->input('text');
+        $x = $request->input('x', 0);
+        $y = $request->input('y', 0);
+
+        // Process image to add text
+        $processedImage = $this->imageProcessingService->addTextToImage($imagePath, $text, $x, $y);
+
+        // Return the processed image as a response
+        return Response::make($processedImage, 200, ['Content-Type' => 'image/jpeg']);
+    }
+
+
+
+
+
+
+    public function addText(Request $request)
+    {   //storage\app\public\photos
+        // Get image path from storage
+        $imagePath = storage_path('app/public/photos/example.jpg'); // Adjust the path as needed
+
+        // Get text and position from request
+        $text = $request->input('text');
+        $x = $request->input('x', 0);
+        $y = $request->input('y', 0);
+
+        // Process image to add text
+        $processedImage = $this->imageProcessingService->addTextToImage($imagePath, $text, $x, $y);
+
+        // Return the processed image as a response
+        return Response::make($processedImage, 200, ['Content-Type' => 'image/jpeg']);
+    }
+
 
 }
 //

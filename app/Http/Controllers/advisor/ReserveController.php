@@ -19,7 +19,10 @@ class ReserveController extends Controller
 {
     public function __construct()
     {
-     $this->middleware(["auth:sanctum"])->only("create","show","present");
+
+        $this->middleware(["auth:sanctum","multi.auth:2"])->only(['display','create','present']);
+        $this->middleware(["auth:sanctum","multi.auth:0|1"])->only(['index','check','show']);
+
         $this->rules = new AdviserRuleValidation();
     }
     public function index($id)

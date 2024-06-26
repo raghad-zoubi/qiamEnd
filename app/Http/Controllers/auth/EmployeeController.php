@@ -227,5 +227,12 @@ class EmployeeController extends Controller
 
 
     }
+    public function fcmToken(Request $request)
+    {
+        $user = User::find(auth()->id());
+        $user->update(['fcm_token' => $request->fcm_token]);
+        return response()->json('fcm updated successfully', 200);
+    }
+
 
 }

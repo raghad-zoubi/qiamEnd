@@ -23,7 +23,8 @@ class AdviserController extends Controller
 {
     public function __construct()
     {
-//        $this->middleware(["auth:sanctum"]);
+        $this->middleware(["auth:sanctum","multi.auth:0|1"])->only(['index','show','create','update','delete']);
+        $this->middleware(["auth:sanctum","multi.auth:2"])->only(['display','deteils']);
     }
 
 //عرض الكل
@@ -54,7 +55,6 @@ class AdviserController extends Controller
         return MyApp::Json()->errorHandle("adviser", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
 
     }
-
 //عرض مستشار +موعيد وحجوزات اليوم
     public function show($id_adviser)
     {

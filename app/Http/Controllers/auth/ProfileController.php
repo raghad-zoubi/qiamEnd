@@ -20,7 +20,8 @@ class ProfileController extends Controller
 
     public function __construct()
     {
-        $this->middleware(["auth:sanctum"])->except('displayprofile');
+        $this->middleware(["auth:sanctum","multi.auth:2"])->except('displayprofile');
+        $this->middleware(["auth:sanctum","multi.auth:0|1"])->only('displayprofile');
         $this->rule = new ProfileRuleValidation();
     }
 

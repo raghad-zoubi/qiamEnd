@@ -30,7 +30,9 @@ class BookingController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum');
+        $this->middleware(["auth:sanctum"]);
+//        $this->middleware(["auth:sanctum","multi.auth:2"])->only(['display','deteils']);
+        //$this->middleware('auth:sanctum');
     }
 //عرض الحجوزات كلا والموافق عليها و اللي لسا مو محددة حسب الid_onlinecenter
     //dash

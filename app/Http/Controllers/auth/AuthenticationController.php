@@ -16,8 +16,7 @@ class AuthenticationController extends Controller
 {
 
     public function __construct()
-    {
-        $this->middleware('auth:sanctum')->only(["logout"]);
+    {        $this->middleware(['auth:sanctum','multi.auth:2'])->only(["logout",'fcmToken']);
     }
 
     public function register(Request $request): \Illuminate\Http\JsonResponse
@@ -195,6 +194,12 @@ class AuthenticationController extends Controller
                 "message" => $exception->getMessage()
             ]);
         }
+    }
+    public function fcmToken(Request $request)
+    {
+        $user = User::find(auth()->id());
+        $user->update(['fcm_token' => $request->fcm_token]);
+        return response()->json('fcm updated successfully', 200);
     }
 
     public function isOnlineInternet($site = "www.google.com"): bool

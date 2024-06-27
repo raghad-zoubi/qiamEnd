@@ -7,6 +7,7 @@ use App\Http\Resources\StatisticData;
 use App\Models\Booking;
 use App\Models\d4;
 use App\Models\Date;
+use App\Models\Online;
 use App\Models\Reserve;
 use App\Models\User;
 use App\Models\UserCertificate;
@@ -93,10 +94,20 @@ class StatisticController extends Controller
 
             DB::commit();
             return response()->json([
-                'withcertificate' => $withcertificate,
-                'withoutcertificate' => $withoutcertificate,
-                'completedcourse' => $completedcourse,
-                'uncompletedcourse' => $uncompletedcourse,
+
+
+                'data1' => [
+                    ['name' => 'نسبة حاصلون على الشهادة', 'value' => $withcertificate],
+                    ['name' => 'نسبة المسجلين', 'value' => $withoutcertificate]
+                ]
+                ,
+
+                'data2' => [
+                    ['name' => 'نسبة اتمام الطلاب للدورات', 'value' => $completedcourse],
+                    ['name' => 'نسبة المسجلين', 'value' => $uncompletedcourse]
+                ]
+
+
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -109,8 +120,7 @@ class StatisticController extends Controller
 
     }
 
-
-    public function statistic()
+    public function statistic($year)
     {
 
 
@@ -119,24 +129,21 @@ class StatisticController extends Controller
             DB::beginTransaction();
 
 
-//            $usersByMonth = User::selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as users')
-//                ->groupBy('year', 'month')
-//                ->get();
-//            $usersByMonth = User::selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month, COUNT(*) as users')
-//                ->groupBy('year', 'month')
-//                ->get();
+                $bookingsByMonth = Booking::selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month, COUNT(*) as bookings')
+                    ->whereYear('created_at', $year)
+                    ->groupBy('year', 'month')
+                    ->get();
 
-            $bookingsByMonth = Booking::selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month, COUNT(*) as bookings')
-                ->groupBy('year', 'month')
-                ->get();
-//
-            $certificatesByMonth = UserCertificate::selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month, COUNT(*) as certificates')
-                ->groupBy('year', 'month')
-                ->get();
+
+                $certificatesByMonth = UserCertificate::selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month, COUNT(*) as certificates')
+                    ->whereYear('created_at', $year)
+                    ->groupBy('year', 'month')
+                    ->get();
+
+
 
             DB::commit();
             return response()->json([
-            //    'usersByMonth' => $usersByMonth,
                 'bookingsByMonth' => $bookingsByMonth,
                 'certificatesByMonth' => $certificatesByMonth,
             ]);
@@ -185,4 +192,8 @@ class StatisticController extends Controller
         return MyApp::Json()->errorHandle("data", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
 
 
-    }}
+    }
+
+
+
+}

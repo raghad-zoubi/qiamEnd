@@ -274,13 +274,7 @@ class OnlineController extends Controller
                         "rank" => $r1,
                         "exam" => $inner['exam'],
                     ]);
-                    if (isset($inner['id_exam']) && $inner['id_exam'] != null) {
-                        CourseExame::create([
-                            "id_online_center" => $onlinecenter->id,
-                            "id_content" => $content->id,
-                            "id_exam" => $inner['id_exam'],
-                        ]);
-                    }
+
                     if (isset($inner['pdfFiles'])) {
                         foreach ($inner['pdfFiles'] as $item) {
                             $file = $item['file'];
@@ -306,7 +300,7 @@ class OnlineController extends Controller
                             $v = $file->store('file');
                             $posterPath = $this->extractFrame($v); // Extract frame from video
 
-                            Video::create([
+                           $video= Video::create([
                                 "id_content" => $content->id,
                                 "name" => $item["name"],
                                 "rank" => $r3,
@@ -314,7 +308,15 @@ class OnlineController extends Controller
                                 "poster" => $posterPath,
                                 "duration" => $item["duration"],
                             ]);
-
+                            if (isset($item['id_exam']) && $item['id_exam'] != null) {
+                                //dd($item['id_exam']);
+                                CourseExame::create([
+//                                    "id_online_center" => $onlinecenter->id,
+//                                    "id_content" => $content->id,
+                                    "id_video" => $video->id,
+                                    "id_exam" => $inner['id_exam'],
+                                ]);
+                            }
                             $r3++;
                         } else {
                             return response()->json(['data' => 'error', 'message' => 'Invalid video file'], 400);

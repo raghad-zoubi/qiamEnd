@@ -14,8 +14,8 @@ class CourseExame extends Model
     protected $fillable = [
         'id_exam',
         'id_online_center',
+        'id_vedio',
         'id_content',
-
         'id',
     ];
 
@@ -33,6 +33,11 @@ class CourseExame extends Model
     public function exam(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Exame::class,"id_exam","id");
+
+
+    }public function video(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Video::class,"id_vedio","id");
 
 
     }

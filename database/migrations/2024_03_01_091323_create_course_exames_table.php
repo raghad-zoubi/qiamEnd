@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_exam')->nullable()->constrained('exames')->cascadeOnDelete();
 
-            $table->foreignId("id_online_center")->nullable()->constrained("online_centers")->cascadeOnDelete();;
-            $table->foreignId('id_content')->nullable()->constrained('contents')->cascadeOnDelete();
-
+//            $table->foreignId("id_online_center")->nullable()->constrained("online_centers")->cascadeOnDelete();;
+//            $table->foreignId('id_content')->nullable()->constrained('contents')->cascadeOnDelete();
+            $table->foreignId("id_vedio")->constrained("videos")->cascadeOnDelete();
             $table->timestamps();
         });
     }

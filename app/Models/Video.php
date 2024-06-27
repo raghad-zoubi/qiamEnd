@@ -27,6 +27,12 @@ class Video extends Model
 {
     return $this->belongsTo(Content::class, "id_content", "id");
 }
+
+    public function courseExam()
+    {
+        return $this->hasMany(CourseExame::class, 'id_vedio', 'id');
+    }
+
 }
 
 

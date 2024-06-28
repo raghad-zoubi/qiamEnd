@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use function League\Flysystem\isFile;
+use function Symfony\Component\CssSelector\Parser\isString;
 
 
 /**
@@ -82,15 +84,17 @@ class CoursController extends Controller
     {
 //        $request->validate($this->rules->onlyKey(["name", "photo", "about"], true));
         $file = Course::where("id", $id)->first();
-        $oldPath = $file->photo;
+        if (!is_string($request->photo)) {
+            $oldPath = $file->photo;
 
-        $newFile = $request->file("photo");
+            $newFile = $request->file("photo");
         if ($newFile->isValid()) {
             try {
                 DB::beginTransaction();
 
                 $photoPath = $newFile->store('file'); // The file will be stored in the 'public/Uploads' directory
-                $file->update([
+
+              $file->update([
                     "teacher" => ($request->teacher),
                     "text" => ($request->text),
                     "about" => strtolower($request->about),
@@ -102,6 +106,25 @@ class CoursController extends Controller
                     DB::commit();
                     return MyApp::Json()->dataHandle("Successfully updated course.", "data");
                 }
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw new \Exception($e->getMessage(), $e->getCode());
+            }
+        }}
+        else   if (is_string($request->photo)){
+            try {
+                DB::beginTransaction();
+                $file->update([
+                    "teacher" => ($request->teacher),
+                    "text" => ($request->text),
+                    "about" => strtolower($request->about),
+                    "name" => strtolower($request->name),
+                    "photo" =>strtolower($request->photo),
+                ]);
+
+                    DB::commit();
+                    return MyApp::Json()->dataHandle("Successfully updated course.", "data");
+
             } catch (\Exception $e) {
                 DB::rollBack();
                 throw new \Exception($e->getMessage(), $e->getCode());

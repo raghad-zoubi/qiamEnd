@@ -57,26 +57,6 @@ class EmployeeController extends Controller
         return MyApp::Json()->dataHandle($transformedUsers);
     }
 
-//   public function create(Request $request)
-//    {
-//        $request->validate([
-//            "name" => ["required", Rule::unique("users", "email")],
-//            "password" => ["required", "min:8"],
-//            "role" => ["required","string"]
-//        ]);
-//        $user = User::create([
-//            "email" => $request->name,
-//            "password" => bcrypt($request->password),
-//            "role" => $request->role,
-//        ]);
-//        dd($user->remember_token);
-//        $data["password"] = $request->password;
-//        $data["name"] = $user->email;
-//        $data["id"] = $user->id;
-//
-//
-//        return MyApp::Json()->dataHandle($data);
-//    }
     public function create(Request $request)
     {
         $request->validate([
@@ -107,7 +87,7 @@ class EmployeeController extends Controller
         if ($validate->fails()) {
             return Response()->json([
                 "status" => "failure",
-                "message" => $validate->errors()->all()[0]
+                "message" => 'حدث خطا ما'
             ]);
         }
         $user = User::where("email", $request->name)->first();
@@ -127,17 +107,18 @@ class EmployeeController extends Controller
             }
             else {
                 return Response()->json([
-                    "message" => "password is error!!",
-                    "status" => "failure",
+                    "message" => "كلمة المرور خاطئة!!",
+                    "status" => "فشل",
                 ]);
             }}
-           else
-               return MyApp::Json()->errorHandle("data", "Unauthorized access to exam");
+           else {
+               return MyApp::Json()->errorHandle("data", "الوصول غير مصرح به ");
+           }
 
 
-        else
-        return MyApp::Json()->errorHandle("data", "Unauthorized access to exam");
-
+        else {
+            return MyApp::Json()->errorHandle("data", "الوصول غير مصرح به  ");
+        }
     }
     public function update(Request $request)
     {
@@ -185,22 +166,22 @@ class EmployeeController extends Controller
                 DB::commit();
 
                 return \response()->json([
-                    "status" => "success",
-                    "message" => "Password reset successfully",
+                    "status" => "نجاح",
+                    "message" => "تمت إعادة تعيين كلمة المرور بنجاح",
                 ]);
             } catch (\Exception $exception) {
                 DB::rollBack();
 
                 return \response()->json([
-                    "status" => "failure",
+                    "status" => "فشل",
                     "message" => $exception->getMessage()
                 ]);
-            }
-        } else {
-            return \response()->json([
-                "status" => "unsuccess",
-                "message" => "User not found or incorrect credentials",
-            ]);
+            }} else {
+                return \response()->json([
+                    "status" => "غير ناجح",
+                    "message" => "المستخدم غير موجود أو البيانات  غير صحيحة",
+                ]);
+
         }
     }
 
@@ -231,7 +212,7 @@ class EmployeeController extends Controller
     {
         $user = User::find(auth()->id());
         $user->update(['fcm_token' => $request->fcm_token]);
-        return response()->json('fcm updated successfully', 200);
+        return response()->json('تم تحديث FCM بنجاح', 200);
     }
 
 

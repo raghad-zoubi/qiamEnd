@@ -120,44 +120,84 @@ class StatisticController extends Controller
 
     }
 
+
     public function statistic($year)
     {
-
-
         try {
-
             DB::beginTransaction();
+//
+//            $monthsInArabic = [
+//                1 => 'يناير',
+//                2 => 'فبراير',
+//                3 => 'مارس',
+//                4 => 'أبريل',
+//                5 => 'مايو',
+//                6 => 'يونيو',
+//                7 => 'يوليو',
+//                8 => 'أغسطس',
+//                9 => 'سبتمبر',
+//                10 => 'أكتوبر',
+//                11 => 'نوفمبر',
+//                12 => 'ديسمبر',
+//            ];
+
+            $monthsInArabic = [
+    1 => 'كانون الثاني',
+    2 => 'شباط',
+    3 => 'آذار',
+    4 => 'نيسان',
+    5 => 'أيار',
+    6 => 'حزيران',
+    7 => 'تموز',
+    8 => 'آب',
+    9 => 'أيلول',
+    10 => 'تشرين الأول',
+    11 => 'تشرين الثاني',
+    12 => 'كانون الأول',
+];
 
 
-                $bookingsByMonth = Booking::selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month, COUNT(*) as bookings')
-                    ->whereYear('created_at', $year)
-                    ->groupBy('year', 'month')
-                    ->get();
+            $bookingsByMonth = Booking::selectRaw('MONTH(created_at) as month, COUNT(*) as bookings')
+                ->whereYear('created_at', $year)
+                ->groupBy('month')
+                ->get()
+                ->keyBy('month')
+                ->map(function ($item) {
+                    return $item->bookings;
+                })
+                ->toArray();
 
+            $certificatesByMonth = UserCertificate::selectRaw('MONTH(created_at) as month, COUNT(*) as certificates')
+                ->whereYear('created_at', $year)
+                ->groupBy('month')
+                ->get()
+                ->keyBy('month')
+                ->map(function ($item) {
+                    return $item->certificates;
+                })
+                ->toArray();
 
-                $certificatesByMonth = UserCertificate::selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month, COUNT(*) as certificates')
-                    ->whereYear('created_at', $year)
-                    ->groupBy('year', 'month')
-                    ->get();
-
-
+            $data = [];
+            for ($i = 1; $i <= 12; $i++) {
+                $monthName = $monthsInArabic[$i];
+                $data[] = [
+                    'month' => $monthName,
+                    'bookings' => $bookingsByMonth[$i] ?? 0,
+                    'certificates' => $certificatesByMonth[$i] ?? 0,
+                ];
+            }
 
             DB::commit();
             return response()->json([
-                'bookingsByMonth' => $bookingsByMonth,
-                'certificatesByMonth' => $certificatesByMonth,
+                'data' => $data,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
             throw new \Exception($e->getMessage());
         }
 
-
-        return MyApp::Json()->errorHandle("data", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
-
-
+        return MyApp::Json()->errorHandle("data", "لقد حدث خطا ما اعد المحاولة لاحقا");
     }
-
 
     public function advisernow()
     {

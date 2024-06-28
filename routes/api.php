@@ -27,6 +27,7 @@ use App\Http\Controllers\Papers\CoursePaperController;
 use App\Http\Controllers\Papers\PaperController;
 use App\Http\Controllers\course\VideoController;
 use App\Http\Controllers\StatisticController;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -223,7 +224,8 @@ Route::controller(AuthenticationController::class)
         Route::post("resetPassWord", "resetPassWord");
         Route::post("verifycodeforgetpassword", "verifycodeforgetpassword");
         Route::post('auth/logout',  'logout');
-        //->middleware('auth:sanctum');
+        Route::post('/fcmtoken', 'fcmToken');
+
     });
 //_________________________________________Statistics
 
@@ -231,7 +233,7 @@ Route::controller(AuthenticationController::class)
 
 Route::get("proportion",  [StatisticController::class, 'proportion']);
 Route::get("count",  [StatisticController::class, 'count']);
-Route::get("statistic",  [StatisticController::class, 'statistic']);
+Route::get("statistic/{year}",  [StatisticController::class, 'statistic']);
 Route::get("advisernow",  [StatisticController::class, 'advisernow']);
 //-----------------------------------Information
 Route::prefix("information")->
@@ -249,6 +251,8 @@ group(function () {
     Route::post("resetpass",  [EmployeeController::class, 'resetPassword']);
     Route::get("delete/{id}",  [EmployeeController::class, 'delete']);
     Route::post("login",  [EmployeeController::class, 'login']);
+    Route::post('/fcmtoken',  [EmployeeController::class, 'fcmToken']);
+
 });
 Route::prefix("certificate")->
 group(function () {

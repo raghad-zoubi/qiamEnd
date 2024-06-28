@@ -111,6 +111,8 @@ class AdviserController extends Controller
                 if ($request->has('date') && $request->date != '[]') {
                     if (isset($request['date'])) {
                         $dataArray = json_decode(($request->date), true);
+//                        dd('aa');
+
                         foreach ($dataArray as $index => $date) {
                             if (is_array($date) && isset($date['day']) && //raghad
                                 isset($date['times']) && is_array($date['times'])) {

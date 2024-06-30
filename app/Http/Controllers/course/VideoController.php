@@ -155,7 +155,7 @@ class VideoController extends Controller
                         if ($endTime >= $video->duration)
                             $done = '1';
                         else
-                            $done = '0';
+                          $done = '0';
                         $track->done = ($done);
                         $track->endTime = ($endTime);
                         $track->save();

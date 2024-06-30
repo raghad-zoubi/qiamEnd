@@ -42,6 +42,10 @@ class Content extends Model
         return $this->hasMany(Video::class,"id_content","id");
 
     }
+    public function contentExam(){
+        return $this->hasMany(Video::class,"id_content","id");
+         //   ->with('videoExam');
+    }
 
 
     public function courseexam()

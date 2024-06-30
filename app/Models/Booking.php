@@ -27,7 +27,8 @@ class Booking extends Model
     public function booking(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Online_Center::class,"id_online_center","id")->withDefault();
-    } public function bookingindex(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    }
+    public function bookingindex(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Online_Center::class,"id_online_center","id")->
         with(['coursepaper','course']);

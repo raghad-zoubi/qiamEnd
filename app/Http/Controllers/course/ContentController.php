@@ -60,7 +60,7 @@ class ContentController extends Controller
                 if ($content->rank != '0') {
                     $rank = $content->rank - 1;
 
-                    $v = Content::where('id_online_center', $content->id_online_center)
+                    $v = Content::query()->where('id_online_center', $content->id_online_center)
                         ->where('rank', $rank)
                         ->with('video')
                         ->first();
@@ -88,6 +88,29 @@ class ContentController extends Controller
 
                         }
                         //    else//معالجة حالة الامتحان
+
+                        else if ($v->exam == '1') {
+                            $idVideos = $v->video->pluck('id')->toArray();
+                            $can = Track::where('id_booking', $booking->id)
+                                ->where('done', '1')
+                                ->whereIn('id_video', $idVideos)
+                                ->exists();
+                            if ($can) {
+                                $content_data = Content::query()->
+                                where('id', $id_content)->with(['video', 'file'])->get();
+                                $data = new ContentUserBook($content_data[0]);
+                                return response()->json([
+                                    "data" => $data
+
+                                ]);
+                            } else {
+                                return response()->json([
+                                    "data" => "Unauthorized access to content"
+                                ]);
+                            }
+
+                        }
+
                     }
 
                 }

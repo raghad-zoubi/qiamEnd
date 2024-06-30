@@ -310,7 +310,7 @@ class OnlineController extends Controller
                             ]);
                             if (isset($item['id_exam']) && $item['id_exam'] != null) {
                                 //dd($item['id_exam']);
-                                CourseExame::create([
+                                video_exames::create([
 //                                    "id_online_center" => $onlinecenter->id,
 //                                    "id_content" => $content->id,
                                     "id_video" => $video->id,

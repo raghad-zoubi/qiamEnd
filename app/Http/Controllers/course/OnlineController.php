@@ -19,6 +19,7 @@ use App\Models\QuestionPaper;
 use App\Models\Rate;
 use App\Models\Serial;
 use App\Models\Video;
+use App\Models\VideosExame;
 use App\MyApplication\MyApp;
 use App\MyApplication\Services\CoursesRuleValidation;
 use App\Services\FFmpegService;
@@ -310,11 +311,11 @@ class OnlineController extends Controller
                             ]);
                             if (isset($item['id_exam']) && $item['id_exam'] != null) {
                                 //dd($item['id_exam']);
-                                video_exames::create([
+                                VideosExame::create([
 //                                    "id_online_center" => $onlinecenter->id,
 //                                    "id_content" => $content->id,
                                     "id_video" => $video->id,
-                                    "id_exam" => $inner['id_exam'],
+                                    "id_exam" => $item['id_exam'],
                                 ]);
                             }
                             $r3++;
@@ -522,3 +523,9 @@ class OnlineController extends Controller
 
     }
 }
+
+
+
+
+
+

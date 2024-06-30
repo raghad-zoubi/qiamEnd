@@ -104,7 +104,7 @@ class PaperController extends Controller
             ]);
 
             foreach ($request['body'] as $inner) {
-
+ // dd($inner['select']);
 
                 $AddedQ = QuestionPaper::create([
                     "select" => strtolower($inner['select']),
@@ -112,7 +112,7 @@ class PaperController extends Controller
                     "required" => strtolower($inner['required']),
                     "id_paper" => $Added->id,
                 ]);
-//dd($AddedQ->id);
+//dd($AddedQ->select);
                 foreach ($inner['options'] as $item) {
                     // ['id_question_poll_form', 'answer'];
                     $Addedop = OptionPaper::create([

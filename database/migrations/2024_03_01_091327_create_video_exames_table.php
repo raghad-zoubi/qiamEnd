@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('video_exames', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_exam')->nullable()->constrained('exames')->cascadeOnDelete();
+            $table->foreignId('id_exam')->constrained('exames')->cascadeOnDelete();
             $table->foreignId("id_video")->constrained("videos")->cascadeOnDelete();
             $table->timestamps();
         });

@@ -13,7 +13,7 @@ class VideosExame extends Model
     protected $table="video_exames";
     protected $fillable = [
         'id_exam',
-        'id_vedio',
+        'id_video',
         'id',
     ];
 
@@ -22,13 +22,12 @@ class VideosExame extends Model
     ];
     public function exam(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Exame::class,"id_exam","id");
+        return $this->belongsTo(Exame::class,"id_exam","id")->with('questionexamwith');
 
 
     }public function video(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Video::class,"id_vedio","id");
-
+        return $this->belongsTo(Video::class,"id_video","id");
 
     }
 

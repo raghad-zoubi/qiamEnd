@@ -107,8 +107,11 @@ Route::prefix("user")->group(function () {
     Route::prefix("exam")->group(function () {
         Route::get("course/{id_online_center}/{id_online}",
             [CourseExameController::class, 'showExamCourse']);
-        Route::get("content/{id_online_center}/{id_content}",
+        Route::get("content/{id_content}",
             [CourseExameController::class, 'showExamContent']);
+  Route::post("content",
+            [CourseExameController::class, 'answerExamContent']);
+
     });
 
 });

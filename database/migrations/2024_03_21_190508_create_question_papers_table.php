@@ -14,13 +14,12 @@ return new class extends Migration
         Schema::create('question_papers', function (Blueprint $table) {
             $table->id();
           //  $table->string("select");//جواب اختيار من متعدد اختر الصح
-            $table->enum("select",[
-                "خيار متعدد"
+            $table->enum("select",["خيار متعدد"
                 ,"مربعات اختيار"
                 ,"قائمة منسدلة"
                 ,"إجابة قصيرة"
                 ,"تاريخ"
-                ,"وقت"])->default("مربعات اختيار");
+                ,"وقت"]);
 
             $table->enum("required",["0","1"])->default("0");// اجباري او اختياري
              $table->foreignId("id_paper")->constrained("papers")->cascadeOnDelete();

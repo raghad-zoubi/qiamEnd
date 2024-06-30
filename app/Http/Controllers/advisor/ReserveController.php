@@ -22,6 +22,7 @@ class ReserveController extends Controller
 
         $this->middleware(["auth:sanctum","multi.auth:2"])->only(['display','create','present']);
         $this->middleware(["auth:sanctum","multi.auth:0|1"])->only(['index','check','show']);
+//        $this->middleware(["auth:sanctum"]);
 
         $this->rules = new AdviserRuleValidation();
     }
@@ -185,7 +186,6 @@ class ReserveController extends Controller
 
         try {
 
-
             DB::beginTransaction();
 
             $DateGet = Date::where('id_adviser', $id_adviser)
@@ -193,11 +193,15 @@ class ReserveController extends Controller
                 ->with('reserve')
                 ->get();
             DB::commit();
+//
+
+
+
+
             return response()->json([
-                'DateGet' =>//              $DateGet
+          'DateGet' => //$DateGet
       ShowDayUser::collection($DateGet),
             ]);
-
         } catch (\Exception $e) {
 
             DB::rollBack();

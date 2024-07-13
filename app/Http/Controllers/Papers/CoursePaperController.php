@@ -70,9 +70,6 @@ class CoursePaperController extends Controller
         // AnswerPaper
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
 
@@ -129,29 +126,6 @@ class CoursePaperController extends Controller
 
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(CoursePaper $course_Paper)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, CoursePaper $course_Paper)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(CoursePaper $course_Paper)
-    {
-        //
-    }
 
 
 }

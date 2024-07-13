@@ -88,7 +88,8 @@ Route::prefix("user")->group(function () {
 
         Route::get("display/{type}", [AdviserController::class, 'display']);
     Route::get("deteils/{id_adviser}", [AdviserController::class, 'deteils']);
-    Route::get("display/{id_adviser}/{day}", [ReserveController::class, 'display']);
+    Route::get("displayDate/{id_adviser}/{day}", [ReserveController::class, 'displayDate']);
+    Route::get("displayDay/{id_adviser}", [ReserveController::class, 'displayDay']);
         Route::post("create", [ReserveController::class,"create"]);//الموعيد المتاحه
     Route::get("display", [ReserveController::class,"present"]);//موعيدي
 //
@@ -99,19 +100,19 @@ Route::prefix("user")->group(function () {
         Route::get("show/{id}",  [CoursePaperController::class, 'show']);
       Route::post("answer",  [CoursePaperController::class, 'answer'])->middleware('auth:sanctum');;
     });
-//    Route::prefix("exame")->
-//    group(function () {
-//        Route::get("content/{id_content}",  [CoursePaperController::class, 'show']);
-//      Route::post("answer",  [CoursePaperController::class, 'answer'])->middleware('auth:sanctum');;
-//    });
+
     Route::prefix("exam")->group(function () {
         Route::get("course/{id_online_center}/{id_online}",
             [CourseExameController::class, 'showExamCourse']);
         Route::get("content/{id_content}",
             [CourseExameController::class, 'showExamContent']);
-  Route::post("content",
+        Route::post("content",
             [CourseExameController::class, 'answerExamContent']);
-
+//    Route::prefix("exame")->
+//    group(function () {
+//        Route::get("content/{id_content}",  [CoursePaperController::class, 'show']);
+//      Route::post("answer",  [CoursePaperController::class, 'answer'])->middleware('auth:sanctum');;
+//    });
     });
 
 });
@@ -119,13 +120,27 @@ Route::prefix("user")->group(function () {
 //*************************************************************************
 
 //------------
-Route::prefix("auth")->controller(UserController::class)->group(function () {
+//Route::prefix("auth")->controller(UserController::class)->group(function () {
+//
+//    Route::post("register", "Register");
+//    Route::post("login", "Login");
+//    Route::delete("logout", "Logout");
+//});
+//------------auth
+Route::controller(AuthenticationController::class)
+    ->prefix("auth")->group(function () {
+        Route::post("signup", "register");
+        Route::post("login", "login");
+        Route::post("ActiveEmail", "ActiveEmail");
+        Route::post("checkEmail", "checkEmail");
+        Route::post("resendActiveEmail", "resendActiveEmail");
+        Route::post("resetPassWord", "resetPassWord");
+        Route::post("verifycodeforgetpassword", "verifycodeforgetpassword");
+        Route::post('auth/logout',  'logout');
+        Route::post('/fcmtoken', 'fcmToken');
 
-    Route::post("register", "Register");
-    Route::post("login", "Login");
-    Route::delete("logout", "Logout");
-});
-
+    });
+////////////////////////////////
 Route::prefix("booking")->controller(BookingController::class)->group(function () {
     Route::post("check/{id}", "check");
     Route::get("indexNew", "indexNew");
@@ -216,20 +231,7 @@ Route::prefix("reserve")->controller(ReserveController::class)->group(function (
 });
 
 
-//------------hamza
-Route::controller(AuthenticationController::class)
-    ->prefix("auth")->group(function () {
-        Route::post("signup", "register");
-        Route::post("login", "login");
-        Route::post("ActiveEmail", "ActiveEmail");
-        Route::post("checkEmail", "checkEmail");
-        Route::post("resendActiveEmail", "resendActiveEmail");
-        Route::post("resetPassWord", "resetPassWord");
-        Route::post("verifycodeforgetpassword", "verifycodeforgetpassword");
-        Route::post('auth/logout',  'logout');
-        Route::post('/fcmtoken', 'fcmToken');
 
-    });
 //_________________________________________Statistics
 
 //for user

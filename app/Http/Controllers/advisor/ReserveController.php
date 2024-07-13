@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\advisor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ShowDateUser;
 use App\Http\Resources\ShowDay;
 use App\Http\Resources\ShowDayUser;
 use App\Models\Rate;
@@ -20,9 +21,9 @@ class ReserveController extends Controller
     public function __construct()
     {
 
-        $this->middleware(["auth:sanctum","multi.auth:2"])->only(['display','create','present']);
-        $this->middleware(["auth:sanctum","multi.auth:0|1"])->only(['index','check','show']);
-//        $this->middleware(["auth:sanctum"]);
+        //     $this->middleware(["auth:sanctum","multi.auth:2"])->only(['display','create','present']);
+       // $this->middleware(["auth:sanctum","multi.auth:0|1"])->only(['index','check','show']);
+        $this->middleware(["auth:sanctum"]);
 
         $this->rules = new AdviserRuleValidation();
     }
@@ -161,27 +162,7 @@ class ReserveController extends Controller
         return MyApp::Json()->errorHandle("date", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
 
     }
-//    public function display()
-//    {
-//
-//        try {
-//
-//            DB::beginTransaction();
-//            $dateGet = Reserve::with('reserve')->
-//            where("id_user",auth()->id())->get();
-//            DB::commit();
-//            return MyApp::Json()->dataHandle($dateGet, "date");
-//        } catch (\Exception $e) {
-//
-//            DB::rollBack();
-//            throw new \Exception($e->getMessage());
-//        }
-//
-//
-//        return MyApp::Json()->errorHandle("date", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
-//
-//    }
-    public function display($id_adviser,$day )
+    public function displayDay($id_adviser )
     {
 
         try {
@@ -189,30 +170,66 @@ class ReserveController extends Controller
             DB::beginTransaction();
 
             $DateGet = Date::where('id_adviser', $id_adviser)
-                ->where('day', $day)
                 ->with('reserve')
                 ->get();
             DB::commit();
-//
 
-
-
+            // Filter and transform the data
+            $filteredData = $DateGet->filter(function ($item) {
+                return empty($item->reserve[0]);
+            })->map(function ($item) {
+                return [
+                    'id_data' => $item->id,
+                    'id_adviser' => $item->id_adviser,
+                    'day' => $item->day,
+                ];
+            })->values();
 
             return response()->json([
-          'DateGet' => //$DateGet
-      ShowDayUser::collection($DateGet),
+                'DateGet' => $filteredData
+                    //$filteredData
             ]);
         } catch (\Exception $e) {
-
             DB::rollBack();
             throw new \Exception($e->getMessage());
         }
 
-
-        return MyApp::Json()->errorHandle("date", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
-
+        return MyApp::Json()->errorHandle("date", "حدث خطا ما في عرض  لديك ");
     }
+    public function displayDate($id_adviser, $day)
+    {
+        try {
+            DB::beginTransaction();
 
+            $DateGet = Date::where('id_adviser', $id_adviser)
+                ->where('day', $day)
+                ->with('reserve')
+                ->get();
 
+            DB::commit();
+
+            // Filter and transform the data
+            $filteredData = $DateGet->filter(function ($item) {
+                return empty($item->reserve[0]);
+            })->map(function ($item) {
+                return [
+                    'id_data' => $item->id,
+                    'id_adviser' => $item->id_adviser,
+                    'from' => $item->from,
+                    'to' => $item->to,
+                    'day' => $item->day,
+                ];
+            })->values();
+
+            return response()->json([
+                'DateGet' => $filteredData
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+        return MyApp::Json()->errorHandle("date", "حدث خطا ما في عرض  لديك ");
+    }
 
 }

@@ -18,7 +18,6 @@ class AuthenticationController extends Controller
     public function __construct()
     {        $this->middleware(['auth:sanctum','multi.auth:2'])->only(["logout",'fcmToken']);
     }
-
     public function register(Request $request): \Illuminate\Http\JsonResponse
     {
 
@@ -67,11 +66,12 @@ class AuthenticationController extends Controller
             ];
 
             User::SendCodeToEmailActive($mail_data);
-            //   $token = $user->createToken($request->name, ["*"])->plainTextToken;
+            $token = $user->createToken($request->email, ["*"])->plainTextToken;
 
             DB::commit();
             return Response()->json([
-                "user" => $user,
+               "user" => $user,
+              "token"=>$token,
                 "status" =>"success" ,
                 "message"=>"user signup successfuly"
 
@@ -126,7 +126,6 @@ class AuthenticationController extends Controller
         }
 
     }
-
     public function resendActiveEmail(Request $request): \Illuminate\Http\JsonResponse
     {
         $validate = Validator::make($request->all(), [
@@ -176,8 +175,6 @@ class AuthenticationController extends Controller
 
         }
     }
-
-
     public function logout(): \Illuminate\Http\JsonResponse
     {
 
@@ -201,7 +198,6 @@ class AuthenticationController extends Controller
         $user->update(['fcm_token' => $request->fcm_token]);
         return response()->json('fcm updated successfully', 200);
     }
-
     public function isOnlineInternet($site = "www.google.com"): bool
     {
         if (@fopen($site, "r")) {
@@ -210,9 +206,6 @@ class AuthenticationController extends Controller
             return false;
         }
     }
-
-
-
     public function ActiveEmail(Request $request): \Illuminate\Http\JsonResponse
     {
 
@@ -232,11 +225,14 @@ class AuthenticationController extends Controller
                 $user->update([
                     "active_code" => true
                 ]);
+                $token = $user->createToken($request->code, ["*"])->plainTextToken;
+
                 DB::commit();
                 return \response()->json([
                     "status" => "success",
                     "active" => true,
                     "data" => $user,
+                    "token" => $token,
                     "message" => "email is active now"
                 ]);
             } else {

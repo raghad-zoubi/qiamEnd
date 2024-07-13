@@ -136,7 +136,7 @@ Route::controller(AuthenticationController::class)
         Route::post("resendActiveEmail", "resendActiveEmail");
         Route::post("resetPassWord", "resetPassWord");
         Route::post("verifycodeforgetpassword", "verifycodeforgetpassword");
-        Route::post('auth/logout',  'logout');
+        Route::post('logout',  'logout');
         Route::post('/fcmtoken', 'fcmToken');
 
     });

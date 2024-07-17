@@ -24,8 +24,8 @@ class DateController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(["auth:sanctum","multi.auth:0|1"]);
-//        $this->middleware(["auth:sanctum"]);
+//          $this->middleware(["auth:sanctum","multi.auth:0|1"]);
+      $this->middleware(["auth:sanctum"]);
 
         $this->rules = new AdviserRuleValidation();
     }

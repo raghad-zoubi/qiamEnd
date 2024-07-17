@@ -4,6 +4,8 @@
 namespace App\Http\Controllers\advisor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AllCourses;
+use App\Http\Resources\Present;
 use App\Http\Resources\ShowDateUser;
 use App\Http\Resources\ShowDay;
 use App\Http\Resources\ShowDayUser;
@@ -138,20 +140,39 @@ class ReserveController extends Controller
         return MyApp::Json()->errorHandle("date", "حدث خطا ما في عرض  لديك ");//,$prof->getErrorMessage);
 
     }
-    public function present()
+    public function present($type)
     {
 
         try {
 
             DB::beginTransaction();
-            $dateGet = Reserve::with('reserve')->
-            where("id_user",auth()->id())->
+            if($type=='com') {
+                $dateGet = Reserve::with('reserve2')->
+                where("status", '1')->
+                where("id_user", auth()->id())->
                 orderBy(
-                    "updated_at",'asc')->
-          get();
-            // get(["status","reserve"]);
-            DB::commit();
-            return MyApp::Json()->dataHandle($dateGet, "date");
+                    "updated_at", 'asc')->
+                get();
+                // get(["status","reserve"]);
+                DB::commit();
+                return response()->json([
+                    'data' => Present::collection($dateGet),
+                ]);
+            }
+            else   if($type=='uncom') {
+                $dateGet = Reserve::with('reserve2')->
+                where("id_user", auth()->id())->
+                where("status", '0')->
+                orderBy(
+                    "updated_at", 'asc')->
+                get();
+                // get(["status","reserve"]);
+                DB::commit();
+                // return MyApp::Json()->dataHandle($dateGet, "date");
+                return response()->json([
+                    'data' => Present::collection($dateGet),
+                ]);
+            }
         } catch (\Exception $e) {
 
             DB::rollBack();

@@ -23,9 +23,9 @@ class AdviserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(["auth:sanctum","multi.auth:0|1"])->only(['index','show','create','update','delete']);
-        $this->middleware(["auth:sanctum","multi.auth:2"])->only(['display','deteils']);
-    }
+//        $this->middleware(["auth:sanctum","multi.auth:0|1"])->only(['index','show','create','update','delete']);
+//        $this->middleware(["auth:sanctum","multi.auth:2"])->only(['display','deteils']);
+        $this->middleware(["auth:sanctum"] ); }
 
 //عرض الكل
     public function index()

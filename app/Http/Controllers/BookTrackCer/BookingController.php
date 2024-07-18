@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use function Intervention\Image\has;
+use function Kreait\Firebase\RemoteConfig\user;
 use function Nette\Utils\isEmpty;
 use function PHPUnit\Framework\isNull;
 use function PHPUnit\TextUI\executeHelpCommandWhenThereIsNothingElseToDo;
@@ -158,7 +159,6 @@ class BookingController extends Controller
     // user
     public function book($id)
     {
-
         try {
             $rate = Booking::where([
                 'id_online_center' => $id,
@@ -190,7 +190,7 @@ class BookingController extends Controller
                     DB::commit();
 
 //            return MyApp::Json()->dataHandle($questionsWithOptions, "paper");
-                    return MyApp::Json()->dataHandle($questionsWithOptions, "data");
+                    return MyApp::Json()->dataHandle($questionsWithOptions);
                 } else
 
 

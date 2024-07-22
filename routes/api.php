@@ -91,7 +91,7 @@ Route::prefix("user")->group(function () {
     Route::get("displayDate/{id_adviser}/{day}", [ReserveController::class, 'displayDate']);
     Route::get("displayDay/{id_adviser}", [ReserveController::class, 'displayDay']);
         Route::post("create", [ReserveController::class,"create"]);//الموعيد المتاحه
-    Route::get("display/{type}", [ReserveController::class,"present"]);//موعيدي
+    Route::get("present/{type}", [ReserveController::class,"present"]);//موعيدي
 //
     });
 

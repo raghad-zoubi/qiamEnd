@@ -108,6 +108,8 @@ Route::prefix("user")->group(function () {
             [CourseExameController::class, 'showExamContent']);
         Route::post("content",
             [CourseExameController::class, 'answerExamContent']);
+        Route::post("course",
+            [CourseExameController::class, 'answerExamCourse']);
 //    Route::prefix("exame")->
 //    group(function () {
 //        Route::get("content/{id_content}",  [CoursePaperController::class, 'show']);
@@ -118,7 +120,6 @@ Route::prefix("user")->group(function () {
 });
 //bookingCourse
 //*************************************************************************
-
 //------------
 //Route::prefix("auth")->controller(UserController::class)->group(function () {
 //

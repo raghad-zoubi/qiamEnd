@@ -32,7 +32,8 @@ class Course extends Model
 
     public function online(){
         return $this->hasMany(Online::class,"id_course","id");
-    }   public function center(){
+    }
+ public function center(){
         return $this->hasMany(Center::class,"id_course","id")
        ;// ->select(["price","id"])->withDefault();
         //->where("Center.start");

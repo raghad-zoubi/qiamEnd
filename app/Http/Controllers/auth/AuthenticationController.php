@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 class AuthenticationController extends Controller
-{
+{//logout
 
     public function __construct()
     {        $this->middleware(['auth:sanctum','multi.auth:2'])->only(["logout",'fcmToken']);

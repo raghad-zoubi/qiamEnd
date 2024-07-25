@@ -9,6 +9,7 @@ use App\Models\Booking;
 use App\Models\Content;
 use App\Models\CourseExame;
 use App\Models\CoursePaper;
+use App\Models\Exame;
 use App\Models\Favorite;
 use App\Models\File;
 use App\Models\Online;
@@ -18,6 +19,7 @@ use App\Models\Paper;
 use App\Models\QuestionPaper;
 use App\Models\Rate;
 use App\Models\Serial;
+use App\Models\Track;
 use App\Models\Video;
 use App\Models\VideosExame;
 use App\MyApplication\MyApp;
@@ -492,22 +494,52 @@ class OnlineController extends Controller
     {
         try {
             $bookinOnlineCenterIds = Booking::where('id_user', Auth::id())
-                ->where('done', '0')->pluck('id_online_center');
+                ->where('done', '0')
+                ->pluck('id_online_center');
                 $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
                     ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
-                    ->groupBy('online_centers.id')
+                    ->groupBy('online_centers.id','id')
                     ->getQuery();
 
                 $courses = Online_Center::
                 joinSub($ratesSubquery, 'subquery', function ($join) {
                     $join->on('online_centers.id', '=', 'subquery.id');
                 })->
-                whereIn('online_centers.id', $bookinOnlineCenterIds->toArray()) // Pass array of values
+                whereIn('online_centers.id', $bookinOnlineCenterIds->toArray())
+                    ->where('id_center', null) // Pass array of values
                 ->with(['course'])
                     ->get();
 
+
+
+
+
+
+//                $content = Content::whereIn('id_online_center', $bookinOnlineCenterIds->toArray())
+//                    ->orderBy('rank', 'desc')
+//                    ->first();
+//                if ($content) {
+//                    $video = Video::where('id_content', $content->id)
+//                        ->orderBy('rank', 'desc')
+//                        ->first();
+//                    if ($video) {
+//
+//                        $can = Track::where('id_booking', $booking->id)
+//                            ->where('done', '1')
+//                            ->where('id_video', $video->id)
+//                            ->exists();
+//
+//
+
+
+
+
+
+
+
                 return response()->json([
-                    'data' => AllCourses::collection($courses),
+                   'data' => AllCourses::collection($courses),
+                    //  'data' => ($courses),
                 ]);
 
         } catch (\Exception $e) {

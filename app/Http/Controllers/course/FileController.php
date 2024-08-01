@@ -56,9 +56,12 @@ class FileController extends Controller
 
 
         return response()->json([
-            'file' =>FileCourses::collection($file),
-            //   'file' =>($file),
+            'status' => 'success',
+            'message' => 'Files retrieved successfully.',
+            'file' => $file[0]['file']
+                //FileCourses::collection($file)
         ]);
+
 
 
     }

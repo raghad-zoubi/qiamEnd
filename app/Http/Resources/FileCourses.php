@@ -16,7 +16,7 @@ class FileCourses extends JsonResource
 
         $result = [];
         foreach ($this->file as $item) {
-            $data = [
+            $result = [
                 'id' => $item['id']??null,
                 'id_content' => $item['id_content']??null,
                 'name' => $item['name']??null,
@@ -24,7 +24,6 @@ class FileCourses extends JsonResource
                 'rank' => $item['rank']??null,
             ];
 
-            $result[] = $data;
         }
 
 

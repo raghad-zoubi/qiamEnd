@@ -55,7 +55,7 @@ class OnlineController extends Controller
     public function __construct(FfmpegService $ffmpegService)
     {
         $this->ffmpegService = $ffmpegService;
-      $this->middleware('auth:sanctum')->only(['show','done','still']);
+      $this->middleware('auth:sanctum')->only(['show','done','still','wait']);
     }
 //
 //    public function create(Request $request)
@@ -489,12 +489,76 @@ class OnlineController extends Controller
         ]);
 
     }
-
     public function still(): JsonResponse
     {
         try {
             $bookinOnlineCenterIds = Booking::where('id_user', Auth::id())
                 ->where('done', '0')
+                ->where('status', '1')
+                ->pluck('id_online_center');
+                $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
+                    ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
+                    ->groupBy('online_centers.id','id')
+                    ->getQuery();
+
+                $courses = Online_Center::
+                joinSub($ratesSubquery, 'subquery', function ($join) {
+                    $join->on('online_centers.id', '=', 'subquery.id');
+                })->
+                whereIn('online_centers.id', $bookinOnlineCenterIds->toArray())
+                    ->where('id_center', null) // Pass array of values
+                ->with(['course'])
+                    ->get();
+
+
+
+
+
+
+//                $content = Content::whereIn('id_online_center', $bookinOnlineCenterIds->toArray())
+//                    ->orderBy('rank', 'desc')
+//                    ->first();
+//                if ($content) {
+//                    $video = Video::where('id_content', $content->id)
+//                        ->orderBy('rank', 'desc')
+//                        ->first();
+//                    if ($video) {
+//
+//                        $can = Track::where('id_booking', $booking->id)
+//                            ->where('done', '1')
+//                            ->where('id_video', $video->id)
+//                            ->exists();
+//
+//
+
+
+
+
+
+
+
+                return response()->json([
+                   'data' => AllCourses::collection($courses),
+                    //  'data' => ($courses),
+                ]);
+
+        } catch (\Exception $e) {
+            // Handle exception
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+
+        return response()->json([
+            'data' => 'حدث خطا ما اعد المحاولة لاحقا',
+        ]);
+
+    }
+    public function wait(): JsonResponse
+    {
+        try {
+            $bookinOnlineCenterIds = Booking::where('id_user', Auth::id())
+                ->where('status', '0')
                 ->pluck('id_online_center');
                 $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
                     ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')

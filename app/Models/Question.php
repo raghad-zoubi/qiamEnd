@@ -23,9 +23,7 @@ class Question extends Model
      *
      * @var array<int, string>
      */
-    protected $hidden = [
-
-    ];
+    protected $hidden = ["created_at","updated_at"];
 
 
 //    public function onlinecours()

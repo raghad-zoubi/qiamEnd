@@ -13,6 +13,7 @@ class Option extends Model
 {
     use HasFactory;
     protected $fillable = ['id_question', 'option','correct'];
+    protected $hidden = ["created_at","updated_at"];
 
     public function question()
     {

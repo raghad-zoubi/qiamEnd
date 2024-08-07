@@ -20,24 +20,21 @@ class FavoriteController extends Controller
         $this->middleware('auth:sanctum');
     }
 
-    public function create(Request $request)
+    public function create( $id )
     {
-        $validator = Validator::make($request->all(), [
-            'id' => ['required', Rule::exists("online_centers", "id")],
-        ]);
-        if ($validator->fails()) {
+
+        if (!Online_Center::query()->where('id',$id)->exists()) {
             return response()->json([
-                "error" => $validator->errors()->all()[0],
                 "status" => "failure",
                 "message" => "error!"
             ]);
         }
         $favorite = Favorite::where([
-            'id_online_center' => $request->id,
+            'id_online_center' => $id,
             'id_user' => Auth::id()
         ])->first();
         if (!is_null($favorite)) {
-            Auth::user()->favorite()->where('id_online_center', $request->id,)->delete();
+            Auth::user()->favorite()->where('id_online_center', $id,)->delete();
             //  $favorite->delete();
             return response()->json([
                 "message" => "delete  favorite",
@@ -45,7 +42,7 @@ class FavoriteController extends Controller
             ]);
         } else {
             Favorite::create([
-                'id_online_center' => $request->id,
+                'id_online_center' => $id,
                 'id_user' => Auth::id()
             ]);
             return response()->json([

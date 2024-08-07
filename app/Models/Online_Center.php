@@ -57,6 +57,9 @@ class Online_Center extends Model
 public function course()
     {
         return $this->belongsTo(Course::class, 'id_course', 'id');
+    }public function course2()
+    {
+        return $this->belongsTo(Course::class, 'id_course', 'id')->with('online');
     }
     public function content(){
         return $this->hasMany(Content::class,"id_online_center","id")

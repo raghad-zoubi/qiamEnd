@@ -16,7 +16,9 @@ class AuthenticationController extends Controller
 {//logout
 
     public function __construct()
-    {        $this->middleware(['auth:sanctum','multi.auth:2'])->only(["logout",'fcmToken']);
+    {
+//        $this->middleware(['auth:sanctum','multi.auth:2'])->only(["logout",'fcmToken']);
+        $this->middleware(['auth:sanctum'])->only(["logout",'fcmToken','resetPassWord']);
     }
     public function register(Request $request): \Illuminate\Http\JsonResponse
     {
@@ -335,7 +337,7 @@ class AuthenticationController extends Controller
 {
     $validate = Validator::make($request->all(), [
         "email" => ["required", Rule::exists("users", "email")],
-        "password" => ["required", "min:8", "string", "confirmed"],
+        "password" => ["required", "min:8", "string"],
     ]);
     if ($validate->fails()) {
         return Response()->json([
@@ -363,3 +365,4 @@ class AuthenticationController extends Controller
     }
 }
 }
+//

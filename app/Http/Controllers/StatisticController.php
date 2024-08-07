@@ -31,7 +31,7 @@ class StatisticController extends Controller
         try {
 
             DB::beginTransaction();
-            $visitorCount = User::where('role', 'user')->count();
+            $visitorCount = User::where('role', '2')->count();
             $onlineCount = Booking::whereHas('booking', function ($query) {
                 $query->whereNotNull('id_online');
             })->distinct()->count('id_user');

@@ -12,7 +12,7 @@ class UserCertificate extends Model
 {
 
     protected $table ='user_certificate';
-    protected $fillable = [   "id_certificate", "id_booking" ,"id","mark"
+    protected $fillable = [  "certificate", "id_booking" ,"id","number"
     ];
     protected $hidden = ["created_at","updated_at"];
 

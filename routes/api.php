@@ -40,8 +40,16 @@ Route::post('/framep', [ContentController::class, 'extractFrame']);
 Route::get('/frameg/{video_path}', [ContentController::class, 'extractFrameg']);
 Route::get('/converto', [ContentController::class, 'convertVideo']);
 Route::get('/getinfo', [ContentController::class, 'getVideoInfo']);
-Route::post("/add/{id}",  [UserCertificateController::class, 'addText2']);
+Route::post("/add/{id}",  [CourseExameController::class, 'generateCertificate']);
+//Route::post("/add/{id}",  [UserCertificateController::class, 'generateCertificate']);
 Route::post("/addText",  [UserCertificateController::class, 'addText']);
+
+
+Route::post('/generatePDF', [UserCertificateController::class, 'generatePDF']);
+
+Route::get('/convert-pdf-to-image1', [UserCertificateController::class, 'convertPdfToImage1']);
+Route::get('/convert-pdf-to-image', [UserCertificateController::class, 'convertPdfToImage']);
+Route::get('/convert-pdf-to-image3', [UserCertificateController::class, 'convertPdfToImage3']);
 
 ////////////////////
 
@@ -57,7 +65,7 @@ Route::prefix("user")->group(function () {
     Route::prefix("favorite")->controller(FavoriteController::class)->group(function () {
         //for user
         Route::get("index", "index");//all status date
-        Route::post("create", "create");
+        Route::get("create/{id}", "create");
     });
     Route::prefix("rate")->controller(RateController::class)->group(function () {
         Route::post("create", "create");
@@ -73,6 +81,7 @@ Route::prefix("user")->group(function () {
     Route::get('online/show/{id}', [OnlineController::class, 'show']);
     Route::get('still', [OnlineController::class, 'still']);
     Route::get('done', [OnlineController::class, 'done']);
+    Route::get('wait', [OnlineController::class, 'wait']);
     Route::get('content/{id_content}', [ContentController::class, 'show']);
     Route::get('video/{id}', [VideoController::class, 'show']);
     Route::get('afterVideo/{id}/{endTime}', [VideoController::class, 'afterVideo']);
@@ -94,7 +103,7 @@ Route::prefix("user")->group(function () {
     Route::get("present/{type}", [ReserveController::class,"present"]);//موعيدي
 //
     });
-
+//bookingCourse
     Route::prefix("paper")->
     group(function () {
         Route::get("show/{id}",  [CoursePaperController::class, 'show']);
@@ -110,6 +119,13 @@ Route::prefix("user")->group(function () {
             [CourseExameController::class, 'answerExamContent']);
         Route::post("course",
             [CourseExameController::class, 'answerExamCourse']);
+        Route::get("poll/{id_online_center}",
+            [CourseExameController::class, 'showPollCourse']);
+
+        Route::post("poll/{id_online_center}",
+            [CourseExameController::class, 'answerPollCourse']);
+            //->middleware('auth:sanctum');;
+
 //    Route::prefix("exame")->
 //    group(function () {
 //        Route::get("content/{id_content}",  [CoursePaperController::class, 'show']);
@@ -284,3 +300,4 @@ group(function () {
 //Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //    return $request->user();
 //})    Route::get('ra', [UserCertificateController::class, 'resizeImage']);
+//in

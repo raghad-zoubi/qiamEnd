@@ -21,8 +21,6 @@ class ExameUserContent extends JsonResource
                     "description" => $this["data"]->description,
                     "id_content" => $this["content"]->id,
                     "id_online_center" => $this["content"]->id_online_center,
-                    "numberHours" => $this["content"]->numberHours,
-                    "numberVideos" => $this["content"]->numberVideos,
                     "exam" => $this["content"]->exam,
                     "durationExam" => $this["content"]->durationExam,
                     "numberQuestion" => $this["content"]->numberQuestion,

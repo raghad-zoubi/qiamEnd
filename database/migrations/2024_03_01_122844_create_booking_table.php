@@ -18,6 +18,8 @@ return new class extends Migration
             $table->bigInteger("mark");
             $table->enum("status",["0","1"])->default("0");
             $table->enum("done",["0","1"])->default("0");
+            $table->enum("can",["0","1"])->default("1");
+            $table->integer("count")->default("0");
             $table->timestamps();
         });
     }

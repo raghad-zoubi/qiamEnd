@@ -17,11 +17,11 @@ class Booking extends Model
     use HasFactory;
 
     protected $table ='booking';
-    protected $fillable = [   "id_online_center", "id_user" ,"id","mark","status",'done',
-     'created_at'
+    protected $fillable = [   "id_online_center", "can", "count", "id_user" ,"id","mark","status",'done',
+     'created_at','updated_at'
     ];
 
-    protected $hidden = ["updated_at"];
+    protected $hidden = [];
 
 
     public function booking(): \Illuminate\Database\Eloquent\Relations\BelongsTo

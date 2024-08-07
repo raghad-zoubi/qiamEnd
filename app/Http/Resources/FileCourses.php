@@ -16,19 +16,19 @@ class FileCourses extends JsonResource
 
         $result = [];
         foreach ($this->file as $item) {
-            $result = [
+            $data = [
                 'id' => $item['id']??null,
                 'id_content' => $item['id_content']??null,
                 'name' => $item['name']??null,
                 'file' => $item['file']??null,
                 'rank' => $item['rank']??null,
             ];
+            $result[]= $data;
 
         }
-
-
-
-
         return $result;
+
+
+
     }
 }

@@ -16,6 +16,9 @@ return new class extends Migration
             $table->String("director")->nullable();
             $table->text("site")->nullable();
             $table->text("time")->nullable();
+            $table->text("email")->nullable();
+            $table->text("nubmer")->nullable();
+            $table->text("facebook")->nullable();
 
 
             $table->timestamps();

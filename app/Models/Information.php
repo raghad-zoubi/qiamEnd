@@ -16,7 +16,12 @@ class Information extends Model
      'director',
 'site',
 'time' ,
-    ];
+ 'email',
+'nubmer',
+'facebook'
+
+
+];
 
     protected $hidden = [
 

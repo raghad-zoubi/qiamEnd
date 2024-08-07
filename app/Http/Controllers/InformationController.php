@@ -35,6 +35,9 @@ class InformationController extends Controller
                     "director" => strtolower($request->director),
                     "site" => strtolower($request->site),
                     "time" => strtolower($request->time),
+                    "email"=> strtolower($request->email),
+                    "nubmer" => strtolower($request->nubmer),
+                    "facebook" => strtolower($request->facebook),
 
                 ]);
                 DB::commit();
@@ -64,6 +67,9 @@ class InformationController extends Controller
                         "director" => strtolower($request->director),
                         "site" => strtolower($request->site),
                         "time" => strtolower($request->time),
+                    "email"=> strtolower($request->email),
+                    "nubmer" => strtolower($request->nubmer),
+                    "facebook" => strtolower($request->facebook),
 
 
 

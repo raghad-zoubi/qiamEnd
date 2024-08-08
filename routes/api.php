@@ -205,7 +205,8 @@ Route::prefix("paper")->controller(PaperController::class)->group(function () {
     Route::get("show/{id}", "show");
     Route::get("delete/{id}", "delete");
 
-});Route::prefix("paper")->controller(CoursePaperController::class)->group(function () {
+});Route::prefix("paper")->controller(CoursePaperController::class)->
+group(function () {
     Route::get("displayUser/{id_user}/{id_online_center}", "displayPaperUser");
     Route::get("displayPaper/{id_online_center}", "displayPaperCourse");
 

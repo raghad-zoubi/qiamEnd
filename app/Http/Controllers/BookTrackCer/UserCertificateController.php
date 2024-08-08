@@ -28,7 +28,6 @@ class UserCertificateController extends Controller
         $this->imageProcessingService = $imageProcessingService;
     }
 
-
     public function show($id)
     {
         // Retrieve image from database
@@ -41,9 +40,25 @@ class UserCertificateController extends Controller
     public function index()
     {
         // Retrieve image from database
-        $responseData = UserCertificate::query()->with('book2')->get();
+        //$responseData = UserCertificate::query()->with('book2')->get();
 
-        // Return the image as a response
+        $responseData = DB::table('user_certificate')
+            ->select(
+                'user_certificate.number',
+                'user_certificate.certificate',
+                'user_certificate.id',
+                'profiles.name as profile_name',
+                'profiles.lastName as profile_lastname',
+                'courses.name as course_name',
+                DB::raw('CASE WHEN online_centers.id_center IS NULL THEN "online" ELSE "center" END AS type')
+            , DB::raw('DATE(user_certificate.created_at) as created_at') )
+            ->join('booking', 'booking.id', '=', 'user_certificate.id_booking')
+            ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
+            ->join('courses', 'courses.id', '=', 'online_centers.id_course')
+            ->join('profiles', 'profiles.id_user', '=', 'booking.id_user')
+            //->where('booking.id_user', 1) // Adjust this condition as needed
+            ->get();
+
         return response()->json($responseData);
 
     }

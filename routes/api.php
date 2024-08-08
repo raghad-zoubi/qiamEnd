@@ -21,6 +21,7 @@ use App\Http\Controllers\course\RateController;
 use App\Http\Controllers\Exam\CourseExameController;
 use App\Http\Controllers\Exam\ExameController;
 use App\Http\Controllers\course\FileController;
+use App\Http\Controllers\Exam\ReExamController;
 use App\Http\Controllers\FirbaseController;
 use App\Http\Controllers\InformationController;
 use App\Http\Controllers\Papers\CoursePaperController;
@@ -291,7 +292,13 @@ group(function () {
     Route::post("create",  [CertificateController::class, 'create']);
     Route::get("index",  [CertificateController::class, 'index']);
     Route::get("delete/{id}",  [CertificateController::class, 'delete']);
-    Route::get("index",  [UserCertificateController::class, 'index']);
+    Route::get("all",  [UserCertificateController::class, 'index']);
+});Route::prefix("reExam")->
+group(function () {
+    Route::post("create",  [ReExamController::class, 'create']);
+    Route::get("index",  [ReExamController::class, 'index']);
+    Route::get("check",  [ReExamController::class, 'check']);
+
 });
 //*****************************
 //Route::get("www/{id}",  [CoursController::class, 'displaydetils']);

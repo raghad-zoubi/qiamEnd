@@ -4,24 +4,19 @@
 namespace App\Http\Controllers\Exam;
 
 use App\Http\Controllers\Controller;
-use App\Models\d3;
 use App\Models\Exame;
 use App\Models\Option;
-use App\Models\OptionPaper;
-use App\Models\Paper;
 use App\Models\Question;
-use App\Models\QuestionPaper;
 use App\MyApplication\MyApp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 
 class ExameController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(["auth:sanctum","multi.auth:0|1"])->except(['showUser']);
-        $this->middleware(["auth:sanctum","multi.auth:0|1|2"])->only(['showUser']);
+        $this->middleware(["auth:sanctum","multi.auth:0|1"]);
+       // $this->middleware(["auth:sanctum","multi.auth:0|1|2"])->only(['showUser']);
 
     }
 
@@ -65,12 +60,7 @@ class ExameController extends Controller
 
     public function create(Request $request)
     {
-        //      return MyApp::Json()->dataHandle($request['body'][0]['question'], "poll");
 
-
-        //protected $fillable = ['type', 'id_poll_form', 'question', 'kind'];
-
-        //  $request->validate($this->rules->onlyKey(["name","address"],true));
         try {
             DB::beginTransaction();
             $Added = Exame::create([
@@ -106,12 +96,6 @@ class ExameController extends Controller
     }
    public function addQuestions(Request $request)
     {
-        //      return MyApp::Json()->dataHandle($request['body'][0]['question'], "poll");
-
-
-        //protected $fillable = ['type', 'id_poll_form', 'question', 'kind'];
-
-        //  $request->validate($this->rules->onlyKey(["name","address"],true));
         try {
             DB::beginTransaction();
 

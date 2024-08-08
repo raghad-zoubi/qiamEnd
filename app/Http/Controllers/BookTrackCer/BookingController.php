@@ -43,7 +43,7 @@ class BookingController extends Controller
         //$request->validate($this->rules->onlyKey(["id","status"], true));
         try {
             DB::beginTransaction();
-
+//CoursePaper
             $ad = Booking::
             //where("id_online_center", $id) ->
             where('status', '=', '0')

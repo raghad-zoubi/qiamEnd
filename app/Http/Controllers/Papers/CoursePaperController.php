@@ -53,10 +53,198 @@ class CoursePaperController extends Controller
                 ->where('answer_papers.id_user', $id_user)
                 ->get();
 
-            $uniqueData = collect($data)->unique('id_question');
+          //  $uniqueData = collect($data)->unique('id_question');
             DB::commit();
+dd('data');
+        return  $data;
+            //DisplayPaperUser::collection($uniqueData);
 
-        return DisplayPaperUser::collection($uniqueData);
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+        return MyApp::Json()->errorHandle("paper", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
+
+        // AnswerPaper
+    }
+    public function displayPaperCourse( $id_online_center)
+    {
+        try {
+            DB::beginTransaction();
+
+
+//            $answers = DB::table('answer_papers')
+//                ->join('question_papers', 'answer_papers.id_question_paper', '=', 'question_papers.id')
+//                ->join('papers', 'question_papers.id_paper', '=', 'papers.id')
+//                ->join('course_papers', 'papers.id', '=', 'course_papers.id_paper')
+//                ->where('course_papers.id_online_center', $id_online_center)
+//                ->where('papers.type', 'استبيان')
+//                ->select('question_papers.id as question_id', 'question_papers.question', 'papers.title', 'answer_papers.*')
+//                ->get()
+//                ->groupBy('question_id');
+
+  $w='o';
+//////////////////////
+//            $answers = DB::table('answer_papers')
+//                ->join('question_papers', 'answer_papers.id_question_paper', '=', 'question_papers.id')
+//                ->join('papers', 'question_papers.id_paper', '=', 'papers.id')
+//                ->join('course_papers', 'papers.id', '=', 'course_papers.id_paper')
+//                ->leftJoin('option_papers', 'answer_papers.id_option_paper', '=', 'option_papers.id')
+//                ->where('course_papers.id_online_center', 4)
+//                ->where('papers.type', 'استبيان')
+//                ->select(
+//                    'question_papers.id as question_id',
+//                    'question_papers.question',
+//                    'question_papers.select',
+//                    'papers.title',
+//                    'answer_papers.answer',
+//                    'option_papers.value as option'
+//                )
+//                ->get()
+//                ->groupBy('question_id');
+//
+//            $formattedAnswers = [];
+//
+//            foreach ($answers as $questionId => $group) {
+//                $answersArray = $group->map(function($item) {
+//                    return $item->answer ?? $item->option;
+//                })->all();
+//
+//                $formattedAnswers[$questionId] = [
+//                    'question_id' => $group[0]->question_id,
+//                    'question' => $group[0]->question,
+//                    'select' => $group[0]->select,
+//                    'answer' => $answersArray
+//                ];
+//            }
+//
+//            $title = $answers->first()[0]->title;
+//
+//            $response = [
+//                'title' => $title
+//            ];
+//
+//            $response = array_merge($response, $formattedAnswers);
+////////
+//            return response()->json($response);
+            $j='o';
+//            $answers = DB::table('answer_papers')
+//                ->join('question_papers', 'answer_papers.id_question_paper', '=', 'question_papers.id')
+//                ->join('papers', 'question_papers.id_paper', '=', 'papers.id')
+//                ->join('course_papers', 'papers.id', '=', 'course_papers.id_paper')
+//                ->leftJoin('option_papers', 'answer_papers.id_option_paper', '=', 'option_papers.id')
+//                ->where('course_papers.id_online_center', 4)
+//                ->where('papers.type', 'استبيان')
+//                ->select(
+//                    'question_papers.id as question_id',
+//                    'question_papers.question',
+//                    'question_papers.select',
+//                    'papers.title',
+//                    'answer_papers.answer',
+//                    'option_papers.value as option'
+//                )
+//                ->get()
+//                ->groupBy('question_id');
+//
+//            $formattedAnswers = [];
+//
+//            foreach ($answers as $questionId => $group) {
+//                $answersArray = $group->map(function($item) {
+//                    return $item->answer ?? $item->option;
+//                })->all();
+//
+//                $answerCounts = array_count_values($answersArray);
+//                $answersList = [];
+//
+//                foreach ($answerCounts as $answer => $count) {
+//                    if ($count > 1 && in_array($group[0]->select, ['قائمة منسدلة', 'خيار متعدد', 'مربعات اختيار'])) {
+//                        $answersList[] = $answer;
+//                        $answersList[] = $count;
+//                    } else {
+//                        $answersList[] = $answer;
+//                    }
+//                }
+//
+//                $formattedAnswers[$questionId] = [
+//                    'question_id' => $group[0]->question_id,
+//                    'question' => $group[0]->question,
+//                    'select' => $group[0]->select,
+//                    'answer' => $answersList
+//                ];
+//            }
+//
+//            $title = $answers->first()[0]->title;
+//
+//            $response = [
+//                'title' => $title
+//            ];
+//
+//            $response = array_merge($response, $formattedAnswers);
+//
+//            return response()->json($response);
+//
+
+
+            $answers = DB::table('answer_papers')
+                ->join('question_papers', 'answer_papers.id_question_paper', '=', 'question_papers.id')
+                ->join('papers', 'question_papers.id_paper', '=', 'papers.id')
+                ->join('course_papers', 'papers.id', '=', 'course_papers.id_paper')
+                ->leftJoin('option_papers', 'answer_papers.id_option_paper', '=', 'option_papers.id')
+                ->where('course_papers.id_online_center', 4)
+                ->where('papers.type', 'استبيان')
+                ->select(
+                    'question_papers.id as question_id',
+                    'question_papers.question',
+                    'question_papers.select',
+                    'papers.title',
+                    'answer_papers.answer',
+                    'option_papers.value as option'
+                )
+                ->get()
+                ->groupBy('question_id');
+
+            $formattedAnswers = [];
+
+            foreach ($answers as $questionId => $group) {
+                $answersArray = $group->map(function($item) {
+                    return $item->answer ?? $item->option;
+                })->all();
+
+                $answerCounts = array_count_values($answersArray);
+                $answersList = [];
+
+                foreach ($answerCounts as $answer => $count) {
+                    if ($count > 1 && in_array($group[0]->select, ['قائمة منسدلة', 'خيار متعدد', 'مربعات اختيار'])) {
+                        $answersList[] = [
+                            'value' => $answer,
+                            'num' => $count
+                        ];
+                    } else {
+                        $answersList[] = ['value' => $answer];
+                    }
+                }
+
+                $formattedAnswers[$questionId] = [
+                    'question_id' => $group[0]->question_id,
+                    'question' => $group[0]->question,
+                    'select' => $group[0]->select,
+                    'answer' => $answersList
+                ];
+            }
+
+            $title = $answers->first()[0]->title;
+
+            $response = [
+                'title' => $title
+            ];
+
+            $response = array_merge($response, $formattedAnswers);
+
+            return response()->json($response);
+
 
         } catch (\Exception $e) {
 

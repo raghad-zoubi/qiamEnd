@@ -32,6 +32,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
+Route::get('/num', [CourseExameController::class, 'generateNextSerialNumber']);
 Route::get('/reseve_notification', [FirbaseController::class, 'reseveNotification']);
 Route::get('/send', [FirbaseController::class, 'send'])->middleware('auth:sanctum');
 
@@ -132,6 +133,14 @@ Route::prefix("user")->group(function () {
 //      Route::post("answer",  [CoursePaperController::class, 'answer'])->middleware('auth:sanctum');;
 //    });
     });
+    Route::prefix("certificate")->group(function () {
+
+
+        Route::get("index",
+            [UserCertificateController::class, 'myCertificate']);
+
+    });
+
 
 });
 //bookingCourse
@@ -197,6 +206,7 @@ Route::prefix("paper")->controller(PaperController::class)->group(function () {
 
 });Route::prefix("paper")->controller(CoursePaperController::class)->group(function () {
     Route::get("displayUser/{id_user}/{id_online_center}", "displayPaperUser");
+    Route::get("displayPaper/{id_online_center}", "displayPaperCourse");
 
 
 });
@@ -281,7 +291,7 @@ group(function () {
     Route::post("create",  [CertificateController::class, 'create']);
     Route::get("index",  [CertificateController::class, 'index']);
     Route::get("delete/{id}",  [CertificateController::class, 'delete']);
-    Route::get("generateCertificate",  [UserCertificateController::class, 'generateCertificate']);
+    Route::get("index",  [UserCertificateController::class, 'index']);
 });
 //*****************************
 //Route::get("www/{id}",  [CoursController::class, 'displaydetils']);

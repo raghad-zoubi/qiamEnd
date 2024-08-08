@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
 
+namespace App\Http\Controllers\Exam;
+
+use App\Http\Controllers\Controller;
 use App\Models\Exame;
 use App\Models\Option;
 use App\Models\Question;

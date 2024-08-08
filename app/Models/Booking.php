@@ -33,6 +33,11 @@ class Booking extends Model
         return $this->belongsTo(Online_Center::class,"id_online_center","id")->
         with(['coursepaper','course']);
     }
+    public function booking2(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Online_Center::class,"id_online_center","id")->
+        with('course')->select();
+    }
     public function users(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class,"id_user","id")

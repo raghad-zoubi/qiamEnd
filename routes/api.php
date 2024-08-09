@@ -134,6 +134,11 @@ Route::prefix("user")->group(function () {
 //      Route::post("answer",  [CoursePaperController::class, 'answer'])->middleware('auth:sanctum');;
 //    });
     });
+    Route::prefix("reExam")->
+    group(function () {
+        Route::get("create/{id_online_center}",  [ReExamController::class, 'create']);
+
+    });
     Route::prefix("certificate")->group(function () {
 
 
@@ -296,7 +301,6 @@ group(function () {
     Route::get("all",  [UserCertificateController::class, 'index']);
 });Route::prefix("reExam")->
 group(function () {
-    Route::post("create",  [ReExamController::class, 'create']);
     Route::get("index",  [ReExamController::class, 'index']);
     Route::get("check",  [ReExamController::class, 'check']);
 

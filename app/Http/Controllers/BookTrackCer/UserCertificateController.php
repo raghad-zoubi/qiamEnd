@@ -73,8 +73,9 @@ class UserCertificateController extends Controller
                 'courses.name',
                 'user_certificate.certificate',
                 'user_certificate.id',
-                DB::raw('CASE WHEN online_centers.id_center IS NULL THEN "online" ELSE "center" END AS type')
-            )
+                DB::raw('CASE WHEN online_centers.id_center IS NULL THEN "أون لاين" ELSE "مركز" END AS type')
+                          ,DB::raw('DATE(user_certificate.created_at) as created_at')
+  )
             ->join('booking', 'booking.id', '=', 'user_certificate.id_booking')
             ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
             ->join('courses', 'courses.id', '=', 'online_centers.id_course')
@@ -83,7 +84,7 @@ class UserCertificateController extends Controller
 
 
 
-        return response()->json($responseData);
+        return response()->json(['data'=>$responseData]);
 
     }
 

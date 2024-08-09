@@ -22,6 +22,7 @@ use App\Models\Option;
 use App\Models\Paper;
 use App\Models\Profile;
 use App\Models\Question;
+use App\Models\ReExam;
 use App\Models\Reserve;
 use App\Models\Track;
 use App\Models\UserCertificate;
@@ -50,10 +51,9 @@ class CourseExameController extends Controller
         $this->imageProcessingService = $imageProcessingService;
 
     }
-
+//count
     public function showExamCourse($idOnlineCenter, $id_online)
     {
-        // Fetch the online center along with its related contents, videos, and exams
         $onlineCenter = Online_Center::with(['content.contentExam.videoExam.exam.questionexamwith'])
             ->find($idOnlineCenter);
         $online = Online::where('id', $id_online)->first();
@@ -311,6 +311,16 @@ class CourseExameController extends Controller
                     $booking->done = '1';
                     $booking->count = $booking->count + 1;
                     $booking->mark = $correctAnswers . '/' . $totalQuestions;
+                    if( ReExam::query()->
+                    where('id_online_center',$id_online_center)
+                        ->where('id_user',auth()->id())
+                        ->where('status','1')
+                        ->exists())
+                    {ReExam::query()->
+                    where('id_online_center',$id_online_center)
+                        ->where('id_user',auth()->id())
+                        ->where('status','1')
+                        ->delete();}
                     $booking->save();
                 } else {
                     $booking->done = '0';
@@ -318,6 +328,17 @@ class CourseExameController extends Controller
                     $booking->can = '0';
                     $booking->mark = $correctAnswers . '/' . $totalQuestions;
                     $booking->save();
+
+                   if( ReExam::query()->
+                   where('id_online_center',$id_online_center)
+                       ->where('id_user',auth()->id())
+                       ->where('status','1')
+                       ->exists())
+                   {ReExam::query()->
+                    where('id_online_center',$id_online_center)
+                        ->where('id_user',auth()->id())
+                        ->where('status','1')
+                        ->delete();}
                     $responseData['message'] = 'يرجى اعادة طلب تقديم امتحان';
                 }
 
@@ -388,7 +409,6 @@ class CourseExameController extends Controller
 
     }
 
-
     public function answerPollCourse(Request $request,$id_online_center)
     {
 
@@ -450,53 +470,6 @@ class CourseExameController extends Controller
         }
     }
 
-
-
-//
-//    public function generateCertificate1($course, $online, $booking)
-//    {
-//        $date = $booking->updated_at;
-//        $coursename = $course->name;
-//        $text = $course->text;
-//        $teacher = $course->teacher;
-//        $nameuser = Profile::where('id_user', auth()->id())->first();
-//        $director = Information::query()->get();
-//
-//        $image = Certificate::findOrFail(6)->first();
-//        $imagePath = public_path('Uploads/' . $image->photo);
-//        $texts = [
-//            ['text' => $date, 'x' => 680, 'y' => 250, 'size' => 24, 'color' => '#000000', 'font' => 'UrdType.ttf'],
-//            ['text' => 'تم منح شهادةإتمام مساق الى السيد/ السيدة:', 'x' => 470, 'y' => 280, 'size' => 24, 'color' => '#000000', 'font' => 'UrdType.ttf'],
-//            ['text' => $nameuser->name, 'x' => 650, 'y' => 320, 'size' => 28, 'color' => '#000000', 'font' => 'UrdType.ttf'],
-//            ['text' => 'وهو مساق مدته ثمانية أشهر من 01 كانون الثاني لغاية أيلول ', 'x' => 450, 'y' => 360, 'size' => 18, 'color' => '#000000', 'font' => 'UrdType.ttf'],
-//            ['text' => 'وهو مساق مدته ثمانية أشهر من 01 كانون الثاني لغاية أيلول ', 'x' => 450, 'y' => 380, 'size' => 18, 'color' => '#000000', 'font' => 'UrdType.ttf'],
-//            ['text' => '____________________________________________', 'x' => 350, 'y' => 420, 'size' => 18, 'color' => '#000000', 'font' => 'UrdType.ttf'],
-//            ['text' => 'مدير المركز', 'x' => 400, 'y' => 450, 'size' => 18, 'color' => '#000000', 'font' => 'UrdType.ttf'],
-//            ['text' => 'الدكتور محمد علي الملة', 'x' => 330, 'y' => 490, 'size' => 22, 'color' => '#000000', 'font' => 'UrdType.ttf'],
-//            ['text' => 'مدير الدبلوم', 'x' => 700, 'y' => 450, 'size' => 18, 'color' => '#000000', 'font' => 'UrdType.ttf'],
-//            ['text' => 'الاختصاصية رهف قرة حمود ', 'x' => 650, 'y' => 490, 'size' => 18, 'color' => '#000000', 'font' => 'UrdType.ttf'],
-//            ['text' => '_________________________________', 'x' => 480, 'y' => 550, 'size' => 18, 'color' => '#000000', 'font' => 'UrdType.ttf'],
-//            ['text' => '231', 'x' => 50, 'y' => 580, 'size' => 18, 'color' => '#000000', 'font' => 'UrdType.ttf'],
-//        ];
-//
-//        // Process the image to add text
-//
-//$processedImage = $this->imageProcessingService->addTextToImage($imagePath, $texts);
-//
-//        // Save the processed image to disk
-//        $outputPath = public_path('Uploads/' . $nameuser->id_user . '.jpg');
-//        file_put_contents($outputPath, $processedImage);
-//
-//        // Update the database with the path of the saved image
-//        $userCertificate = new UserCertificate();
-//        $userCertificate->id_booking = $booking->id;
-//        $userCertificate->certificate = 'file/' . $nameuser->id_user . '.jpg';
-//        $userCertificate->number = '2ssx1';
-//        $userCertificate->save();
-//
-//        // Return the processed image path as a response
-//        return $outputPath;
-//    }
     public function generateCertificate($id_online_center, $booking)
     {$number=$this->generateNextSerialNumber();
         $date = '$booking->updated_at';

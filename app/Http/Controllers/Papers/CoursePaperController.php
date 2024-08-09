@@ -88,6 +88,7 @@ dd('data');
                     'question_papers.question',
                     'question_papers.select',
                     'papers.title',
+                    'papers.description',
                     'answer_papers.answer',
                     'option_papers.value as option'
                 )
@@ -130,9 +131,11 @@ dd('data');
             }
 
             $title = $answers->first()[0]->title ?? 'Default Title';
+            $description = $answers->first()[0]->description ?? 'Default description';
 
             $response = [
-                'title' => $title
+                'title' => $title,
+                'description' => $description
             ];
 
             $response = array_merge($response, $formattedAnswers);

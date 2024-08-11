@@ -583,5 +583,42 @@ class CourseExameController extends Controller
     private function createSerial($lettersPart, $numberPart, $numberLength) {
         return $lettersPart . str_pad($numberPart, $numberLength, '0', STR_PAD_LEFT);
     }
+   ///admin
+    public function addMrakToUser(Request $request,$id_book)
+    {
+
+
+
+
+        $booking = Booking::where('id', $id_book)->first();
+
+        if ($booking) {
+            $userCertificate= UserCertificate::query()->
+            where('id_booking',$booking->id)->first();
+            if(!$userCertificate){
+                $booking->done = '1';
+                $booking->mark =  $request->mark;
+                $booking->can = '0';
+                $booking->save();
+                $user = $this->generateCertificate($booking->id_online_center, $booking);
+                DB::commit();
+                return response()->json([
+                    "message" => "done",
+                    "status" => "success",
+                ]);
+
+            }
+            else {
+                return response()->json([
+                    "message" =>' يملك شهادة لهذه الدورة  ',
+                    "status" => "success",
+                ]);
+            }
+
+        }
+        else  {
+            return response()->json(['error' => 'حدث خطا ما '], 404);
+        }
+    }
 
 }

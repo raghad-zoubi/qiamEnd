@@ -116,7 +116,7 @@ return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$pr
 
 
     }
-    public function check($id_reExam,$status)
+    public function check(Request $request ,$id_reExam)
     {
         if (ReExam::query()->where("id", $id_reExam)->exists()) {
             try {
@@ -124,7 +124,7 @@ return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$pr
 
                 $ad = ReExam::query()->where("id", $id_reExam)->first();
                 if ($ad ) {
-                    if ($status == '1') {
+                    if ($request->status == '1') {
                         $book = Booking::query()->
                         where("id_online_center", $ad->id_online_center)->
                         where("id_user", $ad->id_user)
@@ -134,9 +134,9 @@ return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$pr
                             ->where('count', '>=', '1')
                             ->first(); // Use firstOrFail() if you want an exception on no results
                         if ($book != null) {
-                            $ad->status = ($status);
+                            $ad->status = ($request->status);
                             $ad->save();
-                            $book->can = ($status);
+                            $book->can = ($request->status);
                             $book->save();
 
                             DB::commit();
@@ -156,7 +156,7 @@ return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$pr
                         if ($book != null) {
 
                             // Use firstOrFail() if you want an exception on no results
-                            $book->can = ($status);
+                            $book->can = ($request->status);
                             $book->save();
                             DB::commit();
                             return MyApp::Json()->dataHandle("unreExam successfully", "date");

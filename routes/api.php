@@ -238,6 +238,7 @@ Route::prefix("exam")->controller(ExameController::class)->group(function () {
     Route::get("index", "index");
     Route::get("show/{id}", "show");
     Route::get("delete/{id}", "delete");
+
 });
 //------------
 Route::prefix("adviser")->controller(AdviserController::class)->group(function () {
@@ -302,7 +303,13 @@ group(function () {
 });Route::prefix("reExam")->
 group(function () {
     Route::get("index",  [ReExamController::class, 'index']);
-    Route::get("check/{id_reExam}/{status}",  [ReExamController::class, 'check']);
+    Route::get("check/{id_reExam}",  [ReExamController::class, 'check']);
+
+});Route::prefix("exam")->
+group(function () {
+
+    Route::post("addMark/{id_book}",
+        [CourseExameController::class, 'addMrakToUser']);
 
 });
 //*****************************

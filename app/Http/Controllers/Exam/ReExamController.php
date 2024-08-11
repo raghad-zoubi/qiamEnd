@@ -21,46 +21,42 @@ class ReExamController extends Controller
     }
     public function index()
     {
-       // $responseData =
-//            DB::table('re_exams')
-//            ->select(
-//                're_exams.*',
-//                'booking.count',
-//
-//                'profiles.name as profile_name',
-//                'profiles.lastName as profile_lastname',
-//                'courses.name as course_name',
-//                DB::raw('CASE WHEN online_centers.id_center IS NULL THEN "online" ELSE "center" END AS type'),
-//                DB::raw('DATE(online_centers.created_at) as created_at') // Format created_at
-//            )
-//            ->join('booking', 'booking.id', '=', 're_exams.id_booking')
-//            ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
-//            ->join('courses', 'courses.id', '=', 'online_centers.id_course')
-//            ->join('profiles', 'profiles.id_user', '=', 'booking.id_user')
-//            ->where('re_exams.status', '=',0) // Adjust this condition as needed
-//            ->get();
-        $responseData = DB::table('re_exams')
-            ->select(
-                're_exams.*',
-                'profiles.name as profile_name',
-                'profiles.lastName as profile_lastname',
-                'courses.name as course_name',
-                DB::raw('CASE WHEN online_centers.id_center IS NULL THEN "online" ELSE "center" END AS type'),
-                DB::raw('DATE(online_centers.created_at) as created_at')
-            )
+        try {
+            DB::beginTransaction();
+
+        $result = DB::table('re_exams') // Specify the main table
+        ->select(
+            're_exams.id as id',
+            'booking.id as id_book',
+            'profiles.name as user_name',
+            'profiles.lastName as user_lastname',
+            'courses.name as course_name',
+            'booking.count as count',
+            DB::raw('DATE(online_centers.created_at) as created_at')
+        )
             ->join('booking', function($join) {
                 $join->on('booking.id_user', '=', 're_exams.id_user')
-                    ->where('booking.id_online_center', '=', 're_exams.id_online_center');
+                    ->on('booking.id_online_center', '=', 're_exams.id_online_center'); // Added semicolon
             })
             ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
             ->join('courses', 'courses.id', '=', 'online_centers.id_course')
             ->join('profiles', 'profiles.id_user', '=', 'booking.id_user')
             ->get();
 
+            DB::commit();
+            return MyApp::Json()->dataHandle($result);
+        }catch (\Exception $e) {
 
-        return response()->json($responseData);
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
 
-    }
+
+
+return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
+
+
+}
     public function create($id_online_center)
     {
 
@@ -126,28 +122,9 @@ class ReExamController extends Controller
             try {
                 DB::beginTransaction();
 
-                $ad = ReExam::where("id", $id_reExam)->first();
+                $ad = ReExam::query()->where("id", $id_reExam)->first();
                 if ($ad ) {
-                    if($status=='1'){
-                        $book = Booking::query()->
-                        where("id_online_center", $ad->id_online_center)->
-                        where("id_user", $ad->id_user)
-                       ->where('can', '0')
-                       ->where('done', '0')
-                       ->where('status', '1')
-                        ->where('count', '>=', '1')
-                        ->first(); // Use firstOrFail() if you want an exception on no results
-
-                        $ad->status = ($status);
-                        $ad->save();
-                        $book->can = ($status);
-                        $ad->save();
-
-                        DB::commit();
-                        return MyApp::Json()->dataHandle("reExam successfully", "date");
-                    }
-                    else{
-                        $ad = ReExam::query()->where("id", $id_reExam)->delete();
+                    if ($status == '1') {
                         $book = Booking::query()->
                         where("id_online_center", $ad->id_online_center)->
                         where("id_user", $ad->id_user)
@@ -156,11 +133,40 @@ class ReExamController extends Controller
                             ->where('status', '1')
                             ->where('count', '>=', '1')
                             ->first(); // Use firstOrFail() if you want an exception on no results
-                        $book->can = (status);
-                        $ad->save();
-                        DB::commit();
-                        return MyApp::Json()->dataHandle("unreExam successfully", "date");
-                    }}
+                        if ($book != null) {
+                            $ad->status = ($status);
+                            $ad->save();
+                            $book->can = ($status);
+                            $book->save();
+
+                            DB::commit();
+                            return MyApp::Json()->dataHandle("reExam successfully", "date");
+                        } else
+                            return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
+
+                    } else {
+                        $book = Booking::query()->
+                        where("id_online_center", $ad->id_online_center)->
+                        where("id_user", $ad->id_user)
+                            ->where('can', '0')
+                            ->where('done', '0')
+                            ->where('status', '1')
+                            ->where('count', '>=', '1')
+                            ->first();
+                        if ($book != null) {
+
+                            // Use firstOrFail() if you want an exception on no results
+                            $book->can = ($status);
+                            $book->save();
+                            DB::commit();
+                            return MyApp::Json()->dataHandle("unreExam successfully", "date");
+                        } else
+                            return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
+
+                    }
+                }
+             else
+                 return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
 
             } catch (\Exception $e) {
 

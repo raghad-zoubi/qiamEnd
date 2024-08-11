@@ -302,7 +302,7 @@ group(function () {
 });Route::prefix("reExam")->
 group(function () {
     Route::get("index",  [ReExamController::class, 'index']);
-    Route::get("check",  [ReExamController::class, 'check']);
+    Route::get("check/{id_reExam}/{status}",  [ReExamController::class, 'check']);
 
 });
 //*****************************

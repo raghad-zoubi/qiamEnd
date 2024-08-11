@@ -238,7 +238,7 @@ class OnlineController extends Controller
             ]);
 
             if ($request->has('id_form')) {
-                if(id_form!=null)
+                if( $request->id_form!=null)
                 CoursePaper::create([
                     "id_online_center" => $onlinecenter->id,
                     "id_paper" => $request->id_form,
@@ -247,7 +247,7 @@ class OnlineController extends Controller
 
 
             if ($request->has('id_poll')) {
-                if(id_poll!=null)
+                if( $request->id_poll!=null)
                     CoursePaper::create([
                     "id_online_center" => $onlinecenter->id,
                     "id_paper" => $request->id_poll,

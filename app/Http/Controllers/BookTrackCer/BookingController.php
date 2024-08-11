@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Http\Controllers\BookTrackCer;
-
+use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\IndexNewBooking;
 use App\Http\Resources\IndexOkBooking;
 use App\Models\AnswerPaper;
 use App\Models\Booking;
+use App\Models\Center;
 use App\Models\Content;
 use App\Models\CoursePaper;
 use App\Models\Information;
@@ -170,35 +171,77 @@ class BookingController extends Controller
 
             }else {
                 DB::beginTransaction();
+                $online_center = Online_Center::where([
+                    'id' => $id,
+                ])->first();
+                if ($online_center != null) {
 
-                $isopen =
-                    Online::query()
-                        ->whereHas('onlineCenters', function ($query) use ($id) {
-                            $query->where('id', $id);
-                        })->select('isopen')->
-                        get();
-                if ($isopen[0]['isopen'] == '1') {
+                    if ($online_center->id_online != null) {
+                        $isopen =
+                            Online::query()
+                                ->whereHas('onlineCenters', function ($query) use ($id) {
+                                    $query->where('id', $id);
+                                })->select('isopen')->
+                                get();
+                        if ($isopen[0]['isopen'] == '1') {
 
-                    $questionsWithOptions = Paper::
-                    with('questionpaperwith'
-                    )->whereHas('coursepaper', function ($query) use ($id) {
-                        $query->where('id_online_center', $id);
-                    })->where("type", "استمارة")->
-                    get();
-
-
-                    DB::commit();
-
-//            return MyApp::Json()->dataHandle($questionsWithOptions, "paper");
-                    return MyApp::Json()->dataHandle($questionsWithOptions);
-                } else
+                            $questionsWithOptions = Paper::
+                            with('questionpaperwith'
+                            )->whereHas('coursepaper', function ($query) use ($id) {
+                                $query->where('id_online_center', $id);
+                            })->where("type", "استمارة")->
+                            get();
 
 
-                    DB::commit();
+                            DB::commit();
 
 //            return MyApp::Json()->dataHandle($questionsWithOptions, "paper");
-                return MyApp::Json()->dataHandle('غير متاح للحجز حاليا', "data");
-            }  } catch (\Exception $e) {
+                            return MyApp::Json()->dataHandle($questionsWithOptions);
+                        } else {
+
+
+                            DB::commit();
+                            return MyApp::Json()->dataHandle('غير متاح للحجز حاليا', "data");
+                        }
+                    }
+                    else
+                        if ($online_center->id_center != null) {
+                            $mytime = Carbon::now();
+                        $can = Center::query()
+                            ->where('id', $online_center->id_center)
+                            ->where('start', '<',  $mytime->toDateTimeString())
+                            ->where('end', '>', $mytime->toDateTimeString())
+                            ->first();
+                        if ($can!=null) {
+
+                            $questionsWithOptions = Paper::
+                            with('questionpaperwith'
+                            )->whereHas('coursepaper', function ($query) use ($id) {
+                                $query->where('id_online_center', $id);
+                            })->where("type", "استمارة")->
+                            get();
+
+
+                            DB::commit();
+
+                            return MyApp::Json()->dataHandle($questionsWithOptions);
+                        } else {
+
+
+                            DB::commit();
+                            return MyApp::Json()->dataHandle('غير متاح للحجز حاليا', "data");
+                        }
+
+                    }
+
+                }
+
+
+            else
+                return MyApp::Json()->dataHandle('حدث خطا يرجى المحاولة لاحقا', "data");
+
+
+            } } catch (\Exception $e) {
 
             DB::rollBack();
             throw new \Exception($e->getMessage());
@@ -213,87 +256,175 @@ class BookingController extends Controller
     public function create(Request $request, $id)
     {
 
-        $rate = Booking::where([
-            'id_online_center' => $id,
-            'id_user' => Auth::id()
-        ])->first();
+        try {
+            $rate = Booking::where([
+                'id_online_center' => $id,
+                'id_user' => Auth::id()
+            ])->first();
 
-   if (!is_null($rate)) {
+            if (!is_null($rate)) {
                 return MyApp::Json()->dataHandle('أنت تملك حجز مسبقا', "data");
 
-        }
-        else {
+            }
+            else {
+                DB::beginTransaction();
+                $online_center = Online_Center::where([
+                    'id' => $id,
+                ])->first();
+                if ($online_center != null) {
 
-            $isopen = Online::query()
-                ->whereHas('onlineCenters', function ($query) use ($id) {
-                    $query->where('id', $id);
-                })->select('isopen')->
-                get();
-            if ($isopen[0]['isopen'] == '0') {
-                return MyApp::Json()->dataHandle('غير متاح للحجز حاليا', "data");
+                    if ($online_center->id_online != null) {
+                        $isopen = Online::query()
+                            ->whereHas('onlineCenters', function ($query) use ($id) {
+                                $query->where('id', $id);
+                            })->select('isopen')->
+                            get();
+                        if ($isopen[0]['isopen'] == '0') {
+                            return MyApp::Json()->dataHandle('غير متاح للحجز حاليا', "data");
+
+                        } else if ($isopen[0]['isopen'] == '1') {
+                            $ispapper = CoursePaper::query()
+                                ->where('id_online_center', $id)
+                                ->exists();
+//
+                            if ($ispapper) {
+                                foreach ($request->options as $item) {
+                                    if ($item != null) {
+                                        DB::beginTransaction();
+
+                                        foreach ($request->options as $item) {
+                                            AnswerPaper::create([
+                                                "id_user" => auth()->id(),
+                                                "answer" => $item['answer'],
+                                                "id_question_paper" => $item['id_question_paper'],
+                                                "id_option_paper" => $item['id_option_paper']
+                                            ]);
+                                        }
+                                        Booking::create([
+                                            'id_online_center' => $id,
+                                            'mark' => 0,
+                                            'done' => 0,
+                                            'status' => 0,
+                                            'id_user' => Auth::id()
+                                        ]);
+                                        DB::commit();
+                                        return response()->json([
+                                            "message" => "done",
+                                            "status" => "success",
+                                        ]);
+                                        return MyApp::Json()->dataHandle('success', "data");
+
+                                    } else {
+//                     dd($request["options"]);
+                                        return MyApp::Json()->dataHandle('يرجى تعبئة الاستمارة', "data");
+                                    }
+                                }
+                            } else if (!$ispapper) {
+                                DB::beginTransaction();
+
+                                Booking::create([
+                                    'id_online_center' => $id,
+                                    'mark' => 0,
+                                    'done' => 0,
+                                    'status' => 0,
+                                    'id_user' => Auth::id()
+                                ]);
+                                return response()->json([
+                                    "message" => "done",
+                                    "status" => "success",
+                                ]);
+                            } else {
+                                return MyApp::Json()->dataHandle('حدث خطا يرجى المحاولة لاحقا', "data");
+
+                            }
+                        }
+                    } else
+
+                        if ($online_center->id_center != null) {
+                            $mytime = Carbon::now();
+                            $can = Center::query()
+                                ->where('id', $online_center->id_center)
+                                ->where('start', '<', $mytime->toDateTimeString())
+                                ->where('end', '>', $mytime->toDateTimeString())
+                                ->first();
+                            if ($can != null) {
+                                $ispapper = CoursePaper::query()
+                                    ->where('id_online_center', $id)
+                                    ->exists();
+//
+                                if ($ispapper) {
+                                    foreach ($request->options as $item) {
+                                        if ($item != null) {
+                                            DB::beginTransaction();
+
+                                            foreach ($request->options as $item) {
+                                                AnswerPaper::create([
+                                                    "id_user" => auth()->id(),
+                                                    "answer" => $item['answer'],
+                                                    "id_question_paper" => $item['id_question_paper'],
+                                                    "id_option_paper" => $item['id_option_paper']
+                                                ]);
+                                            }
+                                            Booking::create([
+                                                'id_online_center' => $id,
+                                                'mark' => 0,
+                                                'done' => 0,
+                                                'status' => 0,
+                                                'id_user' => Auth::id()
+                                            ]);
+                                            DB::commit();
+                                            return response()->json([
+                                                "message" => "done",
+                                                "status" => "success",
+                                            ]);
+                                            return MyApp::Json()->dataHandle('success', "data");
+
+                                        } else {
+                                            return MyApp::Json()->dataHandle('يرجى تعبئة الاستمارة', "data");
+                                        }
+                                    }
+                                }
+                                else if (!$ispapper) {
+                                    DB::beginTransaction();
+
+                                    Booking::create([
+                                        'id_online_center' => $id,
+                                        'mark' => 0,
+                                        'done' => 0,
+                                        'status' => 0,
+                                        'id_user' => Auth::id()
+                                    ]);
+                                    return response()->json([
+                                        "message" => "done",
+                                        "status" => "success",
+                                    ]);
+                                } else {
+                                    return MyApp::Json()->dataHandle('حدث خطا يرجى المحاولة لاحقا', "data");
+
+                                }
+                            }
+                            else {
+                                return MyApp::Json()->dataHandle('غير متاح للحجز حاليا', "data");
+
+                            }
+                        }
+
+                } else
+                    return MyApp::Json()->dataHandle('حدث خطا يرجى المحاولة لاحقا', "data");
 
             }
-            else if ($isopen[0]['isopen'] == '1') {
-                $ispapper = CoursePaper::query()
-                    ->where('id_online_center', $id)
-                    ->exists();
-//
-       if ($ispapper )
-                {
-           foreach ($request->options as $item) {
-               if ($item!=null){
-                   DB::beginTransaction();
 
-                   foreach ($request->options as $item) {
-                       AnswerPaper::create([
-                           "id_user" => auth()->id(),
-                           "answer" => $item['answer'],
-                           "id_question_paper" => $item['id_question_paper'],
-                           "id_option_paper" => $item['id_option_paper']
-                       ]);
-                   }
-                   Booking::create([
-                       'id_online_center' => $id,
-                       'mark' => 0,
-                       'done' => 0,
-                       'status' => 0,
-                       'id_user' => Auth::id()
-                   ]);
-                   DB::commit();
-                   return response()->json([
-                       "message" => "done",
-                       "status" => "success",
-                   ]);
-                   return MyApp::Json()->dataHandle('success', "data");
+        }catch (\Exception $e) {
 
-               } else {
-//                     dd($request["options"]);
-                   return MyApp::Json()->dataHandle('يرجى تعبئة الاستمارة', "data");
-               }
-           }
-                }
+                DB::rollBack();
+                throw new \Exception($e->getMessage());
+            }
 
-                else if (!$ispapper ){
-                    DB::beginTransaction();
 
-                    Booking::create([
-                        'id_online_center' => $id,
-                        'mark' => 0,
-                        'done' => 0,
-                        'status' => 0,
-                        'id_user' => Auth::id()
-                    ]);
-                    return response()->json([
-                        "message" => "done",
-                        "status" => "success",
-                    ]);
-                }
-else{
-    return MyApp::Json()->dataHandle('حدث خطا يرجى المحاولة لاحقا', "data");
+        return MyApp::Json()->errorHandle("paper", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
 
-}            }
-        }
+    }
+
 
 
     }
-}

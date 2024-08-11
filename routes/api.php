@@ -303,7 +303,7 @@ group(function () {
 });Route::prefix("reExam")->
 group(function () {
     Route::get("index",  [ReExamController::class, 'index']);
-    Route::get("check/{id_reExam}",  [ReExamController::class, 'check']);
+    Route::post("check/{id_reExam}",  [ReExamController::class, 'check']);
 
 });Route::prefix("exam")->
 group(function () {

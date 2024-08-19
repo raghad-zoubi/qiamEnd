@@ -5,14 +5,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Profile;
 use App\Models\User;
 use App\MyApplication\MyApp;
-use App\MyApplication\Role;
 use App\MyApplication\Services\FileRuleValidation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-
 
 class EmployeeController extends Controller
 {
@@ -23,38 +21,51 @@ class EmployeeController extends Controller
 
     public function index()
     {
+        try {
+            $user = User::where('role', '1')->get(['email as name', 'id']);
+            return MyApp::Json()->dataHandle($user);
+        } catch (\Exception $e ) {
+            // Log the error or handle it as needed
+            return response()->json(['error' => 'حدث خطا ما .'], 500);
+        }
+    }
 
-        $user= User::where('role', '1')->get(['email as name', 'id']);
-
-        return MyApp::Json()->dataHandle($user);
-}
-   public function indexAll()
+    public function indexAll()
     {
-        $users = User::query()
-            ->where('role', '!=', '2') // Fetch only the necessary fields
-            ->get(['email', 'remember_token', 'role','id']); // Fetch only the necessary fields
+        DB::beginTransaction();
 
-        $transformedUsers = $users->map(function ($user) {
-            if ($user->role == '1') {
-                return [
-                    'name' => $user->email,
-                    'password' => $user->remember_token,
-                    'id' => $user->id,
-                    'role' => 'موظف', // 'موظف' means 'employee'
-                ];
-            } elseif ($user->role == '0') {
-                return [
-                    'name' => $user->email,
-                    'password' => $user->remember_token,
-                    'id' => $user->id,
-                    'role' => 'مدير', // 'مدير' means 'manager'
-                ];
-            }
+        try {
+            $users = User::query()
+                ->where('role', '!=', '2') // Fetch only the necessary fields
+                ->get(['email', 'remember_token', 'role', 'id']); // Fetch only the necessary fields
 
-            return $user; // In case the role is neither 0 nor 1, return the user as is
-        });
+            $transformedUsers = $users->map(function ($user) {
+                if ($user->role == '1') {
+                    return [
+                        'name' => $user->email,
+                        'password' => $user->remember_token,
+                        'id' => $user->id,
+                        'role' => 'موظف', // 'موظف' means 'employee'
+                    ];
+                } elseif ($user->role == '0') {
+                    return [
+                        'name' => $user->email,
+                        'password' => $user->remember_token,
+                        'id' => $user->id,
+                        'role' => 'مدير', // 'مدير' means 'manager'
+                    ];
+                }
 
-        return MyApp::Json()->dataHandle($transformedUsers);
+                return $user; // In case the role is neither 0 nor 1, return the user as is
+            });
+
+            DB::commit(); // Commit the transaction
+            return MyApp::Json()->dataHandle($transformedUsers);
+        } catch (\Exception $e ) {
+            DB::rollBack(); // Rollback the transaction on error
+            // Log the error or handle it as needed
+            return response()->json(['error' => 'حدث خطا ما .'], 500);
+        }
     }
 
     public function create(Request $request)
@@ -135,7 +146,7 @@ class EmployeeController extends Controller
                     $p->save();
                 }
                 DB::commit();
-                return MyApp::Json()->dataHandle("edit successfully", "data");
+                return MyApp::Json()->dataHandle("تم التعديل بنجاح", "data");
             } catch (\Exception $e) {
 
                 DB::rollBack();
@@ -208,12 +219,33 @@ class EmployeeController extends Controller
 
 
     }
+
     public function fcmToken(Request $request)
     {
-        $user = User::find(auth()->id());
-        $user->update(['fcm_token' => $request->fcm_token]);
-        return response()->json('تم تحديث FCM بنجاح', 200);
+        // Validate the incoming request
+        $request->validate([
+            'fcm_token' => 'required|string',
+        ]);
+
+        try {
+            $user = User::find(auth()->id());
+
+            if (!$user) {
+                return response()->json(['error' => 'لم يتم ايجاد المستخدم.'], 404);
+            }
+
+            $user->update(['fcm_token' => $request->fcm_token]);
+
+            return response()->json('تم تحديث FCM بنجاح', 200);
+        } catch (\Exception $e) {
+            // Log the error or handle it as needed
+            return response()->json(['error' => 'حدث خطا ما .'], 500);
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            return response()->json(['error' => 'حدث خطا ما .'], 500);
+        }
     }
+
 
 
 }

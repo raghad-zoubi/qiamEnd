@@ -12,6 +12,7 @@ use App\Models\Question;
 use App\Models\UserCertificate;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use App\Services\ImageProcessingService;
@@ -56,7 +57,6 @@ class UserCertificateController extends Controller
             ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
             ->join('courses', 'courses.id', '=', 'online_centers.id_course')
             ->join('profiles', 'profiles.id_user', '=', 'booking.id_user')
-            //->where('booking.id_user', 1) // Adjust this condition as needed
             ->get();
 
         return response()->json($responseData);
@@ -79,7 +79,7 @@ class UserCertificateController extends Controller
             ->join('booking', 'booking.id', '=', 'user_certificate.id_booking')
             ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
             ->join('courses', 'courses.id', '=', 'online_centers.id_course')
-            ->where('booking.id_user', 1)
+            ->where('booking.id_user', Auth::id())
             ->get();
 
 

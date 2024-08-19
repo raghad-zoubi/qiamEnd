@@ -3,23 +3,33 @@
 namespace App\Http\Controllers\auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\NotifactionController;
+use App\Http\Controllers\UserController;
 use App\Models\File;
 use App\Models\Profile;
+use App\Models\User;
 use App\MyApplication\MyApp;
 use App\MyApplication\Services\FileRuleValidation;
 use App\MyApplication\Services\ProfileRuleValidation;
+use App\Notifications\Accept;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Notification;
+use App\Services\FirebaseNotificationService;
 /**
  * @property ProfileController rules
  */
 class ProfileController extends Controller
 {
 
-    public function __construct()
+
+    protected $firebaseNotificationService;
+
+    public function __construct(FirebaseNotificationService $firebaseNotificationService)
     {
+        $this->firebaseNotificationService = $firebaseNotificationService;
+
 //        $this->middleware(["auth:sanctum","multi.auth:2"])->except('displayprofile');
 //        $this->middleware(["auth:sanctum","multi.auth:0|1"])->only('displayprofile');
         $this->middleware(["auth:sanctum"]);
@@ -68,8 +78,21 @@ class ProfileController extends Controller
                 DB::beginTransaction();
                 $profileGet = Profile::where(
                     "id_user", auth()->id())->get();
+                $users = User::where('id', auth()->id())->get()->first();
+               $user = User::find($users);
+                $fcmToken = $users->fcm_token;
+
+                $user->pushNotification('auth()->user()->name'.'send you massage',"message->body","message");
+
+
+
+
+
+
+
                 DB::commit();
-                return MyApp::Json()->dataHandle($profileGet, "profile");
+                return MyApp::Json()->dataHandle($profileGet);
+
             } catch (\Exception $e) {
 
                 DB::rollBack();

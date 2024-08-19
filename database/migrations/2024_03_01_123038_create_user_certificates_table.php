@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('user_certificate', function (Blueprint $table) {
             $table->id();
             $table->text("certificate")->nullable();//constrained("certificates")->cascadeOnDelete();
-            $table->foreignId("id_booking")->constrained("booking")->cascadeOnDelete();
+            $table->foreignId("id_online_center")->constrained("online_centers")->cascadeOnDelete();
+            $table->foreignId("id_user")->constrained("users")->cascadeOnDelete();
             $table->string("number")->unique();
 
             $table->timestamps();

@@ -150,6 +150,7 @@ class ReserveController extends Controller
                 $dateGet = Reserve::with('reserve2')->
                 where("status", '1')->
                 where("id_user", auth()->id())->
+
                 orderBy(
                     "updated_at", 'asc')->
                 get();
@@ -162,6 +163,7 @@ class ReserveController extends Controller
             else   if($type=='uncom') {
                 $dateGet = Reserve::with('reserve2')->
                 where("id_user", auth()->id())->
+
                 where("status", '0')->
                 orderBy(
                     "updated_at", 'asc')->

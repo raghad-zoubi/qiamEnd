@@ -26,6 +26,10 @@ class Online_Center extends Model
     ];
     protected $hidden = ["created_at","updated_at"];
 
+    public function certificate()
+    {
+        return $this->HasMany(UserCertificate::class, "id_user", "id");
+    }
     public function favorite()
     {
         return $this->HasMany(Favorite::class, "id_user", "id");

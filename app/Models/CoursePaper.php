@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @method static where(string $string, $id_online_center)
+ * @method static create(array $array)
  */
 class CoursePaper extends Model
 {

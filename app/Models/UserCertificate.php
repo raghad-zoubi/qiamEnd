@@ -14,17 +14,19 @@ class UserCertificate extends Model
 {
 
     protected $table ='user_certificate';
-    protected $fillable = [  "certificate", "id_booking" ,"id","number","created_at","updated_at"
+    protected $fillable = [  "certificate", "id_user", "id_online_center" ,"id","number","created_at","updated_at"
     ];
     protected $hidden = [];
 
-    public function book()
+    public function certificate(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Booking::class,'id_booking');
+        return $this->belongsTo(
+            Online_Center::class,"id_online_center","id")->withDefault();
     }
-    public function book2()
+    public function users(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Booking::class,'id_booking')
-            ->with(['users','booking2']);
+        return $this->belongsTo(User::class,"id_user","id")->withDefault();
     }
+
+
 }

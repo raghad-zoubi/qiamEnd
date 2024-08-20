@@ -31,13 +31,15 @@ use App\Http\Controllers\StatisticController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+Route::get('/send-notification', [FirbaseController::class, 'sendNotification'])
+    ->middleware('auth:sanctum');
 
+//////////////////
 
 Route::get('/num', [CourseExameController::class, 'generateNextSerialNumber']);
 Route::get('/reseve_notification', [FirbaseController::class, 'reseveNotification']);
 Route::get('/send', [FirbaseController::class, 'send'])->middleware('auth:sanctum');
 
-Route::post('/send-notification', [FirbaseController::class, 'sendNotification']);
 Route::post('/framep', [ContentController::class, 'extractFrame']);
 Route::get('/frameg/{video_path}', [ContentController::class, 'extractFrameg']);
 Route::get('/converto', [ContentController::class, 'convertVideo']);

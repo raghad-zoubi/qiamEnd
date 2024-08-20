@@ -35,7 +35,7 @@ class CoursController extends Controller
 {
     public function __construct()
     {
-       // $this->middleware(["auth:sanctum"]);//, "multi.auth:2|1|0"]);
+       $this->middleware(["auth:sanctum"]);//, "multi.auth:2|1|0"]);
         $this->rules = new CoursesRuleValidation();
     }
 

@@ -38,7 +38,7 @@ use App\Models\Date;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
-
+use function PHPUnit\Framework\isNull;
 
 
 /**
@@ -238,7 +238,7 @@ class OnlineController extends Controller
             ]);
 
             if ($request->has('id_form')) {
-                if( $request->id_form!=null)
+                if( !isNull($request->id_form))
                 CoursePaper::create([
                     "id_online_center" => $onlinecenter->id,
                     "id_paper" => $request->id_form,
@@ -247,7 +247,8 @@ class OnlineController extends Controller
 
 
             if ($request->has('id_poll')) {
-                if( $request->id_poll!=null)
+                if( !isNull($request->id_poll))
+                    //marks' => $this['mark'] ?? null,
                     CoursePaper::create([
                     "id_online_center" => $onlinecenter->id,
                     "id_paper" => $request->id_poll,
@@ -475,8 +476,11 @@ class OnlineController extends Controller
                 $join->on('online_centers.id', '=', 'subquery.id');
             })
                 ->whereIn('online_centers.id', $bookinOnlineCenterIds) // Only fetch bookin courses
-                ->with(['course', 'center'])
+                ->with(['course', 'center','certificate'])
+
                 ->get();
+
+
 
             return response()->json([
                 'data' => AllCourses::collection($courses),

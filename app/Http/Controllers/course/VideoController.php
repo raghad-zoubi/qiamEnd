@@ -36,7 +36,7 @@ class VideoController extends Controller
         }
         else {
             $id_online_center=Content::query()->where('id',$video->id_content)->first();
-       $booking = Booking::query()->where([
+            $booking = Booking::query()->where([
                 'id_online_center' => $id_online_center->id_online_center,
                 'id_user' => Auth::id(),
                 'status' => "1",
@@ -47,10 +47,10 @@ class VideoController extends Controller
                     "data" => "Unauthorized access to video"
                 ]);    }
             else {
-                     if ($track=Track::query()
-                         ->where('id_booking',$booking->id)
-                         ->where('id_video', $id_video)->
-                         exists())
+                if ($track=Track::query()
+                    ->where('id_booking',$booking->id)
+                    ->where('id_video', $id_video)->
+                    exists())
                 {
                     $video_data = Video::query()->
                     where('id', $id_video)->select([
@@ -61,71 +61,75 @@ class VideoController extends Controller
 
                     ]);
                 }
-                 else {
-                     if ($video->rank == '0') {
-                         $video_data = Video::query()->
-                         where('id', $id_video)->select([
-                             "id", "id_content", "name", "duration", "video",
-                         ])->get();
-                         $addvideo=Track::query()->create([
-                              'id_video'=>$id_video,
-                             'id_booking'=>$booking->id,
-                              'endTime'=>'00:00:00',
-                              'done'=>'0',
-                          ]);
+                else {
+                    if ($video->rank == '0') {
+                        $video_data = Video::query()->
+                        where('id', $id_video)->select([
+                            "id", "id_content", "name", "duration", "video",
+                        ])->get();
+                        $addvideo=Track::query()->create([
+                            'id_video'=>$id_video,
+                            'id_booking'=>$booking->id,
+                            'endTime'=>'00:00:00',
+                            'done'=>'0',
+                        ]);
 
-                         return response()->json([
-                             "data" => $video_data
+                        return response()->json([
+                            "data" => $video_data
 
-                         ]);
-                     }
-                     else if ($video->rank != '0') {
-                         $rank = $video->rank - 1;
-                         $v = Video::query()->where('id_content', $video->id_content)
-                             ->where('rank', $rank)
-                             ->first();
+                        ]);
+                    }
+                    else if ($video->rank != '0') {
+                        $rank = $video->rank - 1;
+                        $v = Video::query()->where('id_content', $video->id_content)
+                            ->where('rank', $rank)
+                            ->first();
 
-                         if ($v) {
+                        if ($v) {
 
-                             $can = Track::query()->where('id_booking', $booking->id)
-                                 ->where('done', '1')
-                                 ->where('id_video', $v->id)
-                                 ->exists();
-                             if ($can) {
-                                 $video_data = Video::query()->
-                                 where('id', $id_video)->select([
-                                     "id", "id_content", "name", "duration", "video",
-                                 ])->get();
+                            $can = Track::query()->where('id_booking', $booking->id)
+                                ->where('done', '1')
+                                ->where('id_video', $v->id)
+                                ->exists();
+                            if ($can) {
+                                $video_data = Video::query()->
+                                where('id', $id_video)->select([
+                                    "id", "id_content", "name", "duration", "video",
+                                ])->get();
 
-                                 $addvideo=Track::query()->create([
-                                     'id_video'=>$id_video,
-                                     'id_booking'=>$booking->id,
-                                     'endTime'=>'00:00:00',
-                                     'done'=>'0',
-                                 ]);
+                                $addvideo=Track::query()->create([
+                                    'id_video'=>$id_video,
+                                    'id_booking'=>$booking->id,
+                                    'endTime'=>'00:00:00',
+                                    'done'=>'0',
+                                ]);
 
-                                 return response()->json([
-                                     "data" => $video_data
+                                return response()->json([
+                                    "data" => $video_data
 
-                                 ]);
+                                ]);
 
-                             } else {
-                                 return response()->json([
-                                     "data" => "Unauthorized access to video"
-                                 ]);
-                             }
+                            } else {
+                                return response()->json([
+                                    "data" => "Unauthorized access to video"
+                                ]);
+                            }
 
-                         }
+                        }
 
 
-                     }
-                 }
+                    }
+                }
             }
         }
         return response()->json([
             "data" => "حدث خطا ما اعد المحاولة لاحقا"]);
 
     }
+
+
+
+
     public function afterVideo($id_video,$endTime)
     {
         $video = Video::query()->where('id', $id_video)->first();
@@ -155,7 +159,7 @@ class VideoController extends Controller
                         if ($endTime >= $video->duration)
                             $done = '1';
                         else
-                          $done = '0';
+                            $done = '0';
                         $track->done = ($done);
                         $track->endTime = ($endTime);
                         $track->save();
@@ -165,14 +169,14 @@ class VideoController extends Controller
                         "data" => "success"]);
 
                 }
-                }
-
             }
 
-            return response()->json([
-                "data" => "حدث خطا ما اعد المحاولة لاحقا"]);
-
         }
+
+        return response()->json([
+            "data" => "حدث خطا ما اعد المحاولة لاحقا"]);
+
+    }
 
 
 

@@ -24,24 +24,24 @@ class ReExamController extends Controller
         try {
             DB::beginTransaction();
 
-        $result = DB::table('re_exams') // Specify the main table
-        ->select(
-            're_exams.id as id',
-            'booking.id as id_book',
-            'profiles.name as user_name',
-            'profiles.lastName as user_lastname',
-            'courses.name as course_name',
-            'booking.count as count',
-            DB::raw('DATE(online_centers.created_at) as created_at')
-        )
-            ->join('booking', function($join) {
-                $join->on('booking.id_user', '=', 're_exams.id_user')
-                    ->on('booking.id_online_center', '=', 're_exams.id_online_center'); // Added semicolon
-            })
-            ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
-            ->join('courses', 'courses.id', '=', 'online_centers.id_course')
-            ->join('profiles', 'profiles.id_user', '=', 'booking.id_user')
-            ->get();
+            $result = DB::table('re_exams') // Specify the main table
+            ->select(
+                're_exams.id as id',
+                'booking.id as id_book',
+                'profiles.name as user_name',
+                'profiles.lastName as user_lastname',
+                'courses.name as course_name',
+                'booking.count as count',
+                DB::raw('DATE(online_centers.created_at) as created_at')
+            )
+                ->join('booking', function($join) {
+                    $join->on('booking.id_user', '=', 're_exams.id_user')
+                        ->on('booking.id_online_center', '=', 're_exams.id_online_center'); // Added semicolon
+                })
+                ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
+                ->join('courses', 'courses.id', '=', 'online_centers.id_course')
+                ->join('profiles', 'profiles.id_user', '=', 'booking.id_user')
+                ->get();
 
             DB::commit();
             return MyApp::Json()->dataHandle($result);
@@ -53,10 +53,10 @@ class ReExamController extends Controller
 
 
 
-return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
+        return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
 
 
-}
+    }
     public function create($id_online_center)
     {
 
@@ -68,7 +68,7 @@ return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$pr
                 ->where('can', '0')
                 ->where('done', '0')
                 ->where('status', '1')
-               ->where('count', '>=', '1')
+                ->where('count', '>=', '1')
                 ->first(); // Use firstOrFail() if you want an exception on no results
 
             if($book!=null)
@@ -76,7 +76,7 @@ return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$pr
                 $data = ReExam::query()->
                 where('id_online_center',$id_online_center)
                     ->where('id_user',auth()->id())
-                     ->where('status','0')
+                    ->where('status','0')
                     ->first();
                 if($data)
                     return response()->json([
@@ -85,10 +85,10 @@ return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$pr
                     ]);
                 else{
                     $dateAdded = ReExam::create([
-                    "status" =>'0',
+                        "status" =>'0',
                         'id_online_center'=>$id_online_center,
-                    "id_user" => auth()->id()
-                ]);
+                        "id_user" => auth()->id()
+                    ]);
                     DB::commit();
                     return response()->json([
                         "message" => "تم تسجيل طلبك بنجاح  ",
@@ -96,11 +96,11 @@ return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$pr
                     ]);}
             }
             else{
-    DB::commit();
-    return response()->json([
-        "message" => "لا يمكنك تقديم طلب اعادة امتحان  ",
-        "status" => "success",
-    ]);}
+                DB::commit();
+                return response()->json([
+                    "message" => "لا يمكنك تقديم طلب اعادة امتحان  ",
+                    "status" => "success",
+                ]);}
 
 
 
@@ -144,7 +144,8 @@ return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$pr
                         } else
                             return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
 
-                    } else {
+                    }
+                    else {
                         $book = Booking::query()->
                         where("id_online_center", $ad->id_online_center)->
                         where("id_user", $ad->id_user)
@@ -165,8 +166,8 @@ return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$pr
 
                     }
                 }
-             else
-                 return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
+                else
+                    return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
 
             } catch (\Exception $e) {
 

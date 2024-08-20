@@ -4,6 +4,7 @@ namespace App\Http\Controllers\course;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AllCourses;
+use App\Http\Resources\AllCoursesDone;
 use App\Http\Resources\DetailsOnlineCourses;
 use App\Models\Booking;
 use App\Models\Content;
@@ -55,7 +56,7 @@ class OnlineController extends Controller
     public function __construct(FfmpegService $ffmpegService)
     {
         $this->ffmpegService = $ffmpegService;
-      $this->middleware('auth:sanctum')->only(['show','done','still','wait']);
+        $this->middleware('auth:sanctum')->only(['show','done','still','wait']);
     }
 //
 //    public function create(Request $request)
@@ -239,10 +240,10 @@ class OnlineController extends Controller
 
             if ($request->has('id_form')) {
                 if( !isNull($request->id_form))
-                CoursePaper::create([
-                    "id_online_center" => $onlinecenter->id,
-                    "id_paper" => $request->id_form,
-                ]);
+                    CoursePaper::create([
+                        "id_online_center" => $onlinecenter->id,
+                        "id_paper" => $request->id_form,
+                    ]);
             }
 
 
@@ -250,9 +251,9 @@ class OnlineController extends Controller
                 if( !isNull($request->id_poll))
                     //marks' => $this['mark'] ?? null,
                     CoursePaper::create([
-                    "id_online_center" => $onlinecenter->id,
-                    "id_paper" => $request->id_poll,
-                ]);
+                        "id_online_center" => $onlinecenter->id,
+                        "id_paper" => $request->id_poll,
+                    ]);
             }
 
             if ($request->serial == "1" && $request->has('id_prefix')) {
@@ -307,7 +308,7 @@ class OnlineController extends Controller
                             $v = $file->store('file');
                             $posterPath = $this->extractFrame($v); // Extract frame from video
 
-                           $video= Video::create([
+                            $video= Video::create([
                                 "id_content" => $content->id,
                                 "name" => $item["name"],
                                 "rank" => $r3,
@@ -437,13 +438,56 @@ class OnlineController extends Controller
                 $avgRate = 0;
             }
 
-            $courses = Online_Center::
-            with(['course', 'online', 'content'])->
-            where('id', $id)->get();
+//            $courses = Online_Center::
+//            with(['course', 'online', 'content'])->
+//            where('id', $id)->get();
+//            $courses->each(function ($course) use ($avgRate) {
+//                $course->avg_rate = $avgRate;
+//            });
+            $courses = Online_Center::with(['course', 'online', 'content'])
+                ->where('id', $id)
+                ->get()
+                ->map(function ($course) {
+                    // Check if the user has favorited this course
+                    $course->fav = \DB::table('favorites')
+                        ->where('id_user', auth()->id())
+                        ->where('id_online_center', $course->id)
+                        ->exists() ? 1 : 0; // Set fav to 1 if exists, otherwise 0
+
+                    // Check if the user has booked this course
+                    $booking = \DB::table('booking')
+                        ->where('id_user', auth()->id())
+                        ->where('id_online_center', $course->id)
+                        ->where('status', '1')
+                        ->first(); // Get the first booking record
+
+                    if ($booking) {
+                        $course->booked = 1; // Set booked to 1 if exists
+                        $course->done = $booking->done; // Assuming 'done' is a column in your booking table
+
+                        // Check if done is 1
+                        if ($course->done == 1) {
+                            $course->cer = \DB::table('user_cert')
+                                ->where('id_user', auth()->id())
+                                ->where('id_online_center', $course->id)
+                                ->exists() ? 1 : 0; // Set cer to 1 if exists, otherwise 0
+                        } else {
+                            // If done is not 1, get the value of can (assuming can is a column in booking)
+                            $course->can = $booking->can; // Adjust this line as needed
+                        }
+                    } else {
+                        $course->booked = 0; // Set booked to 0 if no booking exists
+                        $course->done = null; // No booking, so done is null
+                        $course->cer = null; // No booking, so cer is also null
+                        $course->can = null; // Or set it to some default value if needed
+                    }
+
+                    return $course;
+                });
+
             $courses->each(function ($course) use ($avgRate) {
                 $course->avg_rate = $avgRate;
             });
-
 
         } catch (\Exception $e) {
 
@@ -454,6 +498,7 @@ class OnlineController extends Controller
 
         return response()->json([
             'course' => DetailsOnlineCourses::collection($courses),
+            // 'course' => ($courses),
         ]);
 
 
@@ -475,15 +520,25 @@ class OnlineController extends Controller
             $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
                 $join->on('online_centers.id', '=', 'subquery.id');
             })
-                ->whereIn('online_centers.id', $bookinOnlineCenterIds) // Only fetch bookin courses
-                ->with(['course', 'center','certificate'])
+                ->whereIn('online_centers.id', $bookinOnlineCenterIds) // Only fetch booked courses
+                ->with(['course', 'center', 'certificate']) // Eager load relationships
+                ->get()
+                ->map(function ($course) {
+                    // Check if the user has favorited this course
+                    $course->cer = \DB::table('user_certificate')
+                        ->where('id_user', auth()->id())
+                        ->where('id_online_center', $course->id)
+                        ->exists() ? 1 : 0; // Set fav to 1 if exists, otherwise 0
 
-                ->get();
+                    return $course; // Return the modified course object
+                });
+
 
 
 
             return response()->json([
-                'data' => AllCourses::collection($courses),
+                'data' => AllCoursesDone::collection($courses),
+                //  'data' => ($courses),
             ]);
         } catch (\Exception $e) {
             // Handle exception
@@ -503,19 +558,19 @@ class OnlineController extends Controller
                 ->where('done', '0')
                 ->where('status', '1')
                 ->pluck('id_online_center');
-                $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
-                    ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
-                    ->groupBy('online_centers.id','id')
-                    ->getQuery();
+            $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
+                ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
+                ->groupBy('online_centers.id','id')
+                ->getQuery();
 
-                $courses = Online_Center::
-                joinSub($ratesSubquery, 'subquery', function ($join) {
-                    $join->on('online_centers.id', '=', 'subquery.id');
-                })->
-                whereIn('online_centers.id', $bookinOnlineCenterIds->toArray())
-                    ->where('id_center', null) // Pass array of values
+            $courses = Online_Center::
+            joinSub($ratesSubquery, 'subquery', function ($join) {
+                $join->on('online_centers.id', '=', 'subquery.id');
+            })->
+            whereIn('online_centers.id', $bookinOnlineCenterIds->toArray())
+                ->where('id_center', null) // Pass array of values
                 ->with(['course'])
-                    ->get();
+                ->get();
 
 
 
@@ -544,10 +599,10 @@ class OnlineController extends Controller
 
 
 
-                return response()->json([
-                   'data' => AllCourses::collection($courses),
-                    //  'data' => ($courses),
-                ]);
+            return response()->json([
+                'data' => AllCourses::collection($courses),
+                //  'data' => ($courses),
+            ]);
 
         } catch (\Exception $e) {
             // Handle exception
@@ -567,19 +622,19 @@ class OnlineController extends Controller
             $bookinOnlineCenterIds = Booking::where('id_user', Auth::id())
                 ->where('status', '0')
                 ->pluck('id_online_center');
-                $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
-                    ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
-                    ->groupBy('online_centers.id','id')
-                    ->getQuery();
+            $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
+                ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
+                ->groupBy('online_centers.id','id')
+                ->getQuery();
 
-                $courses = Online_Center::
-                joinSub($ratesSubquery, 'subquery', function ($join) {
-                    $join->on('online_centers.id', '=', 'subquery.id');
-                })->
-                whereIn('online_centers.id', $bookinOnlineCenterIds->toArray())
-                    ->where('id_center', null) // Pass array of values
+            $courses = Online_Center::
+            joinSub($ratesSubquery, 'subquery', function ($join) {
+                $join->on('online_centers.id', '=', 'subquery.id');
+            })->
+            whereIn('online_centers.id', $bookinOnlineCenterIds->toArray())
+                ->where('id_center', null) // Pass array of values
                 ->with(['course'])
-                    ->get();
+                ->get();
 
 
 
@@ -608,10 +663,10 @@ class OnlineController extends Controller
 
 
 
-                return response()->json([
-                   'data' => AllCourses::collection($courses),
-                    //  'data' => ($courses),
-                ]);
+            return response()->json([
+                'data' => AllCourses::collection($courses),
+                //  'data' => ($courses),
+            ]);
 
         } catch (\Exception $e) {
             // Handle exception

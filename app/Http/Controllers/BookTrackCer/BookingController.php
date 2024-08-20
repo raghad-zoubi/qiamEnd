@@ -32,9 +32,7 @@ class BookingController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(["auth:sanctum"]);
-//        $this->middleware(["auth:sanctum","multi.auth:2"])->only(['display','deteils']);
-        //$this->middleware('auth:sanctum');
+        $this->middleware('auth:sanctum');
     }
 //عرض الحجوزات كلا والموافق عليها و اللي لسا مو محددة حسب الid_onlinecenter
     //dash
@@ -120,12 +118,12 @@ class BookingController extends Controller
 
                         $type=Online_Center::query()->where('id',$ad->id_online_center)->first();
                         if($type->id_online!=null) {
-                        $id_online_cente=$type->id;
+                            $id_online_cente=$type->id;
                             $id_video=Video ::query()->
-                                whereHas('content', function ($rank) use ($id_online_cente) {
+                            whereHas('content', function ($rank) use ($id_online_cente) {
                                 $rank  ->where('rank','=', "0")->
                                 where('id_online_center','=', $id_online_cente);
-                                })->
+                            })->
                             where('rank','=',"0")->first();
                             $track = Track::create([
                                 'id_video' => $id_video->id,
@@ -207,38 +205,38 @@ class BookingController extends Controller
                     else
                         if ($online_center->id_center != null) {
                             $mytime = Carbon::now();
-                        $can = Center::query()
-                            ->where('id', $online_center->id_center)
-                            ->where('start', '<',  $mytime->toDateTimeString())
-                            ->where('end', '>', $mytime->toDateTimeString())
-                            ->first();
-                        if ($can!=null) {
+                            $can = Center::query()
+                                ->where('id', $online_center->id_center)
+                                ->where('start', '<',  $mytime->toDateTimeString())
+                                ->where('end', '>', $mytime->toDateTimeString())
+                                ->first();
+                            if ($can!=null) {
 
-                            $questionsWithOptions = Paper::
-                            with('questionpaperwith'
-                            )->whereHas('coursepaper', function ($query) use ($id) {
-                                $query->where('id_online_center', $id);
-                            })->where("type", "استمارة")->
-                            get();
-
-
-                            DB::commit();
-
-                            return MyApp::Json()->dataHandle($questionsWithOptions);
-                        } else {
+                                $questionsWithOptions = Paper::
+                                with('questionpaperwith'
+                                )->whereHas('coursepaper', function ($query) use ($id) {
+                                    $query->where('id_online_center', $id);
+                                })->where("type", "استمارة")->
+                                get();
 
 
-                            DB::commit();
-                            return MyApp::Json()->dataHandle('غير متاح للحجز حاليا', "data");
+                                DB::commit();
+
+                                return MyApp::Json()->dataHandle($questionsWithOptions);
+                            } else {
+
+
+                                DB::commit();
+                                return MyApp::Json()->dataHandle('غير متاح للحجز حاليا', "data");
+                            }
+
                         }
-
-                    }
 
                 }
 
 
-            else
-                return MyApp::Json()->dataHandle('حدث خطا يرجى المحاولة لاحقا', "data");
+                else
+                    return MyApp::Json()->dataHandle('حدث خطا يرجى المحاولة لاحقا', "data");
 
 
             } } catch (\Exception $e) {
@@ -416,9 +414,9 @@ class BookingController extends Controller
 
         }catch (\Exception $e) {
 
-                DB::rollBack();
-                throw new \Exception($e->getMessage());
-            }
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
 
 
         return MyApp::Json()->errorHandle("paper", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
@@ -426,4 +424,4 @@ class BookingController extends Controller
     }
 
 
-    }
+}

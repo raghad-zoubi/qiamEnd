@@ -21,7 +21,6 @@ class CertificateController extends Controller
     }
 
 
-
     public function create(Request $request): JsonResponse
     {
         if (isset($request['photo']) && $request['photo']->isValid()) {
@@ -39,12 +38,12 @@ class CertificateController extends Controller
                 DB::commit();
                 return MyApp::Json()->dataHandle($Added, "data");
             } catch (\Exception $e) {
-                MyApp::uploadFile()->deleteFile($photoPath) ;
+                MyApp::uploadFile()->deleteFile($photoPath);
                 DB::rollBack();
                 throw new \Exception($e->getMessage());
             }
         } else {
-            return MyApp::Json()->errorHandle("data",'حدث خطا ما اعد المحاوله لاحقا');
+            return MyApp::Json()->errorHandle("data", 'حدث خطا ما اعد المحاوله لاحقا');
         }
     }
 
@@ -59,8 +58,9 @@ class CertificateController extends Controller
                 DB::beginTransaction();
                 $temp_path = $file->photo;
                 $file->delete();
-                if (MyApp::uploadFile()->deleteFile('photo/',$temp_path,'Uploads/file/'));
-                {DB::commit();
+                if (MyApp::uploadFile()->deleteFile('photo/', $temp_path, 'Uploads/file/')) ;
+                {
+                    DB::commit();
                     return MyApp::Json()->dataHandle("Successfully deleted  .", "data");
                 }
             } catch (\Exception $e) {
@@ -70,9 +70,6 @@ class CertificateController extends Controller
             }
 
         } else
-
             return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
-
-
     }
 }

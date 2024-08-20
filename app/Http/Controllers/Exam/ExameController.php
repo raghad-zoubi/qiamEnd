@@ -15,7 +15,7 @@ class ExameController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(["auth:sanctum","multi.auth:0|1"]);
+        $this->middleware(["auth:sanctum","multi.auth:0|1|2"]);
        // $this->middleware(["auth:sanctum","multi.auth:0|1|2"])->only(['showUser']);
 
     }
@@ -57,7 +57,6 @@ class ExameController extends Controller
         return MyApp::Json()->errorHandle("exam", "لقد حدث خطا ما اعد المحاولة لاحقا");//,$prof->getErrorMessage);
 
     }
-
     public function create(Request $request)
     {
 

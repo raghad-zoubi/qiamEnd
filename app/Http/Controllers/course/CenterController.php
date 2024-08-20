@@ -155,13 +155,17 @@ class CenterController extends Controller
             }
 
             $courses = Online_Center::
-            with(['course','center'])->
+            with(['course','center','favorite',])->
             where('id',$id)->get();
             $courses->each(function ($course) use ($avgRate) {
                 $course->avg_rate = $avgRate;
             });
 
 
+            return response()->json([
+                'course' =>DetailsCenterCourses::collection($courses),
+                //  'course' =>($courses),
+            ]);
         }catch (\Exception $e) {
 
             DB::rollBack();
@@ -169,10 +173,6 @@ class CenterController extends Controller
         }
 
 
-        return response()->json([
-               'course' =>DetailsCenterCourses::collection($courses),
-            //  'course' =>($courses),
-        ]);
 
 
     }

@@ -5,24 +5,28 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * @method static where(string $string, $updated_at)
- */
 class Notification extends Model
 {
     use HasFactory;
+
     public $table = "notifications";
-
+    public $primaryKey = 'id';
     public $fillable = [
-
-        'id', 'type','notifiable','data','read_at'
+        'type', 'notifiable', 'data', 'read_at','created_at','updated_at',
     ];
 
-    public $primaryKey = 'id';
     public $timestamps = true;
 
     protected $hidden = [
-        'updated_at', 'created_at',
-
+        'updated_at'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user', 'id');
+    }
+
+
+
+
 }

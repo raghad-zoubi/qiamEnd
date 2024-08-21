@@ -284,12 +284,11 @@ class BookingController extends Controller
                             $ispapper = CoursePaper::query()
                                 ->where('id_online_center', $id)
                                 ->exists();
-//
+
                             if ($ispapper) {
                                 foreach ($request->options as $item) {
                                     if ($item != null) {
-                                        DB::beginTransaction();
-
+//
                                         foreach ($request->options as $item) {
                                             AnswerPaper::create([
                                                 "id_user" => auth()->id(),
@@ -298,40 +297,50 @@ class BookingController extends Controller
                                                 "id_option_paper" => $item['id_option_paper']
                                             ]);
                                         }
+
                                         Booking::create([
                                             'id_online_center' => $id,
                                             'mark' => 0,
-                                            'done' => 0,
-                                            'status' => 0,
+                                            'can' => '0',
+                                            'count' => 0,
+                                            'done' => '0',
+                                            'status' => '0',
                                             'id_user' => Auth::id()
                                         ]);
+
+
                                         DB::commit();
+
                                         return response()->json([
                                             "message" => "done",
                                             "status" => "success",
                                         ]);
-                                        return MyApp::Json()->dataHandle('success', "data");
+//                                        return MyApp::Json()->dataHandle('success', "data");
 
                                     } else {
 //                     dd($request["options"]);
                                         return MyApp::Json()->dataHandle('يرجى تعبئة الاستمارة', "data");
                                     }
                                 }
-                            } else if (!$ispapper) {
+                            }
+                            else if (!$ispapper) {
                                 DB::beginTransaction();
 
                                 Booking::create([
                                     'id_online_center' => $id,
                                     'mark' => 0,
-                                    'done' => 0,
-                                    'status' => 0,
+                                    'can' => '0',
+                                    'count' => 0,
+                                    'done' => '0',
+                                    'status' => '0',
                                     'id_user' => Auth::id()
                                 ]);
                                 return response()->json([
                                     "message" => "done",
                                     "status" => "success",
                                 ]);
-                            } else {
+                            }
+                            else {
                                 return MyApp::Json()->dataHandle('حدث خطا يرجى المحاولة لاحقا', "data");
 
                             }
@@ -345,16 +354,53 @@ class BookingController extends Controller
                                 ->where('start', '<', $mytime->toDateTimeString())
                                 ->where('end', '>', $mytime->toDateTimeString())
                                 ->first();
+
                             if ($can != null) {
+
                                 $ispapper = CoursePaper::query()
                                     ->where('id_online_center', $id)
                                     ->exists();
+
+//                                if ($ispapper) {
+//                                    DB::beginTransaction();
 //
+//                         foreach ($request->options as $item)
+//                                    {
+//                                    if ($item != null)
+//                                        {
+//
+//                                            foreach ($request->options as $item) {
+//                                                AnswerPaper::create([
+//                                                    "id_user" => auth()->id(),
+//                                                    "answer" => $item['answer'],
+//                                                    "id_question_paper" => $item['id_question_paper'],
+//                                                    "id_option_paper" => $item['id_option_paper']
+//                                                ]);
+//                                            }
+//                                            Booking::create([
+//                                                'id_online_center' => $id,
+//                                                'mark' => 0,
+//                                                'can' => '0',
+//                                                'count' => 0,
+//                                                'done' => '0',
+//                                                'status' => '0',
+//                                                'id_user' => Auth::id()
+//                                            ]);
+//                                            DB::commit();
+//                                            return response()->json([
+//                                                "message" => "done",
+//                                                "status" => "success",
+//                                            ]);
+//
+//                                    }
+//                                        else {
+//                                            return MyApp::Json()->dataHandle('يرجى تعبئة الاستمارة', "data");
+//                                           }
+//                            }
+//                                }
                                 if ($ispapper) {
                                     foreach ($request->options as $item) {
                                         if ($item != null) {
-                                            DB::beginTransaction();
-
                                             foreach ($request->options as $item) {
                                                 AnswerPaper::create([
                                                     "id_user" => auth()->id(),
@@ -363,19 +409,24 @@ class BookingController extends Controller
                                                     "id_option_paper" => $item['id_option_paper']
                                                 ]);
                                             }
+
                                             Booking::create([
                                                 'id_online_center' => $id,
                                                 'mark' => 0,
-                                                'done' => 0,
-                                                'status' => 0,
+                                                'can' => '0',
+                                                'count' => 0,
+                                                'done' => '0',
+                                                'status' => '0',
                                                 'id_user' => Auth::id()
                                             ]);
+
+
                                             DB::commit();
+
                                             return response()->json([
                                                 "message" => "done",
                                                 "status" => "success",
                                             ]);
-                                            return MyApp::Json()->dataHandle('success', "data");
 
                                         } else {
                                             return MyApp::Json()->dataHandle('يرجى تعبئة الاستمارة', "data");
@@ -388,8 +439,10 @@ class BookingController extends Controller
                                     Booking::create([
                                         'id_online_center' => $id,
                                         'mark' => 0,
-                                        'done' => 0,
-                                        'status' => 0,
+                                        'can' => '0',
+                                        'count' => 0,
+                                        'done' => '0',
+                                        'status' => '0',
                                         'id_user' => Auth::id()
                                     ]);
                                     return response()->json([

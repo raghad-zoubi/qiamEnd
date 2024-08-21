@@ -10,6 +10,7 @@ use App\Models\Content;
 use App\Models\Online;
 use App\Models\Online_Center;
 use App\Models\Track;
+use App\Models\TrackContent;
 use App\Models\Video;
 use App\MyApplication\MyApp;
 use App\Services\FFmpegService;
@@ -37,13 +38,14 @@ class ContentController extends Controller
 
             return response()->json([
                 "data" =>"Content not found"]);
-        } else {
+        }
+        else {
             $booking = Booking::where([
                 'id_online_center' => $content->id_online_center,
                 'id_user' => Auth::id(),
                 'status' => "1",
             ])->first();
-            if (!$booking) {
+            if ($booking==null) {
                 return response()->json([
                     "data" => "Unauthorized access to content"
 
@@ -65,7 +67,7 @@ class ContentController extends Controller
                         ->with('video')
                         ->first();
 
-                    if ($v) {
+                    if ($v!=null) {
                         if ($v->exam == '0') {
                             $idVideos = $v->video->pluck('id')->toArray();
                             $can = Track::where('id_booking', $booking->id)
@@ -96,6 +98,16 @@ class ContentController extends Controller
                                 ->whereIn('id_video', $idVideos)
                                 ->exists();
                             if ($can) {
+
+                                $c=Content::query()->where('id', $id_content)->first();
+                                $r=$c->rank-1;
+                                $c2=Content::query()->where('id_online_center', $c->id_online_center)
+                                ->where('rank', $r)->first();
+                                $can2 = TrackContent::where('id_booking', $booking->id)->
+                                     where('id_content', $c2->id)
+                                    ->exists();
+
+                                if ($can2) {
                                 $content_data = Content::query()->
                                 where('id', $id_content)->with(['video', 'file'])->get();
                                 $data = new ContentUserBook($content_data[0]);
@@ -104,6 +116,11 @@ class ContentController extends Controller
 
                                 ]);
                             } else {
+                                    return response()->json([
+                                        "data" => "Unauthorized access to content"
+                                    ]);
+                                }
+                            }else {
                                 return response()->json([
                                     "data" => "Unauthorized access to content"
                                 ]);

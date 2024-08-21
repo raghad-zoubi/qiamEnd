@@ -80,7 +80,8 @@ class StatisticController extends Controller
             })->whereExists(function ($query) {
                 $query->select('id')
                     ->from('user_certificate')
-                    ->whereColumn('user_certificate.id_booking', 'booking.id');
+                    ->whereColumn('user_certificate.id_user', 'booking.id_user')
+                    ->whereColumn('user_certificate.id_online_center', 'booking.id_online_center');
             })
                 ->distinct()->count('id_user');
             $uncompletedcourse= Booking::whereHas('booking', function ($query) {

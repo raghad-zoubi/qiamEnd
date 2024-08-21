@@ -51,9 +51,13 @@ class UserCertificateController extends Controller
                 'profiles.name as profile_name',
                 'profiles.lastName as profile_lastname',
                 'courses.name as course_name',
-                DB::raw('CASE WHEN online_centers.id_center IS NULL THEN "online" ELSE "center" END AS type')
+                DB::raw('CASE WHEN online_centers.id_center IS NULL THEN "أون لاين" ELSE "مركز" END AS type')
             , DB::raw('DATE(user_certificate.created_at) as created_at') )
-            ->join('booking', 'booking.id', '=', 'user_certificate.id_booking')
+          //  ->join('booking', 'booking.id', '=', 'user_certificate.id_booking')
+          ->join('booking', function($join) {
+              $join->on('booking.id_user', '=', 'user_certificate.id_user')
+                  ->on('booking.id_online_center', '=', 'user_certificate.id_online_center'); // Added semicolon
+          })
             ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
             ->join('courses', 'courses.id', '=', 'online_centers.id_course')
             ->join('profiles', 'profiles.id_user', '=', 'booking.id_user')
@@ -76,7 +80,10 @@ class UserCertificateController extends Controller
                 DB::raw('CASE WHEN online_centers.id_center IS NULL THEN "أون لاين" ELSE "مركز" END AS type')
                           ,DB::raw('DATE(user_certificate.created_at) as created_at')
   )
-            ->join('booking', 'booking.id', '=', 'user_certificate.id_booking')
+            ->join('booking', function($join) {
+                $join->on('booking.id_user', '=', 'user_certificate.id_user')
+                    ->on('booking.id_online_center', '=', 'user_certificate.id_online_center'); // Added semicolon
+            })
             ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
             ->join('courses', 'courses.id', '=', 'online_centers.id_course')
             ->where('booking.id_user', Auth::id())

@@ -9,6 +9,7 @@ use App\MyApplication\MyApp;
 use App\Services\ImageProcessingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use function League\Flysystem\delete;
 
 class ReExamController extends Controller
 {
@@ -36,7 +37,7 @@ class ReExamController extends Controller
             )
                 ->join('booking', function($join) {
                     $join->on('booking.id_user', '=', 're_exams.id_user')
-                        ->on('booking.id_online_center', '=', 're_exams.id_online_center'); // Added semicolon
+                  ->on('booking.id_online_center', '=', 're_exams.id_online_center'); // Added semicolon
                 })
                 ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
                 ->join('courses', 'courses.id', '=', 'online_centers.id_course')
@@ -57,6 +58,7 @@ class ReExamController extends Controller
 
 
     }
+
     public function create($id_online_center)
     {
 
@@ -133,18 +135,15 @@ class ReExamController extends Controller
                             ->where('status', '1')
                             ->where('count', '>=', '1')
                             ->first(); // Use firstOrFail() if you want an exception on no results
-                        if ($book != null) {
-                            $ad->status = ($request->status);
-                            $ad->save();
+                        $ad->delete();
                             $book->can = ($request->status);
                             $book->save();
 
                             DB::commit();
                             return MyApp::Json()->dataHandle("reExam successfully", "date");
-                        } else
-                            return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
+                        }
 
-                    }
+
                     else {
                         $book = Booking::query()->
                         where("id_online_center", $ad->id_online_center)->
@@ -155,8 +154,10 @@ class ReExamController extends Controller
                             ->where('count', '>=', '1')
                             ->first();
                         if ($book != null) {
+                            $ad->delete();
 
                             // Use firstOrFail() if you want an exception on no results
+
                             $book->can = ($request->status);
                             $book->save();
                             DB::commit();
@@ -166,16 +167,21 @@ class ReExamController extends Controller
 
                     }
                 }
-                else
+                else {
                     return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
-
+                }
             } catch (\Exception $e) {
 
                 DB::rollBack();
                 throw new \Exception($e->getMessage());
             }
 
-        } else
+        }
+
+
+
+
+        else
 
             return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
 

@@ -568,7 +568,7 @@ class OnlineController extends Controller
                 $join->on('online_centers.id', '=', 'subquery.id');
             })->
             whereIn('online_centers.id', $bookinOnlineCenterIds->toArray())
-                ->where('id_center', null) // Pass array of values
+              //  ->where('id_center', null) // Pass array of values
                 ->with(['course'])
                 ->get();
 
@@ -632,7 +632,7 @@ class OnlineController extends Controller
                 $join->on('online_centers.id', '=', 'subquery.id');
             })->
             whereIn('online_centers.id', $bookinOnlineCenterIds->toArray())
-                ->where('id_center', null) // Pass array of values
+//                ->where('id_center', null) // Pass array of values
                 ->with(['course'])
                 ->get();
 

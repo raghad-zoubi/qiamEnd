@@ -37,11 +37,12 @@ class Online_Center extends Model
     public function rate()
     {
         return $this->HasMany(Rate::class, "id_user", "id")
-        ;
-    }    public function booking()
+            ;
+    }
+    public function booking()
     {
         return $this->HasMany(Booking::class, "id_user", "id")
-        ;
+            ;
     }
     public function users()
     {
@@ -50,38 +51,46 @@ class Online_Center extends Model
     public function center()
     {
         return $this->belongsTo(Center::class, 'id_center', 'id')
-           ;// ->where ('end','>',Carbon::now());
+            ;// ->where ('end','>',Carbon::now());
     }
     public function online()
     {
         return $this->belongsTo(Online::class, 'id_online', 'id')
 
-       ;
-    }
-public function course()
+            ;
+    }    public function onlinehome()
+{
+    return $this->belongsTo(Online::class, 'id_online', 'id')->
+    where('isopen','=','1');
+
+}
+
+    public function course()
     {
         return $this->belongsTo(Course::class, 'id_course', 'id');
-    }public function course2()
+    }
+
+    public function course2()
     {
         return $this->belongsTo(Course::class, 'id_course', 'id')->with('online');
     }
     public function content(){
         return $this->hasMany(Content::class,"id_online_center","id")
-           ;// ->with(['file','video']);
+            ;// ->with(['file','video']);
 
     }
     public function content2(){
         return $this->hasMany(Content::class,"id_online_center","id")
-        ->with(['file','video','courseexam.exam']);
+            ->with(['file','video','courseexam.exam']);
 
     }
     public function coursepaper(){
         return $this->hasMany(CoursePaper::class,"id_online_center","id")
-           ;// ->with(['file','video']);
+            ;// ->with(['file','video']);
 
     }
 
- public function papers()
+    public function papers()
     {
         return $this->belongsToMany(Paper::class);
     }

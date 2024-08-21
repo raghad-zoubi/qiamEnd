@@ -2,8 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Models\User;
-use App\MyApplication\Services\CoursesRuleValidation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -12,7 +10,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 
 class DisplayPaperUser extends JsonResource{
-    public function toArray(Request $request): array
+    public function toArray(Request $request)
     {
 
         $result =  [
@@ -27,7 +25,7 @@ class DisplayPaperUser extends JsonResource{
             'answer' => $this->answer,
             'id_question' => $this->id_question,
             'id_answer' => $this->id_answer,
-        //    'id_user' => $this->id_user,
+            //    'id_user' => $this->id_user,
         ];
         return $result ;
     }

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\d1;
+use App\Models\TrackContent;
 use Illuminate\Http\Request;
 
-class d4 extends Controller
+class TrackContentController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class d4 extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(QuestionPoll $questionPoll)
+    public function show(TrackContent $trackContent)
     {
         //
     }
@@ -42,7 +42,7 @@ class d4 extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(QuestionPoll $questionPoll)
+    public function edit(TrackContent $trackContent)
     {
         //
     }
@@ -50,7 +50,7 @@ class d4 extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, QuestionPoll $questionPoll)
+    public function update(Request $request, TrackContent $trackContent)
     {
         //
     }
@@ -58,7 +58,7 @@ class d4 extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(QuestionPoll $questionPoll)
+    public function destroy(TrackContent $trackContent)
     {
         //
     }

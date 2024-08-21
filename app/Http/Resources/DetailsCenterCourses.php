@@ -18,21 +18,25 @@ class DetailsCenterCourses extends JsonResource
         $result = [
 
             'id' => $this->id??null,
+            'favorite' => $this->fav??null,
+            'book' => $this->booked??null,
+            'can' => $this->can??null,
+            'done' => $this->done??null,
             'rate' => $this->avg_rate??null,
             'id_course' => $this->course->id??null,
             'name' => $this->course->name??null,
             'photo' => $this->course->photo??null,
             'about' => $this->course->about??null,
             'id_center'=>  $this->center->id??null,
-                'start'=>  $this->center->start??null,
-                'end'=> $this->center->end??null,
-                'numberHours'=>  $this->center->numberHours??null,
-                'numberContents'=> $this->center->numberContents??null,
-                'price'=>  $this->center->price??null
+            'start'=>  $this->center->start??null,
+            'end'=> $this->center->end??null,
+            'numberHours'=>  $this->center->numberHours??null,
+            'numberContents'=> $this->center->numberContents??null,
+            'price'=>  $this->center->price??null
 
 
 
-];
+        ];
 
 
         return $result;

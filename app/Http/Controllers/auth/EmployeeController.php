@@ -98,7 +98,7 @@ class EmployeeController extends Controller
         if ($validate->fails()) {
             return Response()->json([
                 "status" => "failure",
-                "message" => 'حدث خطا ما'
+                "message" => 'حدث خطأ ما الرجاء التحقق من ان كلمة المرور اكثر من ٨ محارف '
             ]);
         }
         $user = User::where("email", $request->name)->first();
@@ -128,7 +128,7 @@ class EmployeeController extends Controller
 
 
         else {
-            return MyApp::Json()->errorHandle("data", "الوصول غير مصرح به  ");
+            return MyApp::Json()->errorHandle("data", "يرجى التحقق من البيانات ");
         }
     }
     public function update(Request $request)

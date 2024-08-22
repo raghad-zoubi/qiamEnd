@@ -288,7 +288,7 @@ class CoursController extends Controller
             $searchTerm = $request->input('searchTerm');
             $by = $request->input('by');
 
-            if ($by == 'course') {
+            if ($by == 'الدورة') {
                 $courses = DB::table('courses')
                     ->leftJoin('online_centers', 'courses.id', '=', 'online_centers.id_course')
                     ->leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
@@ -314,7 +314,8 @@ class CoursController extends Controller
                     ->get();
 
 
-            } else if ($by == 'teacher') {
+            }
+            else if ($by == 'المدرس') {
                 $courses = DB::table('courses')
                     ->leftJoin('online_centers', 'courses.id', '=', 'online_centers.id_course')
                     ->leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')

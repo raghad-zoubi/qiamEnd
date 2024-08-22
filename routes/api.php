@@ -128,17 +128,12 @@ Route::prefix("user")->group(function () {
 
         Route::post("poll/{id_online_center}",
             [CourseExameController::class, 'answerPollCourse']);
-            //->middleware('auth:sanctum');;
 
-//    Route::prefix("exame")->
-//    group(function () {
-//        Route::get("content/{id_content}",  [CoursePaperController::class, 'show']);
-//      Route::post("answer",  [CoursePaperController::class, 'answer'])->middleware('auth:sanctum');;
-//    });
     });
     Route::prefix("reExam")->
     group(function () {
         Route::get("create/{id_online_center}",  [ReExamController::class, 'create']);
+        Route::get("myindex",  [ReExamController::class, 'myindex']);
 
     });
     Route::prefix("certificate")->group(function () {

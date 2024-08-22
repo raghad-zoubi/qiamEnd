@@ -42,6 +42,9 @@ class Content extends Model
     public function video(){
         return $this->hasMany(Video::class,"id_content","id");
 
+    } public function trackcontent(){
+        return $this->hasMany(TrackContent::class,"id_content","id");
+
     }
     public function contentExam(){
         return $this->hasMany(Video::class,"id_content","id");

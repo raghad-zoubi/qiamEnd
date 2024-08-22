@@ -155,8 +155,47 @@ class CenterController extends Controller
             }
 
             $courses = Online_Center::
-            with(['course','center','favorite',])->
-            where('id',$id)->get();
+            with(['course','center',])->
+            where('id',$id)->
+            get()
+                ->map(function ($course) {
+                    // Check if the user has favorited this course
+                    $course->fav = \DB::table('favorites')
+                        ->where('id_user', auth()->id())
+                        ->where('id_online_center', $course->id)
+                        ->exists() ? 1 : 0; // Set fav to 1 if exists, otherwise 0
+
+                    // Check if the user has booked this course
+                    $booking = \DB::table('booking')
+                        ->where('id_user', auth()->id())
+                        ->where('id_online_center', $course->id)
+                        ->where('status', '1')
+                        ->first(); // Get the first booking record
+
+                    if ($booking) {
+                        $course->booked = 1; // Set booked to 1 if exists
+                        $course->done = $booking->done; // Assuming 'done' is a column in your booking table
+
+                        // Check if done is 1
+                        if ($course->done == 1) {
+                            $course->cer = \DB::table('user_certificate')
+                                ->where('id_user', auth()->id())
+                                ->where('id_online_center', $course->id)
+                                ->exists() ? 1 : 0; // Set cer to 1 if exists, otherwise 0
+                        }
+                        else {
+                            // If done is not 1, get the value of can (assuming can is a column in booking)
+                            //  $course->can = $booking->can; // Adjust this line as needed
+                        }
+                    } else {
+                        $course->booked = 0; // Set booked to 0 if no booking exists
+                        $course->done = 0; // No booking, so done is null
+                        $course->cer = 0; // No booking, so cer is also null
+                        $course->can = 0; // Or set it to some default value if needed
+                    }
+
+                    return $course;
+                });
             $courses->each(function ($course) use ($avgRate) {
                 $course->avg_rate = $avgRate;
             });

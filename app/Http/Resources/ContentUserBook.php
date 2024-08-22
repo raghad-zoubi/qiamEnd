@@ -19,6 +19,9 @@ class ContentUserBook extends JsonResource
                 "rank" => $this->rank,
                 "durationExam" => $this->durationExam,
                 "numberQuestion" => $this->numberQuestion,
+                "contentExam" => ($this->trackcontent=='[]') ? 0 : 1,
+
+
                 "video" => $this->video->map(function ($video) {
                     return [
                         "id_video" => $video->id,

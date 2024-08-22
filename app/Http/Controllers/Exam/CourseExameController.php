@@ -41,7 +41,7 @@ use App\Services\ImageProcessingService;
 
 
 
-
+//لا يمكنك
 class CourseExameController extends Controller
 {
     protected $imageProcessingService;
@@ -71,6 +71,7 @@ class CourseExameController extends Controller
                 'id_online_center' => $idOnlineCenter,
                 'id_user' => Auth::id(),
                 'status' => "1",
+               'can'=> '1'
             ])->first();
             if ($booking == null) {
                 return response()->json([

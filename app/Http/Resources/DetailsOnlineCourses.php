@@ -36,7 +36,6 @@ class DetailsOnlineCourses extends JsonResource
             'id' => $this->id??null,
             'favorite' => $this->fav??null,
             'book' => $this->booked??null,
-            'can' => $this->can??null,
             'done' => $this->done??null,
             'rate' => $this->avg_rate??null,
             'name' => $this->course->name??null,

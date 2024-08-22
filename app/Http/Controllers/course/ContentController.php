@@ -52,8 +52,8 @@ class ContentController extends Controller
                 ]);    } else {
                 if ($content->rank == '0') {
                     $content_data = Content::query()->
-                    where('id', $id_content)->with(['video', 'file'])->get();
-                    $data = new ContentUserBook($content_data[0]);
+                    where('id', $id_content)->with(['video', 'file','trackcontent'])->get();
+                 $data = new ContentUserBook($content_data[0]);
                     return response()->json([
                         "data" => $data
 
@@ -76,7 +76,7 @@ class ContentController extends Controller
                                 ->exists();
                             if ($can) {
                                 $content_data = Content::query()->
-                                where('id', $id_content)->with(['video', 'file'])->get();
+                                where('id', $id_content)->with(['video', 'file','trackcontent'])->get();
                                 $data = new ContentUserBook($content_data[0]);
                                 return response()->json([
                                     "data" => $data
@@ -109,7 +109,7 @@ class ContentController extends Controller
 
                                 if ($can2) {
                                 $content_data = Content::query()->
-                                where('id', $id_content)->with(['video', 'file'])->get();
+                                where('id', $id_content)->with(['video', 'file','trackcontent'])->get();
                                 $data = new ContentUserBook($content_data[0]);
                                 return response()->json([
                                     "data" => $data

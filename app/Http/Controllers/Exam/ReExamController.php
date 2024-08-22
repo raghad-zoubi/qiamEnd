@@ -41,8 +41,66 @@ class ReExamController extends Controller
                 })
                 ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
                 ->join('courses', 'courses.id', '=', 'online_centers.id_course')
-                ->join('profiles', 'profiles.id_user', '=', 'booking.id_user')
+                ->join('profiles', 'profiles.id_user', '=', auth()->id())
                 ->get();
+
+            DB::commit();
+            return MyApp::Json()->dataHandle($result);
+        }catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+
+        return MyApp::Json()->errorHandle("date", "حدث خطا ما لديك ");//,$prof->getErrorMessage);
+
+
+    }
+    public function myindex()
+    {
+        try {
+            DB::beginTransaction();
+
+//            $result = DB::table('re_exams') // Specify the main table
+//            ->select(
+//                're_exams.id as id',
+//                're_exams.status as status',
+//                'booking.id as id_book',
+//                'courses.name as course_name',
+//                'booking.count as count',
+//                DB::raw('DATE(online_centers.created_at) as created_at')
+//            )
+//                ->join('booking', function($join) {
+//                    $join->on('booking.id_user', '=', 're_exams.id_user')
+//                  ->on('booking.id_online_center', '=', 're_exams.id_online_center'); // Added semicolon
+//                })
+//                ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
+//                ->join('courses', 'courses.id', '=', 'online_centers.id_course')
+//                ->join('profiles', 'profiles.id_user', '=', 'booking.id_user')
+//                ->get();
+
+
+                        $result = DB::table('booking') // Specify the main table
+            ->select(
+
+                'booking.id as id_book',
+                'courses.name as course_name',
+                'booking.count as count',
+                DB::raw('DATE(online_centers.created_at) as created_at_for_copy'),
+                DB::raw('DATE(booking.updated_at) as updated_at_for_last_exam')
+            )
+
+                ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
+                ->join('courses', 'courses.id', '=', 'online_centers.id_course')
+                            ->where('booking.id_user',auth()->id())
+                            ->where('booking.can', '0')
+                            ->where('booking.done', '0')
+                            ->where('booking.status', '1')
+                            ->where('booking.count', '>=', '1')
+                ->get();
+
 
             DB::commit();
             return MyApp::Json()->dataHandle($result);

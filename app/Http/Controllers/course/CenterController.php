@@ -15,6 +15,7 @@ use App\MyApplication\Services\CoursesRuleValidation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use function PHPUnit\Framework\isNull;
 
 /**
  * @property CoursesRuleValidation rules
@@ -56,18 +57,26 @@ class CenterController extends Controller
                 ]);
 
 
-                if($request->has('id_form'))
-                    $onlinepaper = CoursePaper::create([
-                        "id_online_center"=>$onlinecenter->id,
-                        "id_paper"=>$request->id_form,
 
-                    ]);
-                if($request->has('id_poll'))
-                    $onlinepaper = CoursePaper::create([
-                        "id_online_center"=>$onlinecenter->id,
-                        "id_paper"=>$request->id_poll,
+                    if ($request->has('id_form'))
+                        if (!isNull($request->id_form)){
+                            $onlinepaper = CoursePaper::create([
+                                "id_online_center" => $onlinecenter->id,
+                                "id_paper" => $request->id_form,
 
-                    ]);
+                            ]);
+                    }
+
+//                if($request->has('id_poll'))
+
+                if ($request->has('id_poll'))
+                    if (!isNull($request->id_poll)) {
+                        $onlinepaper = CoursePaper::create([
+                            "id_online_center" => $onlinecenter->id,
+                            "id_paper" => $request->id_poll,
+
+                        ]);
+                    }
                 DB::commit();
 
                 return MyApp::Json()->dataHandle($center,"center");

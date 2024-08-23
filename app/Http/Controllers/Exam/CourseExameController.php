@@ -886,7 +886,9 @@ if(TrackContent::query()->where(
 
         if ($booking) {
             $userCertificate= UserCertificate::query()->
-            where('id_booking',$booking->id)->first();
+            where('id_user',$booking->id_user)->
+            where('id_online_center',$booking->id_online_center)
+                ->first();
             if(!$userCertificate){
                 $booking->done = '1';
                 $booking->mark =  $request->mark;

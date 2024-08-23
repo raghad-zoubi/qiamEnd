@@ -24,10 +24,10 @@ class IndexNewBooking extends JsonResource
                 if (!empty($this['bookingindex'])) {
                     if (!empty($this['bookingindex']['id_center']) &&
                         !$this['bookingindex']['id_center'] == null) {
-                        $type = 'center';
+                        $type = 'مركز';
                     } else if (!empty($this['bookingindex']['id_online']) &&
                         !$this['bookingindex']['id_online'] == null) {
-                        $type = 'online';
+                        $type = 'أونلاين';
                     }
                 }
 

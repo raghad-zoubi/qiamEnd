@@ -339,6 +339,7 @@ class AuthenticationController extends Controller
         "email" => ["required", Rule::exists("users", "email")],
         "password" => ["required", "min:8", "string"],
     ]);
+   // dd('opo');
     if ($validate->fails()) {
         return Response()->json([
             "status" => "failure",
@@ -364,5 +365,25 @@ class AuthenticationController extends Controller
         ]);
     }
 }
+    public function deleteAcount( ): \Illuminate\Http\JsonResponse
+{
+
+    $user = User::where("id", 3)->first();
+    DB::beginTransaction();//same pass
+    try {
+        $user->delete();
+        DB::commit();
+        return \response()->json([
+            "status" => "success",
+            "message" => "deleted account",
+        ]);
+    } catch (\Exception $exception) {
+        DB::rollBack();
+        return \response()->json([
+            "status" => "failure",
+            "message" => $exception->getMessage()
+        ]);
+    }
 }
-//
+}
+

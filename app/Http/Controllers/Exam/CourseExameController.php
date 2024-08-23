@@ -894,7 +894,7 @@ if(TrackContent::query()->where(
                 $booking->mark =  $request->mark;
                 $booking->can = '0';
                 $booking->save();
-                $user = $this->generateCertificate($booking->id_online_center, $booking);
+            //    $user = $this->generateCertificate($booking->id_online_center, $booking);
                 DB::commit();
                 return response()->json([
                     "message" => "done",

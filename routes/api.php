@@ -31,7 +31,7 @@ use App\Http\Controllers\StatisticController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-Route::get('/send-notification', [FirbaseController::class, 'sendNotification'])
+Route::post('/send-notification', [FirbaseController::class, 'sendNotification'])
     ->middleware('auth:sanctum');
 
 //////////////////
@@ -133,7 +133,7 @@ Route::prefix("user")->group(function () {
     Route::prefix("reExam")->
     group(function () {
         Route::get("create/{id_online_center}",  [ReExamController::class, 'create']);
-        Route::get("myindex",  [ReExamController::class, 'myindex']);
+        Route::get("myindex/{type}",  [ReExamController::class, 'myindex']);
 
     });
     Route::prefix("certificate")->group(function () {
@@ -146,7 +146,7 @@ Route::prefix("user")->group(function () {
 
 
 });
-//bookingCourse
+//bookingCourse indexNew
 //*************************************************************************
 //------------
 //Route::prefix("auth")->controller(UserController::class)->group(function () {
@@ -154,7 +154,7 @@ Route::prefix("user")->group(function () {
 //    Route::post("register", "Register");
 //    Route::post("login", "Login");
 //    Route::delete("logout", "Logout");
-//});
+//}); ok
 //------------auth
 Route::controller(AuthenticationController::class)
     ->prefix("auth")->group(function () {
@@ -164,6 +164,7 @@ Route::controller(AuthenticationController::class)
         Route::post("checkEmail", "checkEmail");
         Route::post("resendActiveEmail", "resendActiveEmail");
         Route::post("resetPassWord", "resetPassWord");
+        Route::get("deleteAcount", "deleteAcount");
         Route::post("verifycodeforgetpassword", "verifycodeforgetpassword");
         Route::post('logout',  'logout');
         Route::post('/fcmtoken', 'fcmToken');

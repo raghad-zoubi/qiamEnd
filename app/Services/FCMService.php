@@ -2,13 +2,15 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class FCMService
 {
     public static function send($token, $notification)
     {
-     //   dd($token);
+      // dd($token);
+        try{
         Http::acceptJson()->withToken(config('fcm.token'))->post(
             'https://fcm.googleapis.com/fcm/send',
             [
@@ -16,5 +18,11 @@ class FCMService
                 'notification' => $notification,
             ]
         );
+    }catch (\Exception $e) {
+
+
+            throw new \Exception($e->getMessage());
+        }
     }
+
 }

@@ -30,7 +30,7 @@ class AllCourses extends JsonResource
             $result['price'] = $this->online->price??null;
             $result['numberHours'] = $this->online->numberHours??null;
             $result['numbervideo'] = $this->online->numberVideos??null;
-            $result['type'] = 'online';
+            $result['type'] = 'أونلاين';
 
         }
         if ($this->center !== null) {
@@ -38,7 +38,7 @@ class AllCourses extends JsonResource
             $result['price'] = $this->center->price??null;
             $result['numberHours'] = $this->center->numberHours??null;
             $result['numbervideo'] = $this->center->numberContents??null;
-            $result['type'] = 'center';
+            $result['type'] = 'مركز';
 
 
         }

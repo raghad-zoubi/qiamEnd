@@ -5,13 +5,16 @@
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
-        "php": "^7.4",
+        "php": "^7.0 || ^8.2",
+        "ext-gd": "*",
+        "ext-json": "*",
+        "chehivskiy/i18n-arabic": "^1.0",
         "guzzlehttp/guzzle": "^7.2",
+        "kreait/laravel-firebase": "^5.9",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
-        "pbmedia/laravel-ffmpeg": "^8.5",
-      "ext-json": "*"
+        "pbmedia/laravel-ffmpeg": "^8.5"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

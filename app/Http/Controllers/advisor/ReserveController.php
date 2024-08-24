@@ -9,24 +9,27 @@ use App\Http\Resources\Present;
 use App\Http\Resources\ShowDateUser;
 use App\Http\Resources\ShowDay;
 use App\Http\Resources\ShowDayUser;
+use App\Models\Notification;
 use App\Models\Rate;
 use App\Models\Reserve;
 use App\Models\Date;
 use App\MyApplication\MyApp;
 use App\MyApplication\Services\AdviserRuleValidation;
+use App\Services\FCMService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ReserveController extends Controller
 {
-    public function __construct()
-    {
+    protected $fcmService;
 
+    public function __construct(FCMService $fcmService)
+    {
+        $this->fcmService = $fcmService;
         //     $this->middleware(["auth:sanctum","multi.auth:2"])->only(['display','create','present']);
        // $this->middleware(["auth:sanctum","multi.auth:0|1"])->only(['index','check','show']);
         $this->middleware(["auth:sanctum"]);
-
         $this->rules = new AdviserRuleValidation();
     }
     public function index($id)
@@ -97,13 +100,17 @@ class ReserveController extends Controller
                 $ad = Reserve::where("id", $request->id)->first();
                 if ($ad ) {
                     if($request->status=='1'){
-                    $ad->status = ($request->status);
+                        $user=$this->sendNotificationReserve($request->id, 1);
+
+                        $ad->status = ($request->status);
                     $ad->save();
                         DB::commit();
                         return MyApp::Json()->dataHandle("reserved successfully", "date");
                 }
-                else{
-                    $ad = Reserve::query()->where("id", $request->id)->delete();
+                    if($request->status=='0'){
+                        $user=$this->sendNotificationReserve($request->id, 0);
+
+                        $ad = Reserve::query()->where("id", $request->id)->delete();
                     DB::commit();
                     return MyApp::Json()->dataHandle("unreserved successfully", "date");
                 }}
@@ -120,6 +127,77 @@ class ReserveController extends Controller
 
 
     }
+    public function sendNotificationReserve($id_reserve, $status)
+    {
+
+
+        try {
+            DB::beginTransaction();
+
+
+            $partbody = DB::table('reserves')->select(
+                'dates.day as day',
+                'users.fcm_token as fcm',
+                'users.id as id_user',
+                'advisers.name as name_advisers',
+                DB::raw('DATE(reserves.created_at) as createdAtReserve')
+            )
+                ->join('dates', 'dates.id', '=', 'reserves.id_date')
+                ->join('advisers', 'advisers.id', '=', 'dates.id_adviser')
+                ->join('users', 'users.id', '=', 'reserves.id_user')
+                ->where('reserves.id', $id_reserve)
+                ->first();
+
+            if ($partbody) {
+                $deviceTokens = [
+                    $partbody->fcm];
+
+                if ($status == 1) {
+                    $body =
+                        ' لقد تمت الموافقةعلى موعدالاستشارة ' .// $partbody->day .
+                        ' لدى ' . $partbody->name_advisers .
+                        ' المقدم بتاريخ ' . $partbody->createdAtReserve;
+
+                } else if ($status == 0) {
+                    $body =
+                        ' لم تتم الموافقة على موعدالاستشارة ' .// $partbody->day .
+                        ' لدى ' . $partbody->name_advisers .
+                        ' المقدم بتاريخ ' . $partbody->createdAtReserve;
+
+
+                }
+
+                $title = ' ';
+
+                $data = ['key' => 'value'];
+
+                $adviserAdded = Notification::create([
+                    "title" => $title,
+                    "body" => $body,
+                    "id_user" => $partbody->id_user,
+
+                ]);
+
+                $status = $this->fcmService->sendNotification($deviceTokens, $title, $body, $data);
+
+                DB::commit();
+
+            } else {
+                return response()->json([
+                    'massege' => 'حدث خطا ما ']);
+            }
+
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+    }
+
+
     public function show()
     {
 

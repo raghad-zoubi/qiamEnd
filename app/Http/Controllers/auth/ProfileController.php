@@ -79,10 +79,6 @@ class ProfileController extends Controller
                 $profileGet = Profile::where(
                     "id_user", auth()->id())->get();
                 $users = User::where('id', auth()->id())->get()->first();
-               $user = User::find($users);
-                $fcmToken = $users->fcm_token;
-
-                $user->pushNotification('auth()->user()->name'.'send you massage',"message->body","message");
 
 
 

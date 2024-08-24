@@ -22,8 +22,8 @@ use App\Http\Controllers\Exam\CourseExameController;
 use App\Http\Controllers\Exam\ExameController;
 use App\Http\Controllers\course\FileController;
 use App\Http\Controllers\Exam\ReExamController;
-use App\Http\Controllers\FirbaseController;
 use App\Http\Controllers\InformationController;
+use App\Http\Controllers\NotifactionController;
 use App\Http\Controllers\Papers\CoursePaperController;
 use App\Http\Controllers\Papers\PaperController;
 use App\Http\Controllers\course\VideoController;
@@ -31,31 +31,28 @@ use App\Http\Controllers\StatisticController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-Route::post('/send-notification', [FirbaseController::class, 'sendNotification'])
+Route::get('/sendbook/{id_book}/{status}', [NotifactionController::class, 'sendNotificationBooking'])
+    ->middleware('auth:sanctum');
+Route::get('/send/{id_reserve}/{status}', [NotifactionController::class, 'sendNotificationReserve'])
+    ->middleware('auth:sanctum');
+Route::get('/sendre/{id_reserve}/{status}', [NotifactionController::class, 'sendNotificationReExam'])
     ->middleware('auth:sanctum');
 
-//////////////////
+Route::get('/sendmark/{id_book}', [NotifactionController::class, 'sendNotificationAddMark'])
+    ->middleware('auth:sanctum');
+
+Route::get('/indexnoti', [NotifactionController::class, 'listNotifications'])
+    ->middleware('auth:sanctum');
+
 
 Route::get('/num', [CourseExameController::class, 'generateNextSerialNumber']);
-Route::get('/reseve_notification', [FirbaseController::class, 'reseveNotification']);
-Route::get('/send', [FirbaseController::class, 'send'])->middleware('auth:sanctum');
-
 Route::post('/framep', [ContentController::class, 'extractFrame']);
 Route::get('/frameg/{video_path}', [ContentController::class, 'extractFrameg']);
 Route::get('/converto', [ContentController::class, 'convertVideo']);
 Route::get('/getinfo', [ContentController::class, 'getVideoInfo']);
-Route::post("/add/{id}",  [CourseExameController::class, 'generateCertificate']);
-//Route::post("/add/{id}",  [UserCertificateController::class, 'generateCertificate']);
+Route::get("/beb",  [CourseExameController::class, 'generateCertificatebeb']);
 Route::post("/addText",  [UserCertificateController::class, 'addText']);
 
-
-Route::post('/generatePDF', [UserCertificateController::class, 'generatePDF']);
-
-Route::get('/convert-pdf-to-image1', [UserCertificateController::class, 'convertPdfToImage1']);
-Route::get('/convert-pdf-to-image', [UserCertificateController::class, 'convertPdfToImage']);
-Route::get('/convert-pdf-to-image3', [UserCertificateController::class, 'convertPdfToImage3']);
-
-////////////////////
 
 
 
@@ -91,6 +88,7 @@ Route::prefix("user")->group(function () {
     Route::get('afterVideo/{id}/{endTime}', [VideoController::class, 'afterVideo']);
     Route::get('file/{id}', [FileController::class, 'show']);
     Route::post('/extract-frame', [ContentController::class, 'extractFrame']);
+    Route::get('/information/indexuser', [InformationController::class, 'indexUser']);
     Route::prefix("bookingCourse")->controller(BookingController::class)->group(function () {
         //for user
         Route::get("book/{id}", "book");
@@ -117,12 +115,13 @@ Route::prefix("user")->group(function () {
     Route::prefix("exam")->group(function () {
         Route::get("course/{id_online_center}",
             [CourseExameController::class, 'showExamCourse']);
+        Route::post("course",
+            [CourseExameController::class, 'answerExamCourse']);
         Route::get("content/{id_content}",
             [CourseExameController::class, 'showExamContent']);
         Route::post("content",
             [CourseExameController::class, 'answerExamContent']);
-        Route::post("course",
-            [CourseExameController::class, 'answerExamCourse']);
+
         Route::get("poll/{id_online_center}",
             [CourseExameController::class, 'showPollCourse']);
 

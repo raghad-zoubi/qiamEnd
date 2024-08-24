@@ -9,12 +9,11 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::create('re_exams', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("id_user")->constrained("users")->cascadeOnDelete();
-            $table->foreignId("id_online_center")->constrained("online_centers")->cascadeOnDelete();
+            $table->foreignId("id_booking")->constrained("booking")->cascadeOnDelete();
             $table->enum("status",["0","1"])->default("0");
             $table->timestamps();
         });
@@ -23,7 +22,7 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('re_exams');
     }

@@ -23,6 +23,11 @@ class InformationController extends Controller
         $course = Information::query()->get();
         return MyApp::Json()->dataHandle($course, "data");
     }
+  public function indexUser(): JsonResponse
+    {
+        $course = Information::query()->get();
+        return MyApp::Json()->dataHandle($course);
+    }
 
     public function create(Request $request): JsonResponse
     {

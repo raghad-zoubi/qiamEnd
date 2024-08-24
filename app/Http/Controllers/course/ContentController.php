@@ -188,7 +188,7 @@ class ContentController extends Controller
             ], 500);
         }
     }
-public function extractFrameg($video_path)
+    public function extractFrameg($video_path)
     {
         // Validate the request input
 

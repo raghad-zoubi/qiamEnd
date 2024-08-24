@@ -59,7 +59,7 @@ class FileController extends Controller
             'status' => 'success',
             'message' => 'Files retrieved successfully.',
             'file' => $file[0]['file']
-                //FileCourses::collection($file)
+            //FileCourses::collection($file)
         ]);
 
 

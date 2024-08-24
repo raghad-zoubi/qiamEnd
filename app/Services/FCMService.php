@@ -4,7 +4,7 @@ namespace App\Services;
 
 use GuzzleHttp\Client;
 
-class FCMService1
+class FCMService
 {
     protected $fcmUrl = 'https://fcm.googleapis.com/fcm/send';
     protected $serverKey;

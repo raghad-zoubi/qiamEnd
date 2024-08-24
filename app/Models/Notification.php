@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method static create(array $array)
+ */
 class Notification extends Model
 {
     use HasFactory;
@@ -12,7 +15,7 @@ class Notification extends Model
     public $table = "notifications";
     public $primaryKey = 'id';
     public $fillable = [
-        'type', 'notifiable', 'data', 'read_at','created_at','updated_at',
+        'body', 'title', 'id_user','created_at','updated_at',
     ];
 
     public $timestamps = true;

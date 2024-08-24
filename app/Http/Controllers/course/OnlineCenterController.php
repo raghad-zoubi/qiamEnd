@@ -72,12 +72,12 @@ class OnlineCenterController extends Controller
 
             $onlineData = Online_Center::with([
                 'online',
-               'content2',
-               'coursepaper.paper',
+                'content2',
+                'coursepaper.paper',
             ])->where('id',$id_online_center)->get();
 
             return response()->json([
-               'data' => DetailsOnlineCopy::collection($onlineData),
+                'data' => DetailsOnlineCopy::collection($onlineData),
             ]);
 
 
@@ -92,7 +92,7 @@ class OnlineCenterController extends Controller
 
 
 
-                }
+    }
     public function detailsCenterCopy($id_online_center)
     {try{
         $onlineData = Online_Center::with([
@@ -100,22 +100,22 @@ class OnlineCenterController extends Controller
         ])->where('id',$id_online_center)->get();
 
         return response()->json([
-         'data' => DetailsCenterCopy::collection($onlineData),
+            'data' => DetailsCenterCopy::collection($onlineData),
             //      'data' => ($onlineData),
         ]);
 
 
     } catch (\Exception $e) {
 
-DB::rollBack();
-throw new \Exception($e->getMessage());
-}
+        DB::rollBack();
+        throw new \Exception($e->getMessage());
+    }
 
 
-return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+        return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
 
 
-}
+    }
     public function deleteCopy($id_online_center)
     {
         if (Online_Center::query()->where("id", $id_online_center)->exists()

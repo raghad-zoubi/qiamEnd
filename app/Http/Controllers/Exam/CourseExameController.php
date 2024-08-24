@@ -17,6 +17,7 @@ use App\Models\CourseExame;
 use App\Models\CoursePaper;
 use App\Models\Exame;
 use App\Models\Information;
+use App\Models\Notification;
 use App\Models\Online;
 use App\Models\Online_Center;
 use App\Models\Option;
@@ -30,6 +31,7 @@ use App\Models\TrackContent;
 use App\Models\UserCertificate;
 use App\Models\Video;
 use App\MyApplication\MyApp;
+use App\Services\FCMService;
 use App\Services\FFmpegService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,10 +47,12 @@ use App\Services\ImageProcessingService;
 class CourseExameController extends Controller
 {
     protected $imageProcessingService;
+    protected $fcmService;
 
-    public function __construct(ImageProcessingService $imageProcessingService)
+
+    public function __construct(ImageProcessingService $imageProcessingService,FCMService $fcmService)
     {        $this->middleware('auth:sanctum');
-
+        $this->fcmService = $fcmService;
         $this->imageProcessingService = $imageProcessingService;
     }
 //count
@@ -71,7 +75,7 @@ class CourseExameController extends Controller
                 'id_online_center' => $idOnlineCenter,
                 'id_user' => Auth::id(),
                 'status' => "1",
-               'can'=> '1'
+                'can'=> '1'
             ])->first();
             if ($booking == null) {
                 return response()->json([
@@ -311,14 +315,14 @@ class CourseExameController extends Controller
                 ->where('id_user', auth()->id())
                 ->where('id_online_center', $can->id_online_center)
                 ->first();
-if(TrackContent::query()->where(
-    "id_content",$id_content)->where(
-    "id_booking",$book->id)->exists()){
-    return response()->json(['error' => 'لا يمكنك التقد لهذا الامتحان مرة اخرى '], 200);
+            if(TrackContent::query()->where(
+                "id_content",$id_content)->where(
+                "id_booking",$book->id)->exists()){
+                return response()->json(['error' => 'لا يمكنك التقد لهذا الامتحان مرة اخرى '], 200);
 
 
 
-}
+            }
             if ($can->exam == 0) {
                 return response()->json(['selectedQuestions' => 'لا يوجد امتحان لهذا المحتوى']);
             }
@@ -396,7 +400,7 @@ if(TrackContent::query()->where(
         // Validate the input data
         $validatedData = $request->validate([
             'id_online_center' => 'required|integer|exists:online_centers,id',
-           // 'id_online' => 'required|integer|exists:onlines,id',
+            // 'id_online' => 'required|integer|exists:onlines,id',
             'options' => 'required|array',
             'options.*.id_question' => 'required|integer|exists:questions,id',
             'options.*.id_option' => 'required|integer|exists:options,id',
@@ -404,14 +408,14 @@ if(TrackContent::query()->where(
 
         // Extract validated data
         $id_online_center = $validatedData['id_online_center'];
-       // $id_online = $validatedData['id_online'];
+        // $id_online = $validatedData['id_online'];
         $options = $validatedData['options'];
 
         try {
             DB::beginTransaction();
 
             $course_onlineCenter = Online_Center::where('id', $id_online_center)
-               // ->where('id_online', $id_online)
+                // ->where('id_online', $id_online)
                 ->first();
 
             if (!$course_onlineCenter) {
@@ -488,7 +492,7 @@ if(TrackContent::query()->where(
                     $booking->count = $booking->count + 1;
                     $booking->can = '0';
                     $booking->mark =$s;
-                        //$correctAnswers . '/' . $totalQuestions;
+                    //$correctAnswers . '/' . $totalQuestions;
                     $booking->save();
 
                     if( ReExam::query()->
@@ -614,7 +618,7 @@ if(TrackContent::query()->where(
         $booking = Booking::where('id_online_center', $id_online_center)
             ->where('id_user', auth()->id())
             ->where('done', '1')
-           // ->where('can', '0')
+            // ->where('can', '0')
             ->where('status', '1')
             ->first();
 
@@ -622,7 +626,7 @@ if(TrackContent::query()->where(
             $userCertificate= UserCertificate::query()->
             where('id_online_center', $id_online_center)
                 ->where('id_user', auth()->id())->
-            first();
+                first();
             if($userCertificate!=null){
                 $coursePaper=  CoursePaper::where('id_online_center', $id_online_center)->first();
                 if ($coursePaper != null) {
@@ -668,7 +672,7 @@ if(TrackContent::query()->where(
         $booking = Booking::where('id_online_center', $id_online_center)
             ->where('id_user', auth()->id())
             ->where('done', '1')
-         //   ->where('can', '0')
+            //   ->where('can', '0')
             ->where('status', '1')
             ->first();
 
@@ -890,11 +894,13 @@ if(TrackContent::query()->where(
             where('id_online_center',$booking->id_online_center)
                 ->first();
             if(!$userCertificate){
+
+                $user = $this->sendNotificationAddMark($id_book);
+
                 $booking->done = '1';
                 $booking->mark =  $request->mark;
                 $booking->can = '0';
                 $booking->save();
-            //    $user = $this->generateCertificate($booking->id_online_center, $booking);
                 DB::commit();
                 return response()->json([
                     "message" => "done",
@@ -914,5 +920,72 @@ if(TrackContent::query()->where(
             return response()->json(['error' => 'حدث خطا ما '], 404);
         }
     }
+    public function sendNotificationAddMark($id_book)
+    {
+
+
+        try {
+            DB::beginTransaction();
+
+
+
+            $partbody = DB::table('booking')->select(
+                'courses.name as course_name',
+                'users.fcm_token as fcm',
+                'profiles.id_user as id_user',
+                'profiles.name as name',
+                DB::raw('DATE(booking.created_at) as createdAtbook'),
+                DB::raw('DATE(online_centers.created_at) as createdAcourse')
+            )
+                ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
+                ->join('courses', 'courses.id', '=', 'online_centers.id_course')
+                ->join('profiles', 'profiles.id_user', '=', 'booking.id_user')
+                ->join('users', 'users.id', '=', 'booking.id_user')
+                ->where('booking.id', $id_book)
+                ->first();
+
+
+            if ($partbody) {
+                $deviceTokens = [
+                    $partbody->fcm];
+
+
+                $body =
+                    ' لقد حصلت على شهادة '. //.$partbody->name .'تهانينا'.
+                    ' لدورة ' . $partbody->course_name .
+                    '  نسخة ' . $partbody->createdAcourse.
+                    'ضمن المركز ';
+
+
+                $title = ' ';
+
+                $data = ['key' => 'value'];
+
+                $adviserAdded = Notification::create([
+                    "title" => $title,
+                    "body" => $body,
+                    "id_user" => $partbody->id_user,
+
+                ]);
+
+                $status = $this->fcmService->sendNotification($deviceTokens, $title, $body, $data);
+
+                DB::commit();
+
+            } else {
+                return response()->json([
+                    'massege' => 'حدث خطا ما ']);
+            }
+
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+    }
+
 
 }

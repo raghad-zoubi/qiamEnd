@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers\BookTrackCer;
+use App\Models\Notification;
+use App\Services\FCMService;
 use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\IndexNewBooking;
@@ -30,9 +32,12 @@ use function PHPUnit\TextUI\executeHelpCommandWhenThereIsNothingElseToDo;
 
 class BookingController extends Controller
 {
-    public function __construct()
+    protected $fcmService;
+    public function __construct(FCMService $fcmService)
     {
         $this->middleware('auth:sanctum');
+
+        $this->fcmService = $fcmService;
     }
 //عرض الحجوزات كلا والموافق عليها و اللي لسا مو محددة حسب الid_onlinecenter
     //dash
@@ -132,12 +137,22 @@ class BookingController extends Controller
                                 'done' => "0",
                             ]);
                         }
+                        $user=$this->sendNotificationBooking($ad->id, 1);
+
                         DB::commit();
                         return MyApp::Json()->dataHandle("bookin successfully", "date");
-                    } else {
+                    }
+                    else  if ($request->status == '0'){
+                        $user=$this->sendNotificationBooking($ad->id, 0);
+
                         $ad = Booking::query()->where("id", $request->id)->delete();
                         DB::commit();
                         return MyApp::Json()->dataHandle("unbooking successfully", "date");
+                    }
+                    if ($request->status == '2')
+                    {
+                        $user=$this->sendNotificationBooking($ad->id, 2);
+
                     }
                 }
 
@@ -154,7 +169,84 @@ class BookingController extends Controller
 
     }
 
+    public function sendNotificationBooking($id_book, $status)
+    {
 
+
+        try {
+            DB::beginTransaction();
+
+
+            $partbody = DB::table('booking')->select(
+                'courses.name as course_name',
+                'users.fcm_token as fcm',
+                'profiles.id_user as id_user',
+                'profiles.name as name',
+                DB::raw('DATE(booking.created_at) as createdAtbook'),
+                DB::raw('DATE(online_centers.created_at) as createdAcourse')
+            )
+                ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
+                ->join('courses', 'courses.id', '=', 'online_centers.id_course')
+                ->join('profiles', 'profiles.id_user', '=', 'booking.id_user')
+                ->join('users', 'users.id', '=', 'booking.id_user')
+                ->where('booking.id', $id_book)
+                ->first();
+
+
+            if ($partbody) {
+                $deviceTokens = [
+                    $partbody->fcm];
+                if ($status == 2) {
+                    $body =
+                        ' لقد قمت بطلب حجز لدورة ' . $partbody->course_name .
+                        ' نسخة ' . $partbody->createdAcourse .
+                        ' بتاريخ ' . $partbody->createdAtbook;
+
+                    $title = 'تذكير';
+                } else if ($status == 1) {
+                    $body =
+                        ' لقد تمت الموافقة على حجزك لدورة ' . $partbody->course_name .
+                        ' نسخة ' . $partbody->createdAcourse .
+                        'المقدم بتاريخ ' . $partbody->createdAtbook;
+
+                    $title = ' ';
+                } else if ($status == 0) {
+                    $body =
+                        ' لقد تم رفض  حجزك لدورة ' . $partbody->course_name .
+                        ' نسخة ' . $partbody->createdAcourse .
+                        'المقدم بتاريخ ' . $partbody->createdAtbook;
+
+
+                    $title = ' ';
+                }
+
+                $data = ['key' => 'value'];
+
+                $adviserAdded = Notification::create([
+                    "title" => $title,
+                    "body" => $body,
+                    "id_user" => $partbody->id_user,
+
+                ]);
+
+                $status = $this->fcmService->sendNotification($deviceTokens, $title, $body, $data);
+
+                DB::commit();
+
+            } else {
+                return response()->json([
+                    'massege' => 'حدث خطا ما ']);
+            }
+
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+
+
+    }
     // user
     public function book($id)
     {

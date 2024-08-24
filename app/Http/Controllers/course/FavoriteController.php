@@ -17,7 +17,7 @@ class FavoriteController extends Controller
 {
     public function __construct()
     {
-       // $this->middleware('auth:sanctum');
+        $this->middleware('auth:sanctum');
     }
 
     public function create( $id )
@@ -34,7 +34,7 @@ class FavoriteController extends Controller
             'id_user' => Auth::id()
         ])->first();
         if (!is_null($favorite)) {
-            Auth::user()->favorite()->where('id_online_center', $id,)->delete();
+            Auth::user()->favorite()->where('id_online_center', $id)->delete();
             //  $favorite->delete();
             return response()->json([
                 "message" => "delete  favorite",
@@ -59,7 +59,6 @@ class FavoriteController extends Controller
             $favoriteOnlineCenterIds = Favorite::where('id_user', Auth::id())
                 ->pluck('id_online_center');
 
-            // Create a subquery to calculate average rates
             $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
                 ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
                 ->groupBy('online_centers.id')
@@ -72,7 +71,6 @@ class FavoriteController extends Controller
                 ->whereIn('online_centers.id', $favoriteOnlineCenterIds) // Only fetch favorite courses
                 ->with(['course', 'center'])
                 ->get();
-
             return response()->json([
                 'data' => AllCourses::collection($courses),
             ]);

@@ -35,7 +35,7 @@ class CoursController extends Controller
 {
     public function __construct()
     {
-       $this->middleware(["auth:sanctum"]);//, "multi.auth:2|1|0"]);
+        $this->middleware(["auth:sanctum"]);//, "multi.auth:2|1|0"]);
         $this->rules = new CoursesRuleValidation();
     }
 
@@ -88,29 +88,29 @@ class CoursController extends Controller
             $oldPath = $file->photo;
 
             $newFile = $request->file("photo");
-        if ($newFile->isValid()) {
-            try {
-                DB::beginTransaction();
+            if ($newFile->isValid()) {
+                try {
+                    DB::beginTransaction();
 
-                $photoPath = $newFile->store('file'); // The file will be stored in the 'public/Uploads' directory
+                    $photoPath = $newFile->store('file'); // The file will be stored in the 'public/Uploads' directory
 
-              $file->update([
-                    "teacher" => ($request->teacher),
-                    "text" => ($request->text),
-                    "about" => strtolower($request->about),
-                    "name" => strtolower($request->name),
-                    "photo" => $photoPath,
-                ]);
+                    $file->update([
+                        "teacher" => ($request->teacher),
+                        "text" => ($request->text),
+                        "about" => strtolower($request->about),
+                        "name" => strtolower($request->name),
+                        "photo" => $photoPath,
+                    ]);
 
-                if (MyApp::uploadFile()->deleteFile($oldPath)) {
-                    DB::commit();
-                    return MyApp::Json()->dataHandle("Successfully updated course.", "data");
+                    if (MyApp::uploadFile()->deleteFile($oldPath)) {
+                        DB::commit();
+                        return MyApp::Json()->dataHandle("Successfully updated course.", "data");
+                    }
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    throw new \Exception($e->getMessage(), $e->getCode());
                 }
-            } catch (\Exception $e) {
-                DB::rollBack();
-                throw new \Exception($e->getMessage(), $e->getCode());
-            }
-        }}
+            }}
         else   if (is_string($request->photo)){
             try {
                 DB::beginTransaction();
@@ -122,8 +122,8 @@ class CoursController extends Controller
                     "photo" =>strtolower($request->photo),
                 ]);
 
-                    DB::commit();
-                    return MyApp::Json()->dataHandle("Successfully updated course.", "data");
+                DB::commit();
+                return MyApp::Json()->dataHandle("Successfully updated course.", "data");
 
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -191,33 +191,68 @@ class CoursController extends Controller
 
 
 //--------user home
+//    public function common(): JsonResponse
+//    {
+//        try {
+//            $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
+//                ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
+//                ->
+//                groupBy('online_centers.id')
+//                ->getQuery();
+//            $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
+//                $join->on('online_centers.id', '=', 'subquery.id');
+//            })->with(['course', 'online', 'center'])
+//                ->orderBy('subquery.avg_rate', 'desc')
+//                ->paginate(10);
+//            return response()->json([
+//                'data' => CommonCourses::collection($courses),
+//            ]);
+//        } catch (\Exception $e) {
+//
+//            DB::rollBack();
+//            throw new \Exception($e->getMessage());
+//        }
+//
+//
+//        return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
+//
+//
+//    }
+
+
     public function common(): JsonResponse
     {
         try {
+            // Subquery to calculate the average rating for each online_center
             $ratesSubquery = Online_Center::leftJoin('rates', 'online_centers.id', '=', 'rates.id_online_center')
                 ->selectRaw('online_centers.id, COALESCE(SUM(rates.value) / COUNT(rates.value), 0) as avg_rate')
-                ->
-                groupBy('online_centers.id')
+                ->groupBy('online_centers.id')
                 ->getQuery();
+
+            // Main query with necessary filtering
             $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
                 $join->on('online_centers.id', '=', 'subquery.id');
-            })->with(['course', 'online', 'center'])
+            })
+                ->with(['course'])
+                ->whereHas('online', function ($query) {
+                    $query->where('isopen', '=', '1');
+                })
+                ->orWhereHas('center', function ($query) {
+                    $query->where('start', '<=', now())
+                        ->where('end', '>=', now());
+                }) // Include courses associated with a center that are active
                 ->orderBy('subquery.avg_rate', 'desc')
                 ->paginate(10);
+
             return response()->json([
                 'data' => CommonCourses::collection($courses),
             ]);
         } catch (\Exception $e) {
-
             DB::rollBack();
             throw new \Exception($e->getMessage());
         }
-
-
-        return MyApp::Json()->errorHandle("data", "حدث خطا ما في الحذف  لديك ");//,$prof->getErrorMessage);
-
-
     }
+
 
     public function all(): JsonResponse
     {
@@ -229,8 +264,15 @@ class CoursController extends Controller
 
             $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
                 $join->on('online_centers.id', '=', 'subquery.id');
-            })->with(['course', 'online', 'center'])->paginate(10);
-
+            })
+            ->with(['course'])
+                ->whereHas('online', function ($query) {
+                    $query->where('isopen', '=', '1');
+                })
+                ->orWhereHas('center', function ($query) {
+                    $query->where('start', '<=', now())
+                        ->where('end', '>=', now());
+                }) ->paginate(20);
 
             return response()->json([
                 'data' => AllCourses::collection($courses),
@@ -258,14 +300,27 @@ class CoursController extends Controller
                 $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
                     $join->on('online_centers.id', '=', 'subquery.id');
                 })->where('online_centers.id_center', '=', null)
-                    ->with(['course', 'online', 'center'])
+                    ->with(['course'])
+                    ->whereHas('online', function ($query) {
+                        $query->where('isopen', '=', '1');
+                    })
+
+
                     ->get();
             else if ($type == 'center')
+                $mytime = Carbon::now();
 
                 $courses = Online_Center::joinSub($ratesSubquery, 'subquery', function ($join) {
                     $join->on('online_centers.id', '=', 'subquery.id');
                 })->where('online_centers.id_online', '=', null)
-                    ->with(['course', 'center'])->get();
+                    ->with(['course'])
+                    ->WhereHas('center', function ($query) use ($mytime) {
+                        $query->where('start', '<',  $mytime->toDateTimeString())
+                            ->where('end', '>', $mytime->toDateTimeString());})
+                    ->get();
+
+
+
 
             return response()->json([
                 'data' => AllCourses::collection($courses),

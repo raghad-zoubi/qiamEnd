@@ -2,27 +2,54 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
 
-class FCMService
+class FCMService1
 {
-    public static function send($token, $notification)
+    protected $fcmUrl = 'https://fcm.googleapis.com/fcm/send';
+    protected $serverKey;
+
+    public function __construct()
     {
-      // dd($token);
-        try{
-        Http::acceptJson()->withToken(config('fcm.token'))->post(
-            'https://fcm.googleapis.com/fcm/send',
-            [
-                'to' => $token,
-                'notification' => $notification,
-            ]
-        );
-    }catch (\Exception $e) {
-
-
-            throw new \Exception($e->getMessage());
-        }
+        $this->serverKey = env('FCM_SERVER_KEY');
     }
 
+    /**
+     * Send a notification via FCM
+     *
+     * @param  array  $tokens  List of device tokens
+     * @param  string $title   Notification title
+     * @param  string $body    Notification body
+     * @param  array  $data    Additional data payload (optional)
+     * @return void
+     */
+    public function sendNotification(array $tokens, string $title, string $body, array $data = [])
+    {
+        $client = new Client();
+
+        $notification = [
+            'title' => $title,
+            'body' => $body,
+            'sound' => 'default'
+        ];
+
+        $payload = [
+            'registration_ids' => $tokens,  // Can also use 'to' => token for a single device
+            'notification' => $notification,
+            'data' => $data,
+            'priority' => 'high',
+        ];
+
+        $headers = [
+            'Authorization' => 'key=' . $this->serverKey,
+            'Content-Type' => 'application/json',
+        ];
+
+        $response = $client->post($this->fcmUrl, [
+            'headers' => $headers,
+            'json' => $payload,
+        ]);
+
+        return $response->getStatusCode();
+    }
 }

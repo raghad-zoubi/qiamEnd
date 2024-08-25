@@ -44,7 +44,7 @@ class ReExamController extends Controller
                 })
                 ->join('online_centers', 'online_centers.id', '=', 'booking.id_online_center')
                 ->join('courses', 'courses.id', '=', 'online_centers.id_course')
-                ->join('profiles', 'profiles.id_user', '=', auth()->id())
+                ->join('profiles', 'profiles.id_user', '=', 're_exams.id_user')
                 ->get();
 
             DB::commit();

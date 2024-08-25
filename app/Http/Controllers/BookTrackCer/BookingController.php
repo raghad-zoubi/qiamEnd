@@ -228,8 +228,8 @@ class BookingController extends Controller
                     "id_user" => $partbody->id_user,
 
                 ]);
-
                 $status = $this->fcmService->sendNotification($deviceTokens, $title, $body, $data);
+              //  dd($status);
 
                 DB::commit();
 
